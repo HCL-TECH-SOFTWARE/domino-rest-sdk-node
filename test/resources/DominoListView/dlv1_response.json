@@ -1,0 +1,42 @@
+{
+  "@unid": "86C72C1BF64B6DF04825847100373215",
+  "@name": "Customers",
+  "@alias": [],
+  "@noteid": 382,
+  "$0": {
+    "title": "#",
+    "formula": "@DocNumber",
+    "position": 0
+  },
+  "$1": {
+    "title": "Created",
+    "formula": "@Created",
+    "position": 1
+  },
+  "last_name": {
+    "title": "LastName",
+    "formula": "",
+    "position": 2
+  },
+  "first_name": {
+    "title": "FirstName",
+    "formula": "",
+    "position": 3
+  },
+  "email": {
+    "title": "eMail",
+    "formula": "",
+    "position": 4
+  },
+  "Color": {
+    "title": "Color",
+    "formula": "",
+    "position": 5
+  },
+  "Pet": {
+    "title": "Pet",
+    "formula": "",
+    "position": 6
+  },
+  "@selectionFormula": "SELECT (Form = \"Customer\" | Form = \"Customer2\")"
+}

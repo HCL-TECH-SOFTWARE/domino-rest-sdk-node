@@ -1,0 +1,25 @@
+{
+  "name": "@hcl-software/domino-rest-samples",
+  "version": "0.0.1",
+  "description": "Samples on how to use the Domino REST API Node SDK.",
+  "main": "index.js",
+  "engines": {
+    "node": ">18.0.0"
+  },
+  "scripts": {
+    "test": "echo \"These are samples, no tests.\" && exit 1"
+  },
+  "dependencies": {
+    "@hcl-software/domino-rest-node-sdk": "../dist"
+  },
+  "keywords": [
+    "domino",
+    "rest"
+  ],
+  "author": "Stephan Wissel <stephan.wissel@hcl-software.com>",
+  "contributors": [
+    "Alec Vincent Bardiano <alecvincent.bardiano@hcl-software.com>",
+    "Emmanuel Ryan Gamlanga <emmanuelryan.gamla@hcl-software.com>"
+  ],
+  "license": "Apache-2.0"
+}

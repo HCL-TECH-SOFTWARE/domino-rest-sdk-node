@@ -1,0 +1,44 @@
+[
+  {
+    "title": "($All)",
+    "isFolder": false,
+    "alias": [],
+    "unid": "0E35D520A1EBBB5B48258435003E8284"
+  },
+  {
+    "title": "($Trash)",
+    "isFolder": true,
+    "alias": ["Trash"],
+    "unid": "716FEA504C06FD2A482588840034086A"
+  },
+  {
+    "title": "ChineseCustomers",
+    "isFolder": false,
+    "alias": [],
+    "unid": "3FE5CD63E179F21600258680006DB25B"
+  },
+  {
+    "title": "Customers",
+    "isFolder": false,
+    "alias": [],
+    "unid": "86C72C1BF64B6DF04825847100373215"
+  },
+  {
+    "title": "Important Stuff",
+    "isFolder": true,
+    "alias": [],
+    "unid": "C2D03996ADA9F306482588840035BB23"
+  },
+  {
+    "title": "MarketingInfo",
+    "isFolder": false,
+    "alias": [],
+    "unid": "10EA9EC66EA748BC4825851100420810"
+  },
+  {
+    "title": "Samples",
+    "isFolder": false,
+    "alias": [],
+    "unid": "5318911D496571410025860D00544B17"
+  }
+]

@@ -1,0 +1,5 @@
+[
+  {
+    "explainResult": "\n\nQuery Processed:\n[form = 'Customer' and Color = 'Maroon']\n\n0. AND   \t (childct 2) (totals when complete:) Prep 0.0 msecs, Exec 99.146 msecs, ScannedDocs 20183, Entries 0, FoundDocs 271\n\t1.form = 'Customer' NSF document search estimated cost = 50  \n\t\tPrep 0.39 msecs, Exec 99.141 msecs, ScannedDocs 20183, Entries 0, FoundDocs 7429\n\t1.Color = 'Maroon' NSF document search estimated cost = 50  \n\t\tPrep 0.135 msecs, Exec 0.0 msecs, ScannedDocs 7429, Entries 0, FoundDocs 271\n\n******************\n"
+  }
+]

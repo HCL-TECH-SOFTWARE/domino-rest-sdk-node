@@ -1,0 +1,6 @@
+{
+  "iss": "Domino REST API Mocha Tests",
+  "scope": "$DATA",
+  "aud": "Domino",
+  "expSeconds": 3000
+}

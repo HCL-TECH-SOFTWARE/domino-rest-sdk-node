@@ -1,0 +1,28 @@
+{
+  "@meta": {
+    "noteid": 2394,
+    "unid": "0EF6DDD8A53754C800258A1B00653B42",
+    "created": "2023-08-30T18:25:43.06Z",
+    "lastmodified": "2023-08-30T18:25:43.08Z",
+    "lastaccessed": "2023-08-30T18:25:43.08Z",
+    "lastmodifiedinfile": "2023-08-30T18:25:43.09Z",
+    "addedtofile": "2023-08-30T18:25:43.08Z",
+    "noteclass": ["DATA", "DOCUMENT"],
+    "unread": true,
+    "editable": true,
+    "revision": "0000000100653B4400258A1B"
+  },
+  "maximumAccessLevel": "Manager",
+  "apiName": "demoapi",
+  "nsfPath": "Demo.nsf",
+  "schemaName": "",
+  "server": "*",
+  "isActive": true,
+  "description": "The famous demo database",
+  "createSchema": 0.0,
+  "icon": "Base64 stuff, preferably SVG",
+  "iconName": "beach",
+  "Form": "KeepDatabase",
+  "Type": "KeepDatabase",
+  "$UpdatedBy": ["CN=E2E Admin/O=KeepE2E"]
+}

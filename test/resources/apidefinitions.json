@@ -1,0 +1,37 @@
+{
+    "basis": {
+        "fileName": "/schema/openapi.basis.json",
+        "name": "basis",
+        "title": "HCL Domino REST API basis",
+        "version": "1.1.1",
+        "mountPath": "/api/v1"
+    },
+    "admin": {
+        "fileName": "/schema/openapi.admin.json",
+        "name": "admin",
+        "title": "HCL Domino REST API admin",
+        "version": "1.0.2",
+        "mountPath": "/api/admin-v1"
+    },
+    "pim": {
+        "fileName": "/schema/openapi.pim.json",
+        "name": "pim",
+        "title": "HCL Domino REST API PIM",
+        "version": "1.0.1",
+        "mountPath": "/api/pim-v1"
+    },
+    "poi": {
+        "fileName": "/schema/openapi.poi.json",
+        "name": "poi",
+        "title": "HCL Domino REST API poi",
+        "version": "1.0.3",
+        "mountPath": "/api/poi-v1"
+    },
+    "setup": {
+        "fileName": "/schema/openapi.setup.json",
+        "name": "setup",
+        "title": "HCL Domino REST API setup",
+        "version": "1.1.0",
+        "mountPath": "/api/setup-v1"
+    }
+}

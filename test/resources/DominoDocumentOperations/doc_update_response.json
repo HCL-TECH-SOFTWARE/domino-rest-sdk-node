@@ -1,0 +1,21 @@
+{
+  "@meta": {
+    "noteid": 2314,
+    "unid": "48CAD0599A85856D00258A04004CACFA",
+    "created": "2023-08-07T13:57:30.18Z",
+    "lastmodified": "2023-08-07T13:57:30.19Z",
+    "lastaccessed": "2023-08-07T13:57:30.19Z",
+    "lastmodifiedinfile": "2023-08-07T13:57:30.2Z",
+    "addedtofile": "2023-08-07T13:57:30.19Z",
+    "noteclass": ["DATA", "DOCUMENT"],
+    "unread": true,
+    "editable": true,
+    "revision": "00000001004CACFB00258A04",
+    "size": 431
+  },
+  "category": ["My", "Favorite", "Category"],
+  "name": "Jane Doe",
+  "age": 39,
+  "Form": "Customer",
+  "@warnings": ["No values found for item website"]
+}

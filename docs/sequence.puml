@@ -1,0 +1,24 @@
+@startuml SDK sequence
+
+participant DominoDocument as doc
+participant DominoListInstance as dli
+participant ScopeInstance as sic
+participant DominoSession as ds
+participant DominoAccess as dac
+queue DominoRestConnector as drc
+boundary "node-fetch" as nf
+database KEEP as keep
+
+dac -> nf
+ds -> dac
+ds -> drc
+drc -> nf
+nf <-> keep
+sic -> ds
+sic --> drc
+dli -> sic
+dli --> drc : fetch list entries
+doc -> sic
+doc -> dli
+doc <--> drc : CRUD on doc
+@enduml

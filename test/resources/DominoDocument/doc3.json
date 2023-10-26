@@ -1,0 +1,23 @@
+{
+  "@meta": {
+    "noteid": 2326,
+    "unid": "AD5F73410EB2560500258A040054DEFC",
+    "created": "2023-08-07T15:27:01.08Z",
+    "lastmodified": "2023-08-07T15:27:01.09Z",
+    "lastaccessed": "2023-08-07T15:27:01.09Z",
+    "lastmodifiedinfile": "2023-08-07T15:27:01.1Z",
+    "addedtofile": "2023-08-07T15:27:01.09Z",
+    "noteclass": ["DATA", "DOCUMENT"],
+    "unread": true,
+    "editable": true,
+    "revision": "000000010054DEFD00258A04",
+    "size": 471
+  },
+  "Form": "Customer",
+  "@warnings": [
+    "No values found for item category",
+    "No values found for item name",
+    "No values found for item age",
+    "No values found for item website"
+  ]
+}

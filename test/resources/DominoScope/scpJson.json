@@ -1,0 +1,11 @@
+{
+  "apiName": "demoapi",
+  "schemaName": "demoapi",
+  "nsfPath": "Demo.nsf",
+  "maximumAccessLevel": "Manager",
+  "server": "*",
+  "isActive": true,
+  "description": "The famous demo database",
+  "icon": "Base64 stuff, preferably SVG",
+  "iconName": "beach"
+}

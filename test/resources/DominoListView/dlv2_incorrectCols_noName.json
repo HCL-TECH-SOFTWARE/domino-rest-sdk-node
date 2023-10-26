@@ -1,0 +1,19 @@
+{
+  "columns": [
+    {
+      "formula": "email",
+      "name": "email",
+      "separatemultiplevalues": false,
+      "sort": "ascending",
+      "title": "email"
+    },
+    {
+      "formula": "name",
+      "separatemultiplevalues": false,
+      "sort": "ascending",
+      "title": "name"
+    }
+  ],
+  "name": "newentries",
+  "selectionFormula": "Form = \"NewEntry\""
+}

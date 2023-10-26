@@ -1,0 +1,62 @@
+{
+  "name": "@hcl-software/domino-rest-node-sdk",
+  "version": "0.0.1",
+  "description": "NodeJS library to interact with a HCL Domino compatible REST API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">18.0.0"
+  },
+  "publishConfig": {
+    "@hcl:registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
+    "build": "tsc",
+    "postbuild": "npm run test",
+    "prepublish": "npm run build",
+    "start": "node .",
+    "test": "nyc --reporter=html --reporter=text mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HCL-TECH-SOFTWARE/domino-rest-node-sdk.git"
+  },
+  "keywords": [
+    "domino",
+    "rest",
+    "ts"
+  ],
+  "author": "Stephan Wissel <stephan.wissel@hcl-software.com>",
+  "contributors": [
+    "Alec Vincent Bardiano <alecvincent.bardiano@hcl-software.com>",
+    "Emmanuel Ryan Gamlanga <emmanuelryan.gamla@hcl-software.com>"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/HCL-TECH-SOFTWARE/domino-rest-node-sdk/issues"
+  },
+  "homepage": "https://github.com/HCL-TECH-SOFTWARE/domino-rest-node-sdk#readme",
+  "devDependencies": {
+    "@types/chai": "^4.3.5",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.4.5",
+    "@types/sinon": "^10.0.15",
+    "chai": "^4.3.7",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "sinon": "^15.2.0",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.1"
+  }
+}

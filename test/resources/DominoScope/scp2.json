@@ -1,0 +1,10 @@
+{
+  "apiName": "demoapi",
+  "schemaName": "demoapi",
+  "nsfPath": "Demo.nsf",
+  "server": "frascati.projectkeep.io",
+  "isActive": true,
+  "description": "The famous demo database",
+  "icon": "Base64 stuff, preferably SVG",
+  "iconName": "beach"
+}

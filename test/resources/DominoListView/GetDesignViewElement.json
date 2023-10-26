@@ -1,0 +1,17 @@
+{
+  "@unid": "C2368697CA14DB5D00258A27006906CD",
+  "@name": "SampleViewHehe",
+  "@alias": [],
+  "@noteid": 105662,
+  "email": {
+    "title": "email",
+    "formula": "",
+    "position": 0
+  },
+  "name": {
+    "title": "name",
+    "formula": "",
+    "position": 1
+  },
+  "@selectionFormula": "SELECT Form = \"NewEntry\""
+}
