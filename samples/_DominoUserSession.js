@@ -7,7 +7,7 @@
  * for other JavaScript files to use. It uses both Domino access and Domino server
  * exported from _DominoAccess and _DominoServer. */
 
-const { DominoUserSession } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoUserSession } = require('@hcl-software/domino-rest-sdk-node');
 const { dominoAccess } = require('./_DominoAccess.js');
 const { dominoServer } = require('./_DominoServer.js');
 

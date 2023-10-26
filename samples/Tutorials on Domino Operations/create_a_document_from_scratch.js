@@ -10,7 +10,7 @@
  * This example uses createDocument method, but all other operations can also
  * apply to this example, as long as the correct parameters are given. */
 
-const { DominoAccess, DominoServer, DominoUserSession } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoAccess, DominoServer, DominoUserSession } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('../resources/credentials');
 
 const start = async () => {

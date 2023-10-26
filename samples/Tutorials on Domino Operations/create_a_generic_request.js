@@ -18,7 +18,7 @@
  * and then perform the 'getDocumentMetadata' operation to it using the generic
  * request method. */
 
-const { DominoAccess, DominoServer, DominoUserSession } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoAccess, DominoServer, DominoUserSession } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('../resources/credentials');
 
 const start = async () => {

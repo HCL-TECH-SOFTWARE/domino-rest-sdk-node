@@ -5,7 +5,7 @@
 
 /* Get expiry of current access in seconds. */
 
-const { DominoAccess } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoAccess } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('../resources/credentials');
 
 const dominoAccess = new DominoAccess(getCredentials());

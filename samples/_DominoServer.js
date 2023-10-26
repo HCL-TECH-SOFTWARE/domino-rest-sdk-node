@@ -6,7 +6,7 @@
 /* Creates and exports a Domino server for other JavaScript files to use. It uses
  * the base URL from the created Domino access in _DominoAccess. */
 
-const { DominoServer } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoServer } = require('@hcl-software/domino-rest-sdk-node');
 const { dominoAccess } = require('./_DominoAccess');
 
 exports.dominoServer = new DominoServer(dominoAccess.baseUrl);

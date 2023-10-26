@@ -2,7 +2,7 @@
 
 Domino REST API Node.js SDK is a library that can help Node.js developers to build applications that uses Domino REST API. Domino REST API Node.js SDK also supports TypeScript.
 
-[![npm](https://nodei.co/npm/@hcl-software/domino-rest-node-sdk.png)](https://www.npmjs.com/package/@hcl-software/domino-rest-node-sdk)
+[![npm](https://nodei.co/npm/@hcl-software/domino-rest-sdk-node.png)](https://www.npmjs.com/package/@hcl-software/domino-rest-sdk-node)
 
 ## 📔 Documentation
 
@@ -14,7 +14,7 @@ Domino REST API Node.js SDK is a library that can help Node.js developers to bui
 First, have a running Domino REST API server, and next, install [Node.js](https://nodejs.org/en). Make sure the version is `>18.0.0` as Domino REST API Node.js uses the native `fetch` method available on that version. Then run:
 
 ```sh
-npm install @hcl-software/domino-rest-node-sdk
+npm install @hcl-software/domino-rest-sdk-node
 ```
 
 ## ⭐ Highlights
@@ -43,20 +43,20 @@ You can import the whole SDK via:
 
 ```javascript
 // Using Node.js `require()`
-const sdk = require('@hcl-software/domino-rest-node-sdk');
+const sdk = require('@hcl-software/domino-rest-sdk-node');
 
 // Using ES6 imports
-import sdk from '@hcl-software/domino-rest-node-sdk';
+import sdk from '@hcl-software/domino-rest-sdk-node';
 ```
 
 Or, you can import only the modules that you need, like:
 
 ```javascript
 // Using Node.js `require()`
-const { DominoAccess } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoAccess } = require('@hcl-software/domino-rest-sdk-node');
 
 // Using ES6 imports
-import { DominoAccess } from '@hcl-software/domino-rest-node-sdk';
+import { DominoAccess } from '@hcl-software/domino-rest-sdk-node';
 ```
 
 ## 🔬 Overview

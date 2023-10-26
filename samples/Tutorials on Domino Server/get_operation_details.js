@@ -7,7 +7,7 @@
  * This comes pretty handy when you want to check out the parameters for an
  * operation. */
 
-const { DominoAccess, DominoServer } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoAccess, DominoServer } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('../resources/credentials');
 
 const start = async () => {

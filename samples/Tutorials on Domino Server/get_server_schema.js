@@ -5,7 +5,7 @@
 
 /* Fetch available APIs on the Domino REST API server. */
 
-const { DominoServer } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoServer } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('../resources/credentials');
 
 const credentials = getCredentials();

@@ -7,7 +7,7 @@
  * the getCredentials utility functions to get the credentials set in the environment.
  * Be it on a .env or credentials.json. */
 
-const { DominoAccess } = require('@hcl-software/domino-rest-node-sdk');
+const { DominoAccess } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('./resources/credentials');
 
 exports.dominoAccess = new DominoAccess(getCredentials());
