@@ -10,9 +10,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prepare keys for Tests
         run: |
-         chmod +x ./test/preparekeys.sh
-         ./test/preparekeys.sh
-         shell: bash
+          chmod +x ./test/preparekeys.sh
+          ./test/preparekeys.sh
+        shell: bash
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
         with:
