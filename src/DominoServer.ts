@@ -40,6 +40,8 @@ export type DominoApiMeta = {
  * @author <emmanuelryan.gamla@hcl.software>
  * @author <alecvincent.bardiano@hcl.software>
  */
+
+
 export class DominoServer implements DominoRestServer {
   baseUrl: string;
   /**
@@ -92,6 +94,13 @@ export class DominoServer implements DominoRestServer {
     return Array.from(this.apiMap.keys());
   };
 
+
+  availableOperations = async (apiName: string): Promise<Map<string,any>> => {
+    const dc: DominoConnector = await this.getDominoConnector(apiName);
+    const operations = await dc.getOperations();
+    return Promise.resolve(operations);
+
+  }
   getDominoConnector = async (apiName: string): Promise<DominoConnector> => {
     if (this.apiMap.size == 0) {
       await this._apiLoader();
