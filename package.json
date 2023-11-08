@@ -1,6 +1,6 @@
 {
   "name": "@hcl-software/domino-rest-sdk-node",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "NodeJS library to interact with a HCL Domino compatible REST API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,8 +14,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
     "build": "tsc",
-    "postbuild": "npm run test",
-    "prepublish": "npm run build",
+    "prepublish": "npm run build && npm run test",
     "start": "node .",
     "test": "nyc --reporter=html --reporter=text mocha"
   },
