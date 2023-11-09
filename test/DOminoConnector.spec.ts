@@ -54,6 +54,11 @@ describe('The DominoConnector is the interface to one API', () => {
       fetchStub.rejects('Error message');
       return expect(baseConnector.getOperation('createDocument')).to.eventually.rejectedWith('Error message');
     });
+
+    it('should throw an error if something fails', () => {
+      fetchStub.rejects('Error message');
+      return expect(baseConnector.getOperations()).to.eventually.rejectedWith('Error message');
+    });
   });
 
   describe('request', () => {
@@ -327,9 +332,17 @@ describe('The DominoConnector is the interface to one API', () => {
       body: 'Stuff in the body',
     };
     params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
-    let result: any = await baseConnector.getFetchOptions(fakeToken, operation, request);
+    let result = await baseConnector.getFetchOptions(fakeToken, operation, request);
     expect(result).to.have.property('headers');
     expect(result.headers).to.have.property('Content-Type', 'multipart/form-data');
     expect(result.headers).to.have.property('Authorization', 'Bearer THE TOKEN');
+  });
+
+  it('should return all of the operations on basis', async () => {
+    let result = await baseConnector.getOperations();
+    expect(result).to.not.equal(null);
+    expect(result.size).to.equal(58);
+    let result2 = await baseConnector.getOperations();
+    expect(result).to.deep.equal(result2);
   });
 });

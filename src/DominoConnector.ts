@@ -14,6 +14,7 @@ export type DominoRestOperation = {
   url: string;
   params: Map<string, any>;
   mimeType?: string;
+  [key: string]: any;
 };
 
 /**
@@ -118,6 +119,13 @@ export class DominoConnector implements DominoRestConnector {
             url: url,
             params: params,
           };
+
+          for (const key of Object.keys(path[method])) {
+            if (key === 'operationId' || key === 'parameters') {
+              continue;
+            }
+            operation[key] = path[method][key];
+          }
 
           if (path[method].requestBody && path[method].requestBody.content) {
             operation.mimeType = Object.keys(path[method].requestBody.content)[0];
@@ -239,6 +247,17 @@ export class DominoConnector implements DominoRestConnector {
       return Promise.resolve(this.schema.get(operationId));
     }
     throw new Error(`OperationId ${operationId} is not available`);
+  }
+
+  public async getOperations() {
+    if (this.schema.size == 0) {
+      try {
+        await this._apiLoader();
+      } catch (err: any) {
+        throw new Error(err);
+      }
+    }
+    return Promise.resolve(this.schema);
   }
 
   getFetchOptions = (dominoAccess: DominoAccess, operation: DominoRestOperation, request: DominoRequestOptions): Promise<any> =>

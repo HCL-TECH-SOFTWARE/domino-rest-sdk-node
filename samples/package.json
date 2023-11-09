@@ -1,6 +1,6 @@
 {
   "name": "@hcl-software/domino-rest-samples",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Samples on how to use the Domino REST API Node SDK.",
   "main": "index.js",
   "engines": {

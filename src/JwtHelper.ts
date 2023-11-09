@@ -19,8 +19,6 @@ type SampleJWT = {
   exp?: number;
 };
 
-const privateKey = fs.readFileSync('./.testcerts/private.key');
-
 const signOptions: jwt.SignOptions = {
   algorithm: 'RS256',
   expiresIn: `${template.expSeconds}s`,
@@ -36,6 +34,7 @@ const signOptions: jwt.SignOptions = {
  * @returns the signed sample JWT token.
  */
 export const getSampleJWT = (user: string): SampleJWT => {
+  const privateKey = fs.readFileSync('./.testcerts/private.key');
   const claim = { sub: user, CN: user, ...template };
   const bearer = jwt.sign(claim, privateKey, signOptions);
   return { bearer: bearer, ...claim };

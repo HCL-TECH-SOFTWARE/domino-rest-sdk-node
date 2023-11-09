@@ -100,4 +100,42 @@ describe('Domino server with API definitions', () => {
       expect(baseConnector).to.eventually.rejectedWith('API tango not available on this server').notify(done);
     });
   });
+
+  describe('Loading available operations on a Server using an apiName of a Connector', () => {
+    let stub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
+    let apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
+    let operationDefinitions =  JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
+
+    beforeEach(() => {
+      stub = sinon.stub(global, 'fetch');
+      stub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(apiDefinitions))));
+      stub.onSecondCall().returns(Promise.resolve(new Response(JSON.stringify(operationDefinitions))));
+    });
+
+    afterEach(() => {
+      stub.restore();
+    });
+
+    it('should return 58 keys', async () => {
+      let server = new DominoServer('http://localhost:8880');
+      let ops = await server.availableOperations('basis');
+      expect(ops.size).to.equal(58);
+    });
+
+    
+    it('should throw an eror when operationsLoader fails', async () => {
+      let server = new DominoServer('http://localhost:8880');
+      stub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(apiDefinitions))));
+      // stub.onSecondCall().returns(Promise.reject("Retrieving DominoConnector Failed."));
+      try {
+        await server.availableOperations("tango");
+        expect.fail('Expected an error to be thrown');
+      } catch (error: any) {
+        // Use 'any' as a last resort
+        expect((error as Error).message).to.equal('API tango not available on this server');
+      } finally {
+        stub.restore();
+      }
+    });
+  });
 });
