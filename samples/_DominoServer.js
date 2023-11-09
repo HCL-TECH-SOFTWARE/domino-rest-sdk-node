@@ -17,14 +17,13 @@ const showAvailableApis = async () => {
 };
 
 const showOperations = async () => {
-  const apis = await this.dominoServer.availableOperations("basis"); // can do other apis e.g setup,admin,pim
+  // Also available for other available APIs such as setup, admin, etc.
+  const apis = await this.dominoServer.availableOperations('basis');
   console.log(apis);
 };
-
 
 // Uncomment this to print all available APIs on the Domino REST API server.
 // showAvailableApis();
 
-// // Uncomment this to print all available operations on the Domino REST API server in basis.
+// Uncomment this to print all available operations on the Domino REST API server in basis.
 // showOperations();
-

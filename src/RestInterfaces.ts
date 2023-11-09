@@ -119,6 +119,15 @@ export interface DominoRestServer {
    */
   availableApis: () => Promise<Array<string>>;
   /**
+   * Gets all available operations with its specifications under the given API.
+   *
+   * @param apiName the API that contains all the operations.
+   * @returns a promise that resolves a map with operation ID as keys and the operation's specifications as the value.
+   *
+   * @throws an error when it failed to load available APIs from Domino REST API server.
+   */
+  availableOperations: (apiName: string) => Promise<Map<string, any>>;
+  /**
    * Get a DominoConnector instance of the given API name.
    *
    * @param apiName the API that will be used for the DominoConnector
@@ -460,7 +469,11 @@ export interface DominoUserRestSession {
    * @throws an error if given scope name is empty.
    * @throws an error if given list name is empty.
    */
-  getListViewEntry: (dataSource: string, listViewName: string, options?: GetListViewEntryOptions) => Promise<ListViewEntryJSON[] | DominoDocument[] | void>;
+  getListViewEntry: (
+    dataSource: string,
+    listViewName: string,
+    options?: GetListViewEntryOptions,
+  ) => Promise<ListViewEntryJSON[] | DominoDocument[] | void>;
   /**
    * Processes view data as pivot.
    *

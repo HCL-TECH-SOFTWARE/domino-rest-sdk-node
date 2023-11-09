@@ -90,14 +90,17 @@ export class DominoConnector implements DominoRestConnector {
     });
 
   private _apiLoader = (): Promise<void> =>
-    new Promise((resolve, reject) => {
+    new Promise(async (resolve, reject) => {
       const actualUrl = `${this.baseUrl}${this.meta.mountPath}${this.meta.fileName}`;
 
-      fetch(actualUrl)
-        .then((response) => response.json())
-        .then((json) => this._operationLoader(json))
-        .then(() => resolve())
-        .catch((err) => reject(err));
+      try {
+        const response = await fetch(actualUrl);
+        const json = await response.json();
+        this._operationLoader(json);
+        return resolve();
+      } catch (err) {
+        return reject(err);
+      }
     });
 
   private _operationLoader = (openApi: any): void => {
@@ -114,12 +117,13 @@ export class DominoConnector implements DominoRestConnector {
           // can overwrite or extend the definition
           this._parameterLoader(path[method], params);
 
-          let operation: DominoRestOperation = {
+          const operation: DominoRestOperation = {
             method: method.toUpperCase(),
             url: url,
             params: params,
           };
 
+          // Load other definitions apart from the operationId and parameters
           for (const key of Object.keys(path[method])) {
             if (key === 'operationId' || key === 'parameters') {
               continue;
@@ -199,7 +203,11 @@ export class DominoConnector implements DominoRestConnector {
   async request<T = any>(dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions): Promise<T> {
     const scopeVal = options.dataSource ? options.dataSource : '';
     if (this.schema.size == 0) {
-      await this._apiLoader();
+      try {
+        await this._apiLoader();
+      } catch {
+        return Promise.reject(new Error('Failed to load APIs.'));
+      }
     }
     let operation = await this.getOperation(operationId);
     const url = await this.getUrl(operation, scopeVal, options.params);
@@ -235,26 +243,26 @@ export class DominoConnector implements DominoRestConnector {
     return Promise.resolve(responseBody);
   }
 
-  async getOperation(operationId: string): Promise<any> {
+  async getOperation(operationId: string) {
     if (this.schema.size == 0) {
       try {
         await this._apiLoader();
-      } catch (err: any) {
-        throw new Error(err);
+      } catch {
+        return Promise.reject(new Error('Failed to load APIs.'));
       }
     }
     if (this.schema.has(operationId)) {
       return Promise.resolve(this.schema.get(operationId));
     }
-    throw new Error(`OperationId ${operationId} is not available`);
+    return Promise.reject(new Error(`OperationId ${operationId} is not available`));
   }
 
   public async getOperations() {
     if (this.schema.size == 0) {
       try {
         await this._apiLoader();
-      } catch (err: any) {
-        throw new Error(err);
+      } catch {
+        return Promise.reject(new Error('Failed to load APIs.'));
       }
     }
     return Promise.resolve(this.schema);

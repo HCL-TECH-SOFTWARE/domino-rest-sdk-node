@@ -50,14 +50,9 @@ describe('The DominoConnector is the interface to one API', () => {
   });
 
   describe('_apiLoader', () => {
-    it('should throw an error if something fails', () => {
+    it('should throw an error if something fails', async () => {
       fetchStub.rejects('Error message');
-      return expect(baseConnector.getOperation('createDocument')).to.eventually.rejectedWith('Error message');
-    });
-
-    it('should throw an error if something fails', () => {
-      fetchStub.rejects('Error message');
-      return expect(baseConnector.getOperations()).to.eventually.rejectedWith('Error message');
+      return expect(baseConnector.getOperation('createDocument')).to.eventually.rejectedWith('Failed to load APIs.');
     });
   });
 
@@ -194,6 +189,18 @@ describe('The DominoConnector is the interface to one API', () => {
       });
     });
 
+    it('should be rejected when API fails to be loaded', async () => {
+      fetchStub.onFirstCall().rejects('Error message');
+
+      const params = new Map();
+      params.set('dataSource', 'scope');
+      const options: DominoRequestOptions = {
+        params,
+      };
+
+      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.be.rejectedWith('Failed to load APIs.');
+    });
+
     it('should be resolved when response is okay and has callback', async () => {
       const stream = `[\n{"msg":"hello"},\n{"msg":"hi!"}\n]\n`;
       const headers = {
@@ -292,57 +299,64 @@ describe('The DominoConnector is the interface to one API', () => {
     });
   });
 
+  describe('getOperations', () => {
+    it('should return all of the operations on the connector', async () => {
+      const result = await baseConnector.getOperations();
+      expect(result).not.null;
+      expect(result.size).to.equal(58);
+      const result2 = await baseConnector.getOperations();
+      expect(result).to.deep.equal(result2);
+    });
+
+    it('should return an error if APIs fail to load', async () => {
+      fetchStub.onSecondCall().rejects('Error message');
+      await expect(baseConnector.getOperations()).to.be.rejectedWith('Failed to load APIs.');
+    });
+  });
+
   it('should return the createDocument method', async () => {
-    let operation = await baseConnector.getOperation('createDocument');
+    const operation = await baseConnector.getOperation('createDocument');
     expect(operation).to.exist;
     expect(fetchStub.args.length).to.equal(2);
   });
 
   it('should not have a method tangoAtMidnight', (done) => {
-    let operation = baseConnector.getOperation('tangoAtMidnight');
+    const operation = baseConnector.getOperation('tangoAtMidnight');
     expect(operation).to.eventually.be.rejectedWith('OperationId tangoAtMidnight is not available').notify(done);
   });
 
   it('should return the correct URL for the getOdataItem method', async () => {
-    let operation = await baseConnector.getOperation('getOdataItem');
-    let params: Map<string, string> = new Map();
+    const operation = await baseConnector.getOperation('getOdataItem');
+    const params: Map<string, string> = new Map();
     params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
     params.set('name', 'customer');
     params.set('$select', 'name,age,hobbies');
 
-    let resultUrl = await baseConnector.getUrl(operation, 'demo', params);
+    const resultUrl = await baseConnector.getUrl(operation, 'demo', params);
     expect(resultUrl).to.be.equal('http://localhost:8880/api/v1/odata/demo/customer/ABCD1234567890BCABCD1234567890BC?%24select=name%2Cage%2Chobbies');
   });
 
   it('should fail on missing dataSource', async () => {
-    let operation = await baseConnector.getOperation('getOdataItem');
-    let params: Map<string, string> = new Map();
+    const operation = await baseConnector.getOperation('getOdataItem');
+    const params: Map<string, string> = new Map();
     params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
     params.set('name', 'customer');
-    let resultUrl = baseConnector.getUrl(operation, '', params);
+    const resultUrl = baseConnector.getUrl(operation, '', params);
     return expect(resultUrl).to.eventually.rejectedWith('Parameter dataSource is mandatory!');
   });
 
   it('should return correct FetchOptions', async () => {
-    let operation = await baseConnector.getOperation('createDocumentAttachment');
-    let params: Map<string, string> = new Map();
-    let request: DominoRequestOptions = {
+    const operation = await baseConnector.getOperation('createDocumentAttachment');
+    const params: Map<string, string> = new Map();
+    const request: DominoRequestOptions = {
       dataSource: 'dataSource',
       params: params,
       body: 'Stuff in the body',
     };
     params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
-    let result = await baseConnector.getFetchOptions(fakeToken, operation, request);
+    const result = await baseConnector.getFetchOptions(fakeToken, operation, request);
     expect(result).to.have.property('headers');
     expect(result.headers).to.have.property('Content-Type', 'multipart/form-data');
     expect(result.headers).to.have.property('Authorization', 'Bearer THE TOKEN');
-  });
-
-  it('should return all of the operations on basis', async () => {
-    let result = await baseConnector.getOperations();
-    expect(result).to.not.equal(null);
-    expect(result.size).to.equal(58);
-    let result2 = await baseConnector.getOperations();
-    expect(result).to.deep.equal(result2);
   });
 });
