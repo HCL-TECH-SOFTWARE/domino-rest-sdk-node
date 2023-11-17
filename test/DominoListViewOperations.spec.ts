@@ -38,8 +38,8 @@ const fakeCredentials = {
   },
 };
 
-describe('DominoListViewOperations', () => {
-  const dc = new DominoConnector('', {} as DominoApiMeta);
+describe('DominoListViewOperations', async () => {
+  const dc = await DominoConnector.getConnector('', {} as DominoApiMeta);
   const dataSource = 'demoapi';
   const listViewName = 'Customers';
   const fakeToken = new DominoAccess(fakeCredentials);

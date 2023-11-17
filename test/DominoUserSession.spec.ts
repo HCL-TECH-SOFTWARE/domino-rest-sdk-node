@@ -30,8 +30,8 @@ const fakeCredentials = {
   },
 };
 
-describe('DominoUserSession', () => {
-  const dc = new DominoConnector('', {} as DominoApiMeta);
+describe('DominoUserSession', async () => {
+  const dc = await DominoConnector.getConnector('', {} as DominoApiMeta);
   const fakeToken = new DominoAccess(fakeCredentials);
   const dus = new DominoUserSession(fakeToken, dc);
 

@@ -44,8 +44,8 @@ const fakeCredentials = {
   },
 };
 
-describe('DominoDocumentOperations', () => {
-  const dc = new DominoConnector('', {} as DominoApiMeta);
+describe('DominoDocumentOperations', async () => {
+  const dc = await DominoConnector.getConnector('', {} as DominoApiMeta);
   const dataSource = 'dataSource';
   const fakeToken = new DominoAccess(fakeCredentials);
 

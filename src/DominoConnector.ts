@@ -142,7 +142,7 @@ export class DominoConnector implements DominoRestConnector {
         candidate = params.get(pname);
       }
       if (candidate === undefined || candidate.trim() == '') {
-        throw new Error(`Parameter ${pname} is mandatory!`);
+        throw new Error(`Parameter '${pname}' is mandatory!`);
       }
     }
   };
@@ -208,8 +208,8 @@ export class DominoConnector implements DominoRestConnector {
 
   async request<T = any>(dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions): Promise<T> {
     const scopeVal = options.dataSource ? options.dataSource : '';
-    const operation = await this.getOperation(operationId);
-    const url = await this.getUrl(operation, scopeVal, options.params);
+    const operation = this.getOperation(operationId);
+    const url = this.getUrl(operation, scopeVal, options.params);
     const params = await this.getFetchOptions(dominoAccess, operation, options);
 
     const response = await fetch(url, params);

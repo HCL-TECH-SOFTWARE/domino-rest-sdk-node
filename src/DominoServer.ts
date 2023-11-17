@@ -66,7 +66,7 @@ export class DominoServer implements DominoRestServer {
    * @throws an error if something went wrong on loading APIs
    */
   static getServer = (baseUrl: string) =>
-    new Promise((resolve, reject) => {
+    new Promise<DominoServer>((resolve, reject) => {
       return DominoServer._apiLoader(baseUrl)
         .then((apis) => {
           const apiMap: Map<string, DominoApiMeta> = new Map();

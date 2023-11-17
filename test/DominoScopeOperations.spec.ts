@@ -22,8 +22,8 @@ const fakeCredentials = {
   },
 };
 
-describe('DominoScopeOperations', () => {
-  const dc = new DominoConnector('', {} as DominoApiMeta);
+describe('DominoScopeOperations', async () => {
+  const dc = await DominoConnector.getConnector('', {} as DominoApiMeta);
   const fakeToken = new DominoAccess(fakeCredentials);
 
   let operationId: string;

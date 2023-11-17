@@ -19,8 +19,8 @@ describe('DominoAccess for Access Tokens', () => {
     credentials: {
       scope: '$DATA',
       type: CredentialType.BASIC,
-      userName: 'testuser',
-      passWord: 'testpassword',
+      username: 'testuser',
+      password: 'testpassword',
     },
   };
 
@@ -30,8 +30,8 @@ describe('DominoAccess for Access Tokens', () => {
       credentials: {
         scope: '$DATA',
         type: CredentialType.BASIC,
-        userName: 'testuser',
-        passWord: 'testpassword',
+        username: 'testuser',
+        password: 'testpassword',
       },
     };
   });
@@ -80,8 +80,8 @@ describe('DominoAccess for Access Tokens', () => {
       const expected: RestCredentials = {
         scope: 'Ice cream',
         type: CredentialType.BASIC,
-        userName: 'John',
-        passWord: 'secret',
+        username: 'John',
+        password: 'secret',
       };
       const idp = new DominoAccess(simpleAccess);
       const actual = idp.updateCredentials(expected);
@@ -92,7 +92,7 @@ describe('DominoAccess for Access Tokens', () => {
       const expected: RestCredentials = {
         scope: 'Ice cream',
         type: CredentialType.BASIC,
-        userName: 'John',
+        username: 'John',
       };
       const idp = new DominoAccess(simpleAccess);
       expect(() => idp.updateCredentials(expected)).to.throw('BASIC auth needs userName and password.');
@@ -147,8 +147,8 @@ describe('DominoAccess for Access Tokens', () => {
     simpleAccess.credentials = {
       scope: '$DATA',
       type: CredentialType.BASIC,
-      userName: 'John Doe',
-      passWord: 'password',
+      username: 'John Doe',
+      password: 'password',
     };
     const domAccess = new DominoAccess(simpleAccess);
     let stub: any;
@@ -227,8 +227,8 @@ describe('DominoAccess for Access Tokens', () => {
       simpleAccess.credentials = {
         scope: '$DATA',
         type: CredentialType.BASIC,
-        userName: 'John Doe',
-        passWord: 'password',
+        username: 'John Doe',
+        password: 'password',
       };
       const response = new Response(undefined, { status: 401, statusText: 'Unauthorized' });
       stub.resolves(response);
@@ -241,8 +241,8 @@ describe('DominoAccess for Access Tokens', () => {
       simpleAccess.credentials = {
         scope: '$DATA',
         type: CredentialType.BASIC,
-        userName: 'John Doe',
-        passWord: 'password',
+        username: 'John Doe',
+        password: 'password',
       };
 
       const domAccess = new DominoAccess(simpleAccess);
