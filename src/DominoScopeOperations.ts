@@ -15,77 +15,75 @@ import DominoScope from './DominoScope';
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoScopeOperations {
-  private static _executeOperation = async <T = any>(
+  private static _executeOperation = <T = any>(
     dominoConnector: DominoConnector,
     dominoAccess: DominoAccess,
     operationId: string,
     options: DominoRequestOptions,
-  ): Promise<T> => {
-    const response = await dominoConnector.request<T>(dominoAccess, operationId, options);
-    return Promise.resolve(response);
-  };
+  ) => dominoConnector.request<T>(dominoAccess, operationId, options);
 
-  static getScope = async (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector): Promise<DominoScope> => {
-    if (scopeName.trim().length === 0) {
-      return Promise.reject(new Error('scopeName must not be empty.'));
-    }
+  static getScope = (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
+    new Promise<DominoScope>((resolve, reject) => {
+      if (scopeName.trim().length === 0) {
+        return reject(new Error('scopeName must not be empty.'));
+      }
 
-    const params: Map<string, any> = new Map();
-    params.set('scopeName', scopeName);
+      const params: Map<string, any> = new Map();
+      params.set('scopeName', scopeName);
 
-    const reqOptions: DominoRequestOptions = {
-      params,
-    };
-    const docResponse = await this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'getScopeMapping', reqOptions);
-    return Promise.resolve(new DominoScope(docResponse));
-  };
+      const reqOptions: DominoRequestOptions = { params };
 
-  static getScopes = async (dominoAccess: DominoAccess, dominoConnector: DominoConnector): Promise<DominoScope[]> => {
-    const params: Map<string, any> = new Map();
+      return this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'getScopeMapping', reqOptions)
+        .then((scope) => resolve(new DominoScope(scope)))
+        .catch((error) => reject(error));
+    });
 
-    const reqOptions: DominoRequestOptions = {
-      params,
-    };
-    const response = await this._executeOperation<ScopeBody[]>(dominoConnector, dominoAccess, 'fetchScopeMappings', reqOptions);
-    return Promise.resolve(response.map((doc) => new DominoScope(doc)));
-  };
+  static getScopes = (dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
+    new Promise<DominoScope[]>((resolve, reject) => {
+      const params: Map<string, any> = new Map();
 
-  static deleteScope = async (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector): Promise<DominoScope> => {
-    if (scopeName.trim().length === 0) {
-      return Promise.reject(new Error('scopeName must not be empty.'));
-    }
+      const reqOptions: DominoRequestOptions = { params };
 
-    const params: Map<string, any> = new Map();
-    params.set('scopeName', scopeName);
+      return this._executeOperation<ScopeBody[]>(dominoConnector, dominoAccess, 'fetchScopeMappings', reqOptions)
+        .then((scopes) => resolve(scopes.map((scope) => new DominoScope(scope))))
+        .catch((error) => reject(error));
+    });
 
-    const reqOptions: DominoRequestOptions = {
-      params,
-    };
-    const docResponse = await this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'deleteScopeMapping', reqOptions);
-    return Promise.resolve(new DominoScope(docResponse));
-  };
+  static deleteScope = (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
+    new Promise<DominoScope>((resolve, reject) => {
+      if (scopeName.trim().length === 0) {
+        return reject(new Error('scopeName must not be empty.'));
+      }
 
-  static createUpdateScope = async (
-    scope: DominoScope | ScopeBody,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
-  ): Promise<DominoScope> => {
-    let dominoScope: DominoScope;
-    if (!(scope instanceof DominoScope)) {
-      dominoScope = new DominoScope(scope);
-    } else {
-      dominoScope = scope;
-    }
+      const params: Map<string, any> = new Map();
+      params.set('scopeName', scopeName);
 
-    const params: Map<string, any> = new Map();
-    const reqOptions: DominoRequestOptions = {
-      params,
-      body: JSON.stringify(dominoScope.toScopeJson()),
-    };
+      const reqOptions: DominoRequestOptions = { params };
 
-    const docResponse = await this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'createUpdateScopeMapping', reqOptions);
-    return Promise.resolve(new DominoScope(docResponse));
-  };
+      return this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'deleteScopeMapping', reqOptions)
+        .then((scope) => resolve(new DominoScope(scope)))
+        .catch((error) => reject(error));
+    });
+
+  static createUpdateScope = (scope: DominoScope | ScopeBody, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
+    new Promise<DominoScope>((resolve, reject) => {
+      let dominoScope: DominoScope;
+      if (!(scope instanceof DominoScope)) {
+        dominoScope = new DominoScope(scope);
+      } else {
+        dominoScope = scope;
+      }
+
+      const params: Map<string, any> = new Map();
+      const reqOptions: DominoRequestOptions = {
+        params,
+        body: JSON.stringify(dominoScope.toScopeJson()),
+      };
+
+      return this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'createUpdateScopeMapping', reqOptions)
+        .then((scope) => resolve(new DominoScope(scope)))
+        .catch((error) => reject(error));
+    });
 }
 
 export default DominoScopeOperations;

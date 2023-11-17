@@ -45,6 +45,7 @@ export class DominoListViewEntry implements DominoRestListViewEntry {
   '@noteid': number;
 
   readonly fields: Map<string, any> = new Map<string, any>();
+
   constructor(doc: ListViewEntryBody) {
     this['@unid'] = doc['@unid'];
     this['@index'] = doc['@index'];
@@ -65,9 +66,11 @@ export class DominoListViewEntry implements DominoRestListViewEntry {
       '@index': this['@index'],
       '@noteid': this['@noteid'],
     };
+
     this.fields.forEach((value, key) => {
       json[key] = value;
     });
+
     return json;
   };
 }

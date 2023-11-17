@@ -23,11 +23,11 @@ export type RestCredentials = {
   /**
    * Required for basic credentials. The username of user.
    */
-  userName?: string;
+  username?: string;
   /**
    * Required for basic credentials. The password of user.
    */
-  passWord?: string;
+  password?: string;
   /**
    * Required for oauth credentials. The refresh token.
    */
@@ -89,11 +89,11 @@ export class DominoAccess implements DominoRestAccess {
       throw new Error('Base URL should not be empty.');
     }
     if (params.credentials.type == CredentialType.BASIC) {
-      if (!params.credentials.userName || !params.credentials.passWord) {
+      if (!params.credentials.username || !params.credentials.password) {
         throw new Error('BASIC auth needs userName and password.');
       }
     } else {
-      // Type is OAuth
+      // Credentials type is OAuth
       if (!params.credentials.appSecret || !params.credentials.appId || !params.credentials.refreshToken) {
         throw new Error('OAuth needs appSecret, appId and refreshToken.');
       }
@@ -103,15 +103,15 @@ export class DominoAccess implements DominoRestAccess {
     this.credentials = params.credentials;
   }
 
-  scope(): string {
+  scope = (): string => {
     return this.credentials.scope;
-  }
+  };
 
-  updateCredentials(incomingCredentials: RestCredentials): RestCredentials {
+  updateCredentials = (incomingCredentials: RestCredentials): RestCredentials => {
     // Check if credentials make sense
     if (incomingCredentials.type == CredentialType.BASIC) {
-      if (!incomingCredentials.userName || !incomingCredentials.passWord) {
-        throw new Error('BASIC auth needs userName and password.');
+      if (!incomingCredentials.username || !incomingCredentials.password) {
+        throw new Error('BASIC auth needs username and password.');
       }
     } else {
       // Type is OAuth
@@ -119,28 +119,23 @@ export class DominoAccess implements DominoRestAccess {
         throw new Error('OAuth needs appSecret, appId and refreshToken.');
       }
     }
-    // username / password or IdP information
+
+    // Username/password or IdP information
     this.credentials = incomingCredentials;
     return this.credentials;
-  }
+  };
 
-  async accessToken(): Promise<string> {
-    // check for a valid token and return that one instead of asking again
-    if (this.token && !isJwtExpired(this.token)) {
-      return Promise.resolve(this.token);
-    }
-
-    let fullURL = this.baseUrl;
-    let options: any = {
+  private _buildAccessTokenOptions = (url: URL) => {
+    const options: RequestInit = {
       method: 'POST',
       headers: {},
     };
 
-    if (this.credentials.type == CredentialType.BASIC) {
-      fullURL += '/api/v1/auth';
-      let data = {
-        username: this.credentials.userName,
-        password: this.credentials.passWord,
+    if (this.credentials.type === CredentialType.BASIC) {
+      url.pathname = '/api/v1/auth';
+      const data = {
+        username: this.credentials.username,
+        password: this.credentials.password,
         scope: this.scope,
       };
       options.headers = {
@@ -149,48 +144,52 @@ export class DominoAccess implements DominoRestAccess {
       options.body = JSON.stringify(data);
     } else {
       // OAUTH refresh token flow
-      fullURL += '/oauth/token';
+      url.pathname = '/oauth/token';
       options.headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
       };
-      let data = new URLSearchParams();
+      const data = new URLSearchParams();
       data.append('grant_type', 'refresh_token');
-      data.append('refresh_token', this.credentials.refreshToken as string);
+      data.append('refresh_token', this.credentials.refreshToken ? this.credentials.refreshToken : '');
       data.append('scope', this.credentials.scope);
-      data.append('client_id', this.credentials.appId as string);
-      data.append('client_secret', this.credentials.appSecret as string);
+      data.append('client_id', this.credentials.appId ? this.credentials.appId : '');
+      data.append('client_secret', this.credentials.appSecret ? this.credentials.appSecret : '');
       options.body = data;
     }
 
-    const response = await fetch(fullURL, options);
-    if (!response.ok && response.headers.get('content-type') === null) {
-      return Promise.reject(new Error(response.statusText));
-    }
-    const json = await response.json();
-    if (!response.ok) {
-      return Promise.reject(json);
-    }
-    this.token = json.bearer;
-    this.expiryTime = getExpiry(json.bearer);
-    return Promise.resolve(json.bearer);
-  }
+    return options;
+  };
 
-  expiry(): number {
+  accessToken = () =>
+    new Promise<string>((resolve, reject) => {
+      // Check for a valid token and return that one instead of asking again
+      if (this.token && !isJwtExpired(this.token)) {
+        resolve(this.token);
+      }
+
+      const url = new URL(this.baseUrl);
+      const options = this._buildAccessTokenOptions(url);
+
+      fetch(url.toString(), options)
+        .then((response) => response.json())
+        .then((access) => {
+          this.token = access.bearer;
+          this.expiryTime = getExpiry(access.bearer);
+          resolve(access.bearer);
+        })
+        .catch((error) => reject(error));
+    });
+
+  expiry = (): number => {
     if (!this.expiryTime) {
       throw new Error('No token with expiry time found.');
     }
     return this.expiryTime;
-  }
+  };
 
-  /**
-   * Creates a clone of current DominoAccess with the given alternate scope.
-   *
-   * @param alternateScope the alternate scope the clone DominoAccess will have.
-   * @returns a clone of current DominoAccess that has the alternate scope.
-   */
-  clone(alternateScope: string): DominoAccess {
-    let result = new DominoAccess(this);
+  clone = (alternateScope: string): DominoAccess => {
+    const result = new DominoAccess(this);
     result.credentials.scope = alternateScope;
     return result;
-  }
+  };
 }

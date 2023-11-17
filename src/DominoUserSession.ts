@@ -5,10 +5,8 @@
 
 import {
   BulkGetDocumentsOptions,
-  BulkGetErrorResponse,
   BulkUpdateDocumentsByQueryRequest,
   CreateDocumentOptions,
-  CreateListResponse,
   CreateUpdateDesignOptions,
   DocumentBody,
   DocumentJSON,
@@ -21,22 +19,16 @@ import {
   GetDocumentsByQueryOptions,
   GetDocumentsByQueryRequest,
   GetListPivotViewEntryOptions,
-  GetListViewDesignJSON,
   GetListViewEntryOptions,
-  GetListViewJSON,
   GetListViewOptions,
   ListViewBody,
-  PivotListViewResponse,
   QueryActions,
-  QueryDocumentExplainResponse,
-  QueryDocumentParseResponse,
   RichTextRepresentation,
   ScopeBody,
   UpdateDocumentOptions,
 } from '.';
 import DominoConnector from './DominoConnector';
 import DominoDocument from './DominoDocument';
-import { ListViewEntryJSON } from './DominoListViewEntry';
 import DominoListViewOperations from './DominoListViewOperations';
 import DominoScope from './DominoScope';
 import DominoScopeOperations from './DominoScopeOperations';
@@ -59,120 +51,66 @@ export class DominoUserSession implements DominoUserRestSession {
     this.dominoConnector = dominoConnector;
   }
 
-  request = async <T = any>(operationId: string, options: DominoRequestOptions): Promise<T> => {
-    const response = await this.dominoConnector.request<T>(this.dominoAccess, operationId, options);
-    return Promise.resolve(response);
-  };
+  request = <T = any>(operationId: string, options: DominoRequestOptions) => this.dominoConnector.request<T>(this.dominoAccess, operationId, options);
 
-  getDocument = async (dataSource: string, unid: string, options?: GetDocumentOptions): Promise<DominoDocument> => {
-    return await DominoDocumentOperations.getDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, options);
-  };
+  getDocument = (dataSource: string, unid: string, options?: GetDocumentOptions) =>
+    DominoDocumentOperations.getDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, options);
 
-  createDocument = async (dataSource: string, doc: DocumentJSON, options?: CreateDocumentOptions): Promise<DominoDocument> => {
-    return await DominoDocumentOperations.createDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
-  };
+  createDocument = (dataSource: string, doc: DocumentJSON, options?: CreateDocumentOptions) =>
+    DominoDocumentOperations.createDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
 
-  updateDocument = async (dataSource: string, doc: DominoDocument, options?: UpdateDocumentOptions): Promise<DominoDocument> => {
-    return await DominoDocumentOperations.updateDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
-  };
+  updateDocument = (dataSource: string, doc: DominoDocument, options?: UpdateDocumentOptions) =>
+    DominoDocumentOperations.updateDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
 
-  patchDocument = async (dataSource: string, unid: string, docJsonPatch: DocumentBody, options?: UpdateDocumentOptions): Promise<DominoDocument> => {
-    return await DominoDocumentOperations.patchDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, docJsonPatch, options);
-  };
+  patchDocument = (dataSource: string, unid: string, docJsonPatch: DocumentBody, options?: UpdateDocumentOptions) =>
+    DominoDocumentOperations.patchDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, docJsonPatch, options);
 
-  deleteDocument = async (dataSource: string, doc: DominoDocument, mode?: string): Promise<DocumentStatusResponse> => {
-    return await DominoDocumentOperations.deleteDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, mode);
-  };
+  deleteDocument = (dataSource: string, doc: DominoDocument, mode?: string) =>
+    DominoDocumentOperations.deleteDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, mode);
 
-  deleteDocumentByUNID = async (dataSource: string, unid: string, mode?: string): Promise<DocumentStatusResponse> => {
-    return await DominoDocumentOperations.deleteDocumentByUNID(dataSource, this.dominoAccess, this.dominoConnector, unid, mode);
-  };
+  deleteDocumentByUNID = (dataSource: string, unid: string, mode?: string): Promise<DocumentStatusResponse> =>
+    DominoDocumentOperations.deleteDocumentByUNID(dataSource, this.dominoAccess, this.dominoConnector, unid, mode);
 
-  bulkGetDocuments = async (dataSource: string, unids: string[], options?: BulkGetDocumentsOptions): Promise<Array<DominoDocument | BulkGetErrorResponse>> => {
-    return await DominoDocumentOperations.bulkGetDocuments(dataSource, this.dominoAccess, this.dominoConnector, unids, options);
-  };
+  bulkGetDocuments = (dataSource: string, unids: string[], options?: BulkGetDocumentsOptions) =>
+    DominoDocumentOperations.bulkGetDocuments(dataSource, this.dominoAccess, this.dominoConnector, unids, options);
 
-  bulkCreateDocuments = async (dataSource: string, docs: DocumentJSON[], richTextAs?: RichTextRepresentation): Promise<DominoDocument[]> => {
-    return await DominoDocumentOperations.bulkCreateDocuments(dataSource, this.dominoAccess, this.dominoConnector, docs, richTextAs);
-  };
+  bulkCreateDocuments = (dataSource: string, docs: DocumentJSON[], richTextAs?: RichTextRepresentation) =>
+    DominoDocumentOperations.bulkCreateDocuments(dataSource, this.dominoAccess, this.dominoConnector, docs, richTextAs);
 
-  bulkUpdateDocumentsByQuery = async (
-    dataSource: string,
-    request: BulkUpdateDocumentsByQueryRequest,
-    richTextAs?: RichTextRepresentation,
-  ): Promise<DominoDocument[] | DocumentStatusResponse[]> => {
-    return await DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, richTextAs);
-  };
+  bulkUpdateDocumentsByQuery = (dataSource: string, request: BulkUpdateDocumentsByQueryRequest, richTextAs?: RichTextRepresentation) =>
+    DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, richTextAs);
 
-  bulkDeleteDocuments = async (dataSource: string, docs: Array<DominoDocument>, mode?: string): Promise<DocumentStatusResponse[]> => {
-    return await DominoDocumentOperations.bulkDeleteDocuments(dataSource, this.dominoAccess, this.dominoConnector, docs, mode);
-  };
+  bulkDeleteDocuments = (dataSource: string, docs: Array<DominoDocument>, mode?: string) =>
+    DominoDocumentOperations.bulkDeleteDocuments(dataSource, this.dominoAccess, this.dominoConnector, docs, mode);
 
-  bulkDeleteDocumentsByUNID = async (dataSource: string, unids: string[], mode?: string): Promise<DocumentStatusResponse[]> => {
-    return await DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, this.dominoAccess, this.dominoConnector, unids, mode);
-  };
+  bulkDeleteDocumentsByUNID = (dataSource: string, unids: string[], mode?: string) =>
+    DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, this.dominoAccess, this.dominoConnector, unids, mode);
 
-  getDocumentsByQuery = async (
-    dataSource: string,
-    request: GetDocumentsByQueryRequest,
-    action: QueryActions,
-    options?: GetDocumentsByQueryOptions,
-  ): Promise<DominoDocument[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]> => {
-    return await DominoDocumentOperations.getDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, action, options);
-  };
+  getDocumentsByQuery = (dataSource: string, request: GetDocumentsByQueryRequest, action: QueryActions, options?: GetDocumentsByQueryOptions) =>
+    DominoDocumentOperations.getDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, action, options);
 
-  createUpdateScope = async (scope: DominoScope | ScopeBody): Promise<DominoScope> => {
-    return await DominoScopeOperations.createUpdateScope(scope, this.dominoAccess, this.dominoConnector);
-  };
+  createUpdateScope = (scope: DominoScope | ScopeBody) => DominoScopeOperations.createUpdateScope(scope, this.dominoAccess, this.dominoConnector);
 
-  getScope = async (scopeName: string): Promise<DominoScope> => {
-    return await DominoScopeOperations.getScope(scopeName, this.dominoAccess, this.dominoConnector);
-  };
+  getScope = (scopeName: string) => DominoScopeOperations.getScope(scopeName, this.dominoAccess, this.dominoConnector);
 
-  getScopes = async (): Promise<DominoScope[]> => {
-    return await DominoScopeOperations.getScopes(this.dominoAccess, this.dominoConnector);
-  };
+  getScopes = () => DominoScopeOperations.getScopes(this.dominoAccess, this.dominoConnector);
 
-  deleteScope = async (scopeName: string): Promise<DominoScope> => {
-    return await DominoScopeOperations.deleteScope(scopeName, this.dominoAccess, this.dominoConnector);
-  };
+  deleteScope = (scopeName: string) => DominoScopeOperations.deleteScope(scopeName, this.dominoAccess, this.dominoConnector);
 
-  getListViews = async (dataSource: string, options?: GetListViewOptions): Promise<GetListViewJSON[]> => {
-    return await DominoListViewOperations.getListViews(dataSource, this.dominoAccess, this.dominoConnector, options);
-  };
+  getListViews = (dataSource: string, options?: GetListViewOptions) =>
+    DominoListViewOperations.getListViews(dataSource, this.dominoAccess, this.dominoConnector, options);
 
-  getListViewEntry = async (dataSource: string, listViewName: string, options?: GetListViewEntryOptions): Promise<ListViewEntryJSON[] | DominoDocument[] | void> => {
-    return await DominoListViewOperations.getListViewEntry(dataSource, this.dominoAccess, this.dominoConnector, listViewName, options);
-  };
+  getListViewEntry = (dataSource: string, listViewName: string, options?: GetListViewEntryOptions) =>
+    DominoListViewOperations.getListViewEntry(dataSource, this.dominoAccess, this.dominoConnector, listViewName, options);
 
-  getListViewPivotEntry = async (
-    dataSource: string,
-    listViewName: string,
-    pivotColumn: string,
-    options?: GetListPivotViewEntryOptions,
-  ): Promise<PivotListViewResponse> => {
-    return await DominoListViewOperations.getListViewPivotEntry(
-      dataSource,
-      this.dominoAccess,
-      this.dominoConnector,
-      listViewName,
-      pivotColumn,
-      options,
-    );
-  };
+  getListViewPivotEntry = (dataSource: string, listViewName: string, pivotColumn: string, options?: GetListPivotViewEntryOptions) =>
+    DominoListViewOperations.getListViewPivotEntry(dataSource, this.dominoAccess, this.dominoConnector, listViewName, pivotColumn, options);
 
-  createUpdateListView = async (
-    dataSource: string,
-    listView: ListViewBody,
-    designName: string,
-    options?: CreateUpdateDesignOptions,
-  ): Promise<CreateListResponse> => {
-    return await DominoListViewOperations.createUpdateListView(dataSource, this.dominoAccess, this.dominoConnector, listView, designName, options);
-  };
+  createUpdateListView = (dataSource: string, listView: ListViewBody, designName: string, options?: CreateUpdateDesignOptions) =>
+    DominoListViewOperations.createUpdateListView(dataSource, this.dominoAccess, this.dominoConnector, listView, designName, options);
 
-  getListView = async (dataSource: string, designName: string, options?: GetDesignOptions): Promise<GetListViewDesignJSON> => {
-    return await DominoListViewOperations.getListView(dataSource, this.dominoAccess, this.dominoConnector, designName, options);
-  };
+  getListView = (dataSource: string, designName: string, options?: GetDesignOptions) =>
+    DominoListViewOperations.getListView(dataSource, this.dominoAccess, this.dominoConnector, designName, options);
 }
 
 export default DominoUserSession;

@@ -31,8 +31,8 @@ import {
 import { DesignColumnSimple, DominoBaseListView, ListViewBody, SortType } from './DominoListView';
 import { DominoBaseListViewEntry, ListType, ListViewEntryBody, ListViewEntryJSON } from './DominoListViewEntry';
 import {
-  CreateListResponse,
   CreateUpdateDesignOptions,
+  CreateUpdateListResponse,
   GetDesignOptions,
   GetListPivotViewEntryOptions,
   GetListViewDesignJSON,
@@ -57,8 +57,8 @@ export {
   BulkGetErrorResponse,
   BulkUpdateDocumentsByQueryRequest,
   CreateDocumentOptions,
-  CreateListResponse,
   CreateUpdateDesignOptions,
+  CreateUpdateListResponse,
   CredentialType,
   DesignColumnSimple,
   DocumentBody,

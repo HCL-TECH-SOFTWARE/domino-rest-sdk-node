@@ -9,8 +9,8 @@ import {
   BulkGetDocumentsOptions,
   BulkUpdateDocumentsByQueryRequest,
   CreateDocumentOptions,
-  CreateListResponse,
   CreateUpdateDesignOptions,
+  CreateUpdateListResponse,
   DocumentBody,
   DocumentJSON,
   DocumentStatusResponse,
@@ -99,6 +99,13 @@ export interface DominoRestAccess {
    * @returns the scope of given credentials.
    */
   scope: () => string;
+  /**
+   * Creates a clone of current DominoAccess with the given alternate scope.
+   *
+   * @param alternateScope the alternate scope the clone DominoAccess will have.
+   * @returns a clone of current DominoAccess that has the alternate scope.
+   */
+  clone: (alternateScope: string) => DominoAccess;
 }
 
 /**
@@ -113,11 +120,18 @@ export interface DominoRestServer {
    * Gets all available APIs on Domino REST API server. Will fetch from /api endpoint if
    * API map is yet to be loaded.
    *
-   * @returns a promise that resolves an array of available APIs.
-   *
-   * @throws an error when it failed to load available APIs from Domino REST API server.
+   * @returns an array of available APIs.
    */
-  availableApis: () => Promise<Array<string>>;
+  availableApis: () => Array<string>;
+  /**
+   * Get a DominoConnector instance of the given API name.
+   *
+   * @param apiName the API that will be used for the DominoConnector
+   * @returns a promise that resolves to DominoConnector of the given API.
+   *
+   * @throws an error if given API name is not available on the server.
+   */
+  getDominoConnector: (apiName: string) => Promise<DominoConnector>;
   /**
    * Gets all available operations with its specifications under the given API.
    *
@@ -127,15 +141,6 @@ export interface DominoRestServer {
    * @throws an error when it failed to load available APIs from Domino REST API server.
    */
   availableOperations: (apiName: string) => Promise<Map<string, any>>;
-  /**
-   * Get a DominoConnector instance of the given API name.
-   *
-   * @param apiName the API that will be used for the DominoConnector
-   * @returns a promise that resolves a DominoConnector of the given API.
-   *
-   * @throws an error if given API name is not available.
-   */
-  getDominoConnector: (apiName: string) => Promise<DominoConnector>;
 }
 
 /**
@@ -520,7 +525,7 @@ export interface DominoUserRestSession {
     listView: ListViewBody,
     designName: string,
     options?: CreateUpdateDesignOptions,
-  ) => Promise<CreateListResponse>;
+  ) => Promise<CreateUpdateListResponse>;
   /**
    * Retrieve individual design element (view) for a database.
    *
@@ -565,21 +570,24 @@ export interface DominoRestConnector {
    * @param operationId the operation ID to get
    * @returns JSON information around the given operation ID
    *
-   * @throws an error if failed to load all API information.
-   * @thorws an error if given operation ID cannot be found.
+   * @throws an error if given operation ID cannot be found.
    */
-  getOperation: (operationId: string) => Promise<DominoRestOperation>;
+  getOperation: (operationId: string) => DominoRestOperation;
+  /**
+   * Get all operations available on the connector.
+   *
+   * @returns all operations for the connector.
+   */
+  getOperations: () => Map<string, any>;
   /**
    * Builds a fully qualified URL around the given operation information based on supplied parameters.
    *
    * @param operation JSON information about the operation
    * @param scope target scope name
    * @param params parameters to supply to the URL
-   * @returns a promise that resolves to the URL built.
-   *
-   * @throws an error if something went wrong on building the URL.
+   * @returns the URL built.
    */
-  getUrl: (operation: DominoRestOperation, scope: string, params: Map<string, string>) => Promise<string>;
+  getUrl: (operation: DominoRestOperation, scope: string, params: Map<string, string>) => string;
   /**
    * Builds request options around the given operation information (this includes the headers and
    * the request body).

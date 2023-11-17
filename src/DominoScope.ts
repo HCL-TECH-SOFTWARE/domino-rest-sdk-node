@@ -143,7 +143,6 @@ const MAXIMUM_ACCESS_LEVEL = {
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoScope implements DominoRestScope {
-  readonly '@meta'?: DominoDocumentMeta;
   apiName: string;
   description?: string = '';
   icon?: string =
@@ -154,6 +153,8 @@ export class DominoScope implements DominoRestScope {
   nsfPath: string;
   schemaName: string;
   server?: string = '*';
+
+  readonly '@meta'?: DominoDocumentMeta;
   readonly Form?: string;
   readonly Type?: string;
   readonly $UpdatedBy?: string[];

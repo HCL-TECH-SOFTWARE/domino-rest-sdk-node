@@ -52,9 +52,31 @@ export class DominoServer implements DominoRestServer {
    */
   connectorMap: Map<string, DominoConnector> = new Map();
 
-  constructor(baseUrl: string) {
+  private constructor(baseUrl: string, apiMap: Map<string, DominoApiMeta>) {
     this.baseUrl = baseUrl;
+    this.apiMap = apiMap;
   }
+
+  /**
+   * Factory for getting DominoServer class.
+   *
+   * @param baseUrl base URL of Domino REST API server
+   * @returns a DominoServer class
+   *
+   * @throws an error if something went wrong on loading APIs
+   */
+  static getServer = (baseUrl: string) =>
+    new Promise((resolve, reject) => {
+      return DominoServer._apiLoader(baseUrl)
+        .then((apis) => {
+          const apiMap: Map<string, DominoApiMeta> = new Map();
+          for (const key in apis) {
+            apiMap.set(key, apis[key]);
+          }
+          return resolve(new DominoServer(baseUrl, apiMap));
+        })
+        .catch((error) => reject(error));
+    });
 
   /**
    * Loads all available APIs on Domino REST API server using /api endpoint.
@@ -63,61 +85,43 @@ export class DominoServer implements DominoRestServer {
    *
    * @throws an error if something went wrong when fetching.
    */
-  private _apiLoader = (): Promise<void> =>
-    new Promise((resolve, reject) => {
-      fetch(this.baseUrl + '/api')
+  private static _apiLoader = (baseUrl: string) =>
+    new Promise<any>((resolve, reject) => {
+      const url = new URL(baseUrl);
+      url.pathname = '/api';
+      return fetch(url.toString())
         .then((response) => response.json())
-        .then((json) => {
-          for (let key in json) {
-            this.apiMap.set(key, json[key]);
-          }
-        })
-        .then(() => resolve())
-        .catch((err: Error) => {
-          err.message = '_apiLoader failed';
-          reject(err);
+        .then((apis) => resolve(apis))
+        .catch((error) => {
+          error.message = '_apiLoader failed';
+          reject(error);
         });
     });
 
-  availableApis = async (): Promise<Array<string>> => {
-    if (this.apiMap.size > 0) {
-      return Promise.resolve(Array.from(this.apiMap.keys()));
-    }
+  availableApis = () => Array.from(this.apiMap.keys());
 
-    try {
-      await this._apiLoader();
-    } catch (err) {
-      throw err;
-    }
+  getDominoConnector = (apiName: string) =>
+    new Promise<DominoConnector>((resolve, reject) => {
+      if (this.connectorMap.has(apiName)) {
+        return resolve(this.connectorMap.get(apiName) as DominoConnector);
+      }
 
-    return Array.from(this.apiMap.keys());
-  };
+      if (this.apiMap.has(apiName)) {
+        return DominoConnector.getConnector(this.baseUrl, this.apiMap.get(apiName) as DominoApiMeta)
+          .then((dominoConnector) => {
+            this.connectorMap.set(apiName, dominoConnector);
+            return resolve(dominoConnector);
+          })
+          .catch((error) => reject(error));
+      }
 
-  availableOperations = async (apiName: string): Promise<Map<string, any>> => {
-    try {
-      const dc: DominoConnector = await this.getDominoConnector(apiName);
-      const operations = await dc.getOperations();
-      return Promise.resolve(operations);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  };
+      return reject(new Error(`API '${apiName}' not available on this server`));
+    });
 
-  getDominoConnector = async (apiName: string): Promise<DominoConnector> => {
-    if (this.apiMap.size == 0) {
-      await this._apiLoader();
-    }
-
-    if (this.connectorMap.has(apiName)) {
-      return Promise.resolve(this.connectorMap.get(apiName) as DominoConnector);
-    }
-
-    if (this.apiMap.has(apiName)) {
-      let dc = new DominoConnector(this.baseUrl, this.apiMap.get(apiName) as DominoApiMeta);
-      this.connectorMap.set(apiName, dc);
-      return Promise.resolve(dc);
-    }
-
-    return Promise.reject(new Error(`API ${apiName} not available on this server`));
-  };
+  availableOperations = (apiName: string) =>
+    new Promise<Map<string, any>>((resolve, reject) =>
+      this.getDominoConnector(apiName)
+        .then((dominoConnector) => resolve(dominoConnector.getOperations()))
+        .catch((error) => reject(error)),
+    );
 }
