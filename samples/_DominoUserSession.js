@@ -9,7 +9,7 @@
 
 const { DominoUserSession } = require('@hcl-software/domino-rest-sdk-node');
 const { dominoAccess } = require('./_DominoAccess.js');
-const { dominoServer } = require('./_DominoServer.js');
+const { getDominoServer } = require('./_DominoServer.js');
 
 /**
  * Get a Domino user session that connects to basis APIs.
@@ -18,6 +18,7 @@ const { dominoServer } = require('./_DominoServer.js');
 exports.getDominoUserSessionBasis = async () => {
   // Get the Domino connector using Domino server.
   // DominoConnector is an OpenAPI aware connection to the Domino REST API server.
+  const dominoServer = await getDominoServer();
   const dominoConnectorForBasis = await dominoServer.getDominoConnector('basis');
   return new DominoUserSession(dominoAccess, dominoConnectorForBasis);
 };
@@ -27,6 +28,7 @@ exports.getDominoUserSessionBasis = async () => {
  * @returns {Promise<DominoUserSession>}
  */
 exports.getDominoUserSessionSetup = async () => {
+  const dominoServer = await getDominoServer();
   const dominoConnectorForBasis = await dominoServer.getDominoConnector('setup');
   return new DominoUserSession(dominoAccess, dominoConnectorForBasis);
 };
@@ -36,6 +38,7 @@ exports.getDominoUserSessionSetup = async () => {
  * @returns {Promise<DominoUserSession>}
  */
 exports.getDominoUserSessionAdmin = async () => {
+  const dominoServer = await getDominoServer();
   const dominoConnectorForBasis = await dominoServer.getDominoConnector('admin');
   return new DominoUserSession(dominoAccess, dominoConnectorForBasis);
 };

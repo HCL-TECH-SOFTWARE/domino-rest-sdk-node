@@ -23,7 +23,7 @@ const { getCredentials } = require('../resources/credentials');
 
 const start = async () => {
   const dominoAccess = new DominoAccess(getCredentials());
-  const dominoServer = new DominoServer(dominoAccess.baseUrl);
+  const dominoServer = await DominoServer.getServer(dominoAccess.baseUrl);
   // Both operations that we want to call (createDocument and getDocumentMetadata)
   // are conveniently available under basis API. So there's no need to create another
   // Domino user session with a different connector.

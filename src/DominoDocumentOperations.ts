@@ -283,439 +283,445 @@ export enum QueryActions {
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoDocumentOperations {
-  private static _executeOperation = async <T = any>(
+  private static _executeOperation = <T = any>(
     dominoConnector: DominoConnector,
     dominoAccess: DominoAccess,
     operationId: string,
     options: DominoRequestOptions,
-  ): Promise<T> => {
-    const response = await dominoConnector.request<T>(dominoAccess, operationId, options);
-    return Promise.resolve(response);
-  };
+  ): Promise<T> => dominoConnector.request<T>(dominoAccess, operationId, options);
 
-  static getDocument = async (
+  static getDocument = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     unid: string,
     options?: GetDocumentOptions,
-  ): Promise<DominoDocument> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (unid.trim().length === 0) {
-      return Promise.reject(new Error('UNID must not be empty.'));
-    }
-    if (unid.length !== 32) {
-      return Promise.reject(new Error('UNID has an invalid value.'));
-    }
+  ) =>
+    new Promise<DominoDocument>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (unid.trim().length === 0) {
+        return reject(new Error('UNID must not be empty.'));
+      }
+      if (unid.length !== 32) {
+        return reject(new Error('UNID has an invalid value.'));
+      }
 
-    const params: Map<string, any> = new Map();
-    params.set('unid', unid);
-    for (const key in options) {
-      params.set(key, options[key as keyof GetDocumentOptions]);
-    }
+      const params: Map<string, any> = new Map();
+      params.set('unid', unid);
+      for (const key in options) {
+        params.set(key, options[key as keyof GetDocumentOptions]);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-    };
-    const docResponse = await this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'getDocument', reqOptions);
-    return Promise.resolve(new DominoDocument(docResponse));
-  };
+      const reqOptions: DominoRequestOptions = { dataSource, params };
 
-  static createDocument = async (
+      return this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'getDocument', reqOptions)
+        .then((document) => resolve(new DominoDocument(document)))
+        .catch((error) => reject(error));
+    });
+
+  static createDocument = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     doc: DocumentJSON,
     options?: CreateDocumentOptions,
-  ): Promise<DominoDocument> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
+  ) =>
+    new Promise<DominoDocument>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
 
-    const dominoDoc = new DominoDocument(doc);
+      const dominoDoc = new DominoDocument(doc);
 
-    const params: Map<string, any> = new Map();
-    for (const key in options) {
-      params.set(key, options[key as keyof CreateDocumentOptions]);
-    }
+      const params: Map<string, any> = new Map();
+      for (const key in options) {
+        params.set(key, options[key as keyof CreateDocumentOptions]);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      body: JSON.stringify(dominoDoc.toDocJson()),
-    };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        body: JSON.stringify(dominoDoc.toDocJson()),
+      };
 
-    const docResponse = await this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'createDocument', reqOptions);
-    return Promise.resolve(new DominoDocument(docResponse));
-  };
+      return this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'createDocument', reqOptions)
+        .then((document) => resolve(new DominoDocument(document)))
+        .catch((error) => reject(error));
+    });
 
-  static updateDocument = async (
+  static updateDocument = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     doc: DominoDocument,
     options?: UpdateDocumentOptions,
-  ): Promise<DominoDocument> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    const unid = doc.getUNID();
-    if (unid === undefined || unid.trim().length === 0) {
-      return Promise.reject(new Error('Document UNID must not be empty.'));
-    }
-    if (unid.length !== 32) {
-      return Promise.reject(new Error('Document UNID has an invalid value.'));
-    }
+  ) =>
+    new Promise<DominoDocument>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      const unid = doc.getUNID();
+      if (unid === undefined || unid.trim().length === 0) {
+        return reject(new Error('Document UNID must not be empty.'));
+      }
+      if (unid.length !== 32) {
+        return reject(new Error('Document UNID has an invalid value.'));
+      }
 
-    const params: Map<string, any> = new Map();
-    params.set('unid', unid);
-    for (const key in options) {
-      params.set(key, options[key as keyof UpdateDocumentOptions]);
-    }
+      const params: Map<string, any> = new Map();
+      params.set('unid', unid);
+      for (const key in options) {
+        params.set(key, options[key as keyof UpdateDocumentOptions]);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      body: JSON.stringify(doc.toDocJson()),
-    };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        body: JSON.stringify(doc.toDocJson()),
+      };
 
-    const docResponse = await this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'updateDocument', reqOptions);
-    return Promise.resolve(new DominoDocument(docResponse));
-  };
+      return this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'updateDocument', reqOptions)
+        .then((document) => resolve(new DominoDocument(document)))
+        .catch((error) => reject(error));
+    });
 
-  static patchDocument = async (
+  static patchDocument = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     unid: string,
     docJsonPatch: DocumentJSON,
     options?: UpdateDocumentOptions,
-  ): Promise<DominoDocument> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (unid === undefined || unid.trim().length === 0) {
-      return Promise.reject(new Error('UNID must not be empty.'));
-    }
-    if (unid.length !== 32) {
-      return Promise.reject(new Error('UNID has an invalid value.'));
-    }
+  ) =>
+    new Promise<DominoDocument>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (unid === undefined || unid.trim().length === 0) {
+        return reject(new Error('UNID must not be empty.'));
+      }
+      if (unid.length !== 32) {
+        return reject(new Error('UNID has an invalid value.'));
+      }
 
-    const params: Map<string, any> = new Map();
-    params.set('unid', unid);
-    for (const key in options) {
-      params.set(key, options[key as keyof PatchDocumentOptions]);
-    }
+      const params: Map<string, any> = new Map();
+      params.set('unid', unid);
+      for (const key in options) {
+        params.set(key, options[key as keyof PatchDocumentOptions]);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      body: JSON.stringify(docJsonPatch),
-    };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        body: JSON.stringify(docJsonPatch),
+      };
 
-    const docResponse = await this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'patchDocument', reqOptions);
-    return Promise.resolve(new DominoDocument(docResponse));
-  };
+      return this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'patchDocument', reqOptions)
+        .then((document) => resolve(new DominoDocument(document)))
+        .catch((error) => reject(error));
+    });
 
-  static deleteDocument = async (
-    dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
-    doc: DominoDocument,
-    mode?: string,
-  ): Promise<DocumentStatusResponse> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    const unid = doc.getUNID();
-    if (unid === undefined || unid.trim().length === 0) {
-      return Promise.reject(new Error('Document UNID should not be empty.'));
-    }
-    if (unid.length !== 32) {
-      return Promise.reject(new Error('Document UNID has an invalid value.'));
-    }
+  static deleteDocument = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, doc: DominoDocument, mode?: string) =>
+    new Promise<DocumentStatusResponse>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      const unid = doc.getUNID();
+      if (unid === undefined || unid.trim().length === 0) {
+        return reject(new Error('Document UNID should not be empty.'));
+      }
+      if (unid.length !== 32) {
+        return reject(new Error('Document UNID has an invalid value.'));
+      }
 
-    const params: Map<string, any> = new Map();
-    params.set('unid', unid);
-    if (mode !== undefined) {
-      params.set('mode', mode);
-    }
+      const params: Map<string, any> = new Map();
+      params.set('unid', unid);
+      if (mode !== undefined) {
+        params.set('mode', mode);
+      }
 
-    const reqOptions: DominoRequestOptions = { dataSource, params };
-    const response = await this._executeOperation<DocumentStatusResponse>(dominoConnector, dominoAccess, 'deleteDocument', reqOptions);
-    return Promise.resolve(response);
-  };
+      const reqOptions: DominoRequestOptions = { dataSource, params };
 
-  static deleteDocumentByUNID = async (
-    dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
-    unid: string,
-    mode?: string,
-  ): Promise<DocumentStatusResponse> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (unid.trim().length === 0) {
-      return Promise.reject(new Error('UNID should not be empty.'));
-    }
-    if (unid.length !== 32) {
-      return Promise.reject(new Error('UNID has an invalid value.'));
-    }
+      return this._executeOperation<DocumentStatusResponse>(dominoConnector, dominoAccess, 'deleteDocument', reqOptions)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error));
+    });
 
-    const params: Map<string, any> = new Map();
-    params.set('unid', unid);
-    if (mode !== undefined) {
-      params.set('mode', mode);
-    }
+  static deleteDocumentByUNID = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, unid: string, mode?: string) =>
+    new Promise<DocumentStatusResponse>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (unid.trim().length === 0) {
+        return reject(new Error('UNID should not be empty.'));
+      }
+      if (unid.length !== 32) {
+        return reject(new Error('UNID has an invalid value.'));
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-    };
-    const response = await this._executeOperation<DocumentStatusResponse>(dominoConnector, dominoAccess, 'deleteDocument', reqOptions);
-    return Promise.resolve(response);
-  };
+      const params: Map<string, any> = new Map();
+      params.set('unid', unid);
+      if (mode !== undefined) {
+        params.set('mode', mode);
+      }
 
-  static bulkGetDocuments = async (
+      const reqOptions: DominoRequestOptions = { dataSource, params };
+
+      return this._executeOperation<DocumentStatusResponse>(dominoConnector, dominoAccess, 'deleteDocument', reqOptions)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error));
+    });
+
+  static bulkGetDocuments = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     unids: string[],
     options?: BulkGetDocumentsOptions,
-  ): Promise<Array<DominoDocument | BulkGetErrorResponse>> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (unids.length === 0) {
-      return Promise.reject(new Error('UNIDs array should not be empty.'));
-    }
-    for (const unid of unids) {
-      if (unid.trim().length === 0) {
-        return Promise.reject(new Error('One of given UNIDs is empty.'));
+  ) =>
+    new Promise<Array<DominoDocument | BulkGetErrorResponse>>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
       }
-      if (unid.length !== 32) {
-        return Promise.reject(new Error('One of given UNIDs is invalid.'));
+      if (unids.length === 0) {
+        return reject(new Error('UNIDs array should not be empty.'));
       }
-    }
-
-    const params: Map<string, any> = new Map();
-    for (const key in options) {
-      params.set(key, options[key as keyof BulkGetDocumentsOptions]);
-    }
-
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      body: JSON.stringify({ unids }),
-    };
-    const response = await this._executeOperation<Array<DocumentBody | BulkGetErrorResponse>>(
-      dominoConnector,
-      dominoAccess,
-      'bulkGetDocumentsByUnid',
-      reqOptions,
-    );
-    return Promise.resolve(
-      response.map((item) => {
-        if ('Form' in item) {
-          return new DominoDocument(item);
+      for (const unid of unids) {
+        if (unid.trim().length === 0) {
+          return reject(new Error('One of given UNIDs is empty.'));
         }
-        return item;
-      }),
-    );
-  };
+        if (unid.length !== 32) {
+          return reject(new Error('One of given UNIDs is invalid.'));
+        }
+      }
 
-  static getDocumentsByQuery = async (
+      const params: Map<string, any> = new Map();
+      for (const key in options) {
+        params.set(key, options[key as keyof BulkGetDocumentsOptions]);
+      }
+
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        body: JSON.stringify({ unids }),
+      };
+
+      return this._executeOperation<Array<DocumentBody | BulkGetErrorResponse>>(dominoConnector, dominoAccess, 'bulkGetDocumentsByUnid', reqOptions)
+        .then((response) =>
+          resolve(
+            response.map((item) => {
+              if ('Form' in item) {
+                return new DominoDocument(item);
+              }
+              return item;
+            }),
+          ),
+        )
+        .catch((error) => reject(error));
+    });
+
+  static getDocumentsByQuery = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     request: GetDocumentsByQueryRequest,
     qaction: QueryActions,
     options?: GetDocumentsByQueryOptions,
-  ): Promise<DominoDocument[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (request.query.trim().length === 0) {
-      return Promise.reject(new Error(`'query' inside Request Body should not be empty.`));
-    }
+  ) =>
+    new Promise<DominoDocument[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (request.query.trim().length === 0) {
+        return reject(new Error(`'query' inside Request Body should not be empty.`));
+      }
 
-    const params: Map<string, any> = new Map();
-    for (const key in options) {
-      params.set(key, options[key as keyof GetDocumentsByQueryOptions]);
-    }
-    params.set('action', qaction);
+      const params: Map<string, any> = new Map();
+      for (const key in options) {
+        params.set(key, options[key as keyof GetDocumentsByQueryOptions]);
+      }
+      params.set('action', qaction);
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      body: JSON.stringify(request),
-    };
-    const response = await this._executeOperation<DocumentBody[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>(
-      dominoConnector,
-      dominoAccess,
-      'query',
-      reqOptions,
-    );
-    if (qaction == QueryActions.EXPLAIN) {
-      return Promise.resolve(response as QueryDocumentExplainResponse[]);
-    } else if (qaction == QueryActions.PARSE) {
-      return Promise.resolve(response as QueryDocumentParseResponse[]);
-    } else {
-      return Promise.resolve(response.map((doc) => new DominoDocument(doc as DocumentBody)));
-    }
-  };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        body: JSON.stringify(request),
+      };
 
-  static bulkCreateDocuments = async (
+      return this._executeOperation<DocumentBody[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>(
+        dominoConnector,
+        dominoAccess,
+        'query',
+        reqOptions,
+      )
+        .then((response) => {
+          if (qaction === QueryActions.EXPLAIN) {
+            resolve(response as QueryDocumentExplainResponse[]);
+          } else if (qaction === QueryActions.PARSE) {
+            resolve(response as QueryDocumentParseResponse[]);
+          } else {
+            resolve(response.map((doc) => new DominoDocument(doc as DocumentBody)));
+          }
+        })
+        .catch((error) => reject(error));
+    });
+
+  static bulkCreateDocuments = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     docs: DocumentJSON[],
     richTextAs?: RichTextRepresentation,
-  ): Promise<DominoDocument[]> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (docs.length === 0) {
-      return Promise.reject(new Error('Documents array should not be empty.'));
-    }
-    const params: Map<string, any> = new Map();
-    if (richTextAs !== undefined) {
-      params.set('richTextAs', richTextAs);
-    }
+  ) =>
+    new Promise<DominoDocument[]>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (docs.length === 0) {
+        return reject(new Error('Documents array should not be empty.'));
+      }
+      const params: Map<string, any> = new Map();
+      if (richTextAs !== undefined) {
+        params.set('richTextAs', richTextAs);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      body: JSON.stringify({ documents: docs }),
-    };
-    const response = await this._executeOperation<DocumentBody[] | DocumentStatusResponse[]>(
-      dominoConnector,
-      dominoAccess,
-      'bulkCreateDocuments',
-      reqOptions,
-    );
-    return Promise.resolve(response.map((doc) => new DominoDocument(doc as DocumentBody)));
-  };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        body: JSON.stringify({ documents: docs }),
+      };
 
-  static bulkUpdateDocumentsByQuery = async (
+      return this._executeOperation<DocumentBody[]>(dominoConnector, dominoAccess, 'bulkCreateDocuments', reqOptions)
+        .then((documents) => resolve(documents.map((document) => new DominoDocument(document))))
+        .catch((error) => reject(error));
+    });
+
+  static bulkUpdateDocumentsByQuery = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     request: BulkUpdateDocumentsByQueryRequest,
     richTextAs?: RichTextRepresentation,
-  ): Promise<DominoDocument[] | DocumentStatusResponse[]> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (request.query.trim().length === 0) {
-      return Promise.reject(new Error(`'query' inside Request Body should not be empty.`));
-    }
-    if (request.replaceItems === undefined || Object.keys(request.replaceItems).length === 0) {
-      return Promise.reject(new Error('Request replaceItems should not be empty.'));
-    }
+  ) =>
+    new Promise<DominoDocument[] | DocumentStatusResponse[]>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (request.query.trim().length === 0) {
+        return reject(new Error(`'query' inside Request Body should not be empty.`));
+      }
+      if (request.replaceItems === undefined || Object.keys(request.replaceItems).length === 0) {
+        return reject(new Error('Request replaceItems should not be empty.'));
+      }
 
-    const params: Map<string, any> = new Map();
-    if (richTextAs !== undefined) {
-      params.set('richTextAs', richTextAs);
-    }
+      const params: Map<string, any> = new Map();
+      if (richTextAs !== undefined) {
+        params.set('richTextAs', richTextAs);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      body: JSON.stringify(request),
-    };
-    const response = await this._executeOperation<DocumentBody[] | DocumentStatusResponse[]>(
-      dominoConnector,
-      dominoAccess,
-      'bulkUpdateDocumentsByQuery',
-      reqOptions,
-    );
-    if (request.returnUpdatedDocument === true) {
-      return Promise.resolve(response.map((doc) => new DominoDocument(doc as DocumentBody)));
-    }
-    return Promise.resolve(response as DocumentStatusResponse[]);
-  };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        body: JSON.stringify(request),
+      };
 
-  static bulkDeleteDocuments = async (
+      return this._executeOperation<DocumentBody[] | DocumentStatusResponse[]>(
+        dominoConnector,
+        dominoAccess,
+        'bulkUpdateDocumentsByQuery',
+        reqOptions,
+      )
+        .then((response) => {
+          if (request.returnUpdatedDocument === true) {
+            return resolve(response.map((document) => new DominoDocument(document as DocumentBody)));
+          }
+          return resolve(response as DocumentStatusResponse[]);
+        })
+        .catch((error) => reject(error));
+    });
+
+  static bulkDeleteDocuments = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     docs: DominoDocument[],
     mode?: string,
-  ): Promise<DocumentStatusResponse[]> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (docs.length === 0) {
-      return Promise.reject(new Error('Documents array should not be empty.'));
-    }
-    const unids: string[] = [];
-    for (const doc of docs) {
-      const unid = doc.getUNID();
-      if (unid === undefined || unid.trim().length === 0) {
-        return Promise.reject(new Error('One of given documents has empty UNID.'));
+  ) =>
+    new Promise<DocumentStatusResponse[]>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
       }
-      if (unid.length !== 32) {
-        return Promise.reject(new Error('One of given documents has invalid UNID.'));
+      if (docs.length === 0) {
+        return reject(new Error('Documents array should not be empty.'));
       }
-      unids.push(unid);
-    }
+      const unids: string[] = [];
+      for (const doc of docs) {
+        const unid = doc.getUNID();
+        if (unid === undefined || unid.trim().length === 0) {
+          return reject(new Error('One of given documents has empty UNID.'));
+        }
+        if (unid.length !== 32) {
+          return reject(new Error('One of given documents has invalid UNID.'));
+        }
+        unids.push(unid);
+      }
 
-    const body: { unids: string[]; mode?: string } = { unids };
-    if (mode !== undefined) {
-      body.mode = mode;
-    }
+      const body: { unids: string[]; mode?: string } = { unids };
+      if (mode !== undefined) {
+        body.mode = mode;
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params: new Map(),
-      body: JSON.stringify(body),
-    };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params: new Map(),
+        body: JSON.stringify(body),
+      };
 
-    const response = await this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions);
-    return Promise.resolve(response);
-  };
+      return this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error));
+    });
 
-  static bulkDeleteDocumentsByUNID = async (
+  static bulkDeleteDocumentsByUNID = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     unids: string[],
     mode?: string,
-  ): Promise<DocumentStatusResponse[]> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (unids.length === 0) {
-      return Promise.reject(new Error('UNIDs array should not be empty.'));
-    }
-    for (const unid of unids) {
-      if (unid.trim().length === 0) {
-        return Promise.reject(new Error('One of given UNIDs is empty.'));
+  ) =>
+    new Promise<DocumentStatusResponse[]>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
       }
-      if (unid.length !== 32) {
-        return Promise.reject(new Error('One of given UNIDs is invalid.'));
+      if (unids.length === 0) {
+        return reject(new Error('UNIDs array should not be empty.'));
       }
-    }
+      for (const unid of unids) {
+        if (unid.trim().length === 0) {
+          return reject(new Error('One of given UNIDs is empty.'));
+        }
+        if (unid.length !== 32) {
+          return reject(new Error('One of given UNIDs is invalid.'));
+        }
+      }
 
-    const body: { unids: string[]; mode?: string } = { unids };
-    if (mode !== undefined) {
-      body.mode = mode;
-    }
+      const body: { unids: string[]; mode?: string } = { unids };
+      if (mode !== undefined) {
+        body.mode = mode;
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params: new Map(),
-      body: JSON.stringify(body),
-    };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params: new Map(),
+        body: JSON.stringify(body),
+      };
 
-    const response = await this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions);
-    return Promise.resolve(response);
-  };
+      return this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions)
+        .then((response) => resolve(response))
+        .catch((error) => reject(error));
+    });
 }
 
 export default DominoDocumentOperations;

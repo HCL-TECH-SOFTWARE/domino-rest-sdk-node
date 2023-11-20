@@ -94,14 +94,12 @@ export class DominoListView implements DominoRestListView {
   columns: DesignColumnSimple[];
   type?: ListType | undefined;
 
-  // setup fields listview when get and request
-
-  // basis fields listview
   readonly '@alias'?: string[] = [];
   readonly isFolder?: boolean;
   readonly '@title'?: string | undefined;
   readonly '@unid'?: string | undefined;
   readonly '@noteid'?: string | undefined;
+
   constructor(doc: ListViewBody) {
     if (doc.hasOwnProperty('name') && doc.name && doc.name.length > 0) {
       this.name = doc.name;
@@ -113,11 +111,11 @@ export class DominoListView implements DominoRestListView {
     } else {
       throw new Error('Domino lists needs selectionFormula value.');
     }
-    if (doc.hasOwnProperty('columns') && doc.columns != null && doc.columns.length > 0 && doc.columns) {
+    if (doc.columns !== null && doc.hasOwnProperty('columns')) {
       const arr: DesignColumnSimple[] = [];
-      doc.columns.forEach(function (value) {
-        DominoListView._validateDesignColumnSimple(value);
-        arr.push(value);
+      doc.columns.forEach((column) => {
+        DominoListView._validateDesignColumnSimple(column);
+        arr.push(column);
       });
       this.columns = arr;
     } else {
@@ -125,14 +123,14 @@ export class DominoListView implements DominoRestListView {
     }
   }
 
-  private static _validateDesignColumnSimple(obj: DesignColumnSimple) {
-    if (!obj.name) {
+  private static _validateDesignColumnSimple = (column: DesignColumnSimple) => {
+    if (!column.hasOwnProperty('name')) {
       throw new Error("Required property 'name' is missing");
     }
-    if (!obj.formula) {
+    if (!column.hasOwnProperty('formula')) {
       throw new Error("Required property 'formula' is missing");
     }
-  }
+  };
 
   toListViewJson = (): ListViewBody => {
     const json: ListViewBody = {
@@ -157,6 +155,7 @@ export class DominoListView implements DominoRestListView {
         'Failed to convert DominoListView Object to ListViewBody because of having a invalid required fields in Domino List View (name, selectionFormula and columns)',
       );
     }
+
     return json;
   };
 }

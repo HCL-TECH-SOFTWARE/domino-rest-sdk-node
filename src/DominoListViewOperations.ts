@@ -19,7 +19,7 @@ export type GetListViewDesignJSON = {
 
 export type GetListViewJSON = Pick<ListViewBody, 'title' | 'isFolder' | 'unid' | 'alias'>;
 
-export type CreateListResponse = {
+export type CreateUpdateListResponse = {
   success: boolean;
   log: string;
 };
@@ -210,208 +210,207 @@ export enum ViewEntryScopes {
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoListViewOperations {
-  private static _executeOperation = async <T = any>(
+  private static _executeOperation = <T = any>(
     dominoConnector: DominoConnector,
     dominoAccess: DominoAccess,
     operationId: string,
     options: DominoRequestOptions,
-  ): Promise<T> => {
-    const response = await dominoConnector.request<T>(dominoAccess, operationId, options);
-    return Promise.resolve(response);
-  };
+  ): Promise<T> => dominoConnector.request<T>(dominoAccess, operationId, options);
 
-  static async getListViewEntry(
+  static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { document?: false; subscriber?: undefined },
   ): Promise<ListViewEntryJSON[]>;
-  static async getListViewEntry(
+  static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { document: true },
   ): Promise<DominoDocument[]>;
-  static async getListViewEntry(
+  static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { subscriber: () => WritableStream<ListViewEntryJSON | DocumentBody> },
   ): Promise<DominoDocument[]>;
-  static async getListViewEntry(
+  static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     options?: GetListViewEntryOptions,
-  ): Promise<ListViewEntryJSON[] | DominoDocument[] | void> {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (listViewName.trim().length === 0) {
-      return Promise.reject(new Error('name must not be empty.'));
-    }
-
-    const params: Map<string, any> = new Map();
-    let subscriber = null;
-    let returnAsDocument: boolean | undefined = false;
-    params.set('name', listViewName);
-
-    for (const key in options) {
-      if (key === 'subscriber') {
-        subscriber = options[key];
-      } else {
-        if (key === 'documents') {
-          returnAsDocument = options[key];
-        }
-        params.set(key, options[key as keyof GetListViewEntryOptions]);
+  ) {
+    return new Promise<ListViewEntryJSON[] | DominoDocument[] | void>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
       }
-    }
+      if (listViewName.trim().length === 0) {
+        return reject(new Error('name must not be empty.'));
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      subscriber,
-    };
+      const params: Map<string, any> = new Map();
+      let subscriber: (() => WritableStream<ListViewEntryJSON | DocumentBody>) | null | undefined = null;
+      let returnAsDocument: boolean | undefined = false;
+      params.set('name', listViewName);
 
-    if (subscriber !== undefined && subscriber !== null) {
-      await this._executeOperation<void>(dominoConnector, dominoAccess, 'fetchViewEntries', reqOptions);
-      return Promise.resolve();
-    } else if (returnAsDocument !== undefined && returnAsDocument) {
-      const response = await this._executeOperation<DocumentBody[]>(dominoConnector, dominoAccess, 'fetchViewEntries', reqOptions);
-      return Promise.resolve(response.map((doc) => new DominoDocument(doc)));
-    }
-    const response = await this._executeOperation<ListViewEntryJSON[]>(dominoConnector, dominoAccess, 'fetchViewEntries', reqOptions);
-    return Promise.resolve(response.map((viewEntry) => new DominoListViewEntry(viewEntry).toListViewJson()));
+      for (const key in options) {
+        if (key === 'subscriber') {
+          subscriber = options[key];
+        } else {
+          if (key === 'documents') {
+            returnAsDocument = options[key];
+          }
+          params.set(key, options[key as keyof GetListViewEntryOptions]);
+        }
+      }
+
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        subscriber,
+      };
+
+      return this._executeOperation<void | DocumentBody[] | ListViewEntryJSON[]>(dominoConnector, dominoAccess, 'fetchViewEntries', reqOptions)
+        .then((response) => {
+          if (subscriber) {
+            return resolve();
+          } else if (returnAsDocument) {
+            return resolve((response as DocumentBody[]).map((doc) => new DominoDocument(doc)));
+          }
+          return resolve((response as ListViewEntryJSON[]).map((viewEntry) => new DominoListViewEntry(viewEntry).toListViewJson()));
+        })
+        .catch((error) => reject(error));
+    });
   }
 
-  static getListViewPivotEntry = async (
+  static getListViewPivotEntry = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     pivotColumn: string,
     options?: GetListPivotViewEntryOptions,
-  ): Promise<PivotListViewResponse> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (listViewName.trim().length === 0) {
-      return Promise.reject(new Error('name must not be empty.'));
-    }
-    if (pivotColumn.trim().length === 0) {
-      return Promise.reject(new Error('pivotColumn must not be empty.'));
-    }
+  ) =>
+    new Promise<PivotListViewResponse>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (listViewName.trim().length === 0) {
+        return reject(new Error('name must not be empty.'));
+      }
+      if (pivotColumn.trim().length === 0) {
+        return reject(new Error('pivotColumn must not be empty.'));
+      }
 
-    const params: Map<string, any> = new Map();
-    params.set('name', listViewName);
-    params.set('pivotColumn', pivotColumn);
+      const params: Map<string, any> = new Map();
+      params.set('name', listViewName);
+      params.set('pivotColumn', pivotColumn);
 
-    for (const key in options) {
-      params.set(key, options[key as keyof GetListPivotViewEntryOptions]);
-    }
+      for (const key in options) {
+        params.set(key, options[key as keyof GetListPivotViewEntryOptions]);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-    };
-    const response = await this._executeOperation<PivotListViewResponse>(dominoConnector, dominoAccess, 'pivotViewEntries', reqOptions);
-    return Promise.resolve(response);
-  };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+      };
 
-  static getListViews = async (
-    dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
-    options?: GetListViewOptions,
-  ): Promise<GetListViewJSON[]> => {
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
+      return this._executeOperation<PivotListViewResponse>(dominoConnector, dominoAccess, 'pivotViewEntries', reqOptions)
+        .then((pivotListViews) => resolve(pivotListViews))
+        .catch((error) => reject(error));
+    });
 
-    const params: Map<string, any> = new Map();
+  static getListViews = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, options?: GetListViewOptions) =>
+    new Promise<GetListViewJSON[]>((resolve, reject) => {
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
 
-    for (const key in options) {
-      params.set(key, options[key as keyof GetListViewOptions]);
-    }
+      const params: Map<string, any> = new Map();
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-    };
-    const response = await this._executeOperation<GetListViewJSON[]>(dominoConnector, dominoAccess, 'fetchViews', reqOptions);
-    return Promise.resolve(response);
-  };
+      for (const key in options) {
+        params.set(key, options[key as keyof GetListViewOptions]);
+      }
 
-  static createUpdateListView = async (
+      const reqOptions: DominoRequestOptions = { dataSource, params };
+
+      this._executeOperation<GetListViewJSON[]>(dominoConnector, dominoAccess, 'fetchViews', reqOptions)
+        .then((listViews) => resolve(listViews))
+        .catch((error) => reject(error));
+    });
+
+  static createUpdateListView = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     listView: ListViewBody,
     designName: string,
     options?: CreateUpdateDesignOptions,
-  ): Promise<CreateListResponse> => {
-    const listViewObj = new DominoListView(listView);
-    const params: Map<string, any> = new Map();
+  ) =>
+    new Promise<CreateUpdateListResponse>((resolve, reject) => {
+      const listViewObj = new DominoListView(listView);
+      const params: Map<string, any> = new Map();
 
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (designName.trim().length === 0) {
-      return Promise.reject(new Error('designName must not be empty.'));
-    }
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (designName.trim().length === 0) {
+        return reject(new Error('designName must not be empty.'));
+      }
 
-    params.set('designName', designName);
-    params.set('designType', 'views');
+      params.set('designName', designName);
+      params.set('designType', 'views');
 
-    for (const key in options) {
-      params.set(key, options[key as keyof CreateUpdateDesignOptions]);
-    }
+      for (const key in options) {
+        params.set(key, options[key as keyof CreateUpdateDesignOptions]);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-      body: JSON.stringify(listViewObj.toListViewJson()),
-    };
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+        body: JSON.stringify(listViewObj.toListViewJson()),
+      };
 
-    const response = await this._executeOperation<CreateListResponse>(dominoConnector, dominoAccess, 'updateCreateDesign', reqOptions);
-    return Promise.resolve(response);
-  };
+      return this._executeOperation<CreateUpdateListResponse>(dominoConnector, dominoAccess, 'updateCreateDesign', reqOptions)
+        .then((listView) => resolve(listView))
+        .catch((error) => reject(error));
+    });
 
-  static getListView = async (
+  static getListView = (
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     designName: string,
     options?: GetDesignOptions,
-  ): Promise<GetListViewDesignJSON> => {
-    const params: Map<string, any> = new Map();
+  ) =>
+    new Promise<GetListViewDesignJSON>((resolve, reject) => {
+      const params: Map<string, any> = new Map();
 
-    if (dataSource.trim().length === 0) {
-      return Promise.reject(new Error('dataSource must not be empty.'));
-    }
-    if (designName.trim().length === 0) {
-      return Promise.reject(new Error('designName must not be empty.'));
-    }
+      if (dataSource.trim().length === 0) {
+        return reject(new Error('dataSource must not be empty.'));
+      }
+      if (designName.trim().length === 0) {
+        return reject(new Error('designName must not be empty.'));
+      }
 
-    params.set('designName', designName);
-    params.set('designType', 'views');
+      params.set('designName', designName);
+      params.set('designType', 'views');
 
-    for (const key in options) {
-      params.set(key, options[key as keyof GetDesignOptions]);
-    }
+      for (const key in options) {
+        params.set(key, options[key as keyof GetDesignOptions]);
+      }
 
-    const reqOptions: DominoRequestOptions = {
-      dataSource,
-      params,
-    };
+      const reqOptions: DominoRequestOptions = { dataSource, params };
 
-    const response = await this._executeOperation<GetListViewDesignJSON>(dominoConnector, dominoAccess, 'getDesign', reqOptions);
-    return Promise.resolve(response);
-  };
+      return this._executeOperation<GetListViewDesignJSON>(dominoConnector, dominoAccess, 'getDesign', reqOptions)
+        .then((listView) => resolve(listView))
+        .catch((error) => reject(error));
+    });
 }
 
 export default DominoListViewOperations;

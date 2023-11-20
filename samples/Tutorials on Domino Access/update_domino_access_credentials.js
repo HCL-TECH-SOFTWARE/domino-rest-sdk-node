@@ -14,8 +14,8 @@ const dominoAccess = new DominoAccess(getCredentials());
 const newCredentials = {
   scope: '$DATA',
   type: 'basic',
-  userName: 'new_username',
-  passWord: 'new_password',
+  username: 'new_username',
+  password: 'new_password',
 };
 
 dominoAccess.updateCredentials(newCredentials);

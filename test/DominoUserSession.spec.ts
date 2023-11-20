@@ -4,6 +4,7 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
+import fs from 'fs';
 import sinon from 'sinon';
 import {
   CredentialType,
@@ -25,29 +26,37 @@ const fakeCredentials = {
   credentials: {
     scope: '',
     type: CredentialType.BASIC,
-    userName: 'fakeUsername',
-    passWord: 'fakePassword',
+    username: 'fakeUsername',
+    password: 'fakePassword',
   },
 };
 
-describe('DominoUserSession', () => {
-  const dc = new DominoConnector('', {} as DominoApiMeta);
+describe('DominoUserSession', async () => {
+  const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeToken = new DominoAccess(fakeCredentials);
-  const dus = new DominoUserSession(fakeToken, dc);
 
+  let dc: DominoConnector;
+  let dus: DominoUserSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
   let stub: sinon.SinonStub<any, Promise<any>>;
 
   it('should call DominoConnector request', async () => {
+    const fetchStub = sinon.stub(global, 'fetch');
+    fetchStub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(baseApi))));
+
+    dc = await DominoConnector.getConnector('http://localhost:8880', {} as DominoApiMeta);
     const dcRequestStub = sinon.stub(dc, 'request');
     dcRequestStub.resolves({ key: 'value' });
+    dus = new DominoUserSession(fakeToken, dc);
 
     const response = await dus.request('operation', { params: new Map() });
     expect(dcRequestStub.callCount).equal(1);
     expect(response).to.exist;
     expect(dcRequestStub.getCall(0).args).to.deep.equal([dus.dominoAccess, 'operation', { params: new Map() }]);
     expect(response).to.deep.equal({ key: 'value' });
+
+    fetchStub.restore();
   });
 
   beforeEach(() => {

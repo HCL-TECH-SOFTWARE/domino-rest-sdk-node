@@ -28,8 +28,8 @@ First is creating a a `credentials.json` in root with the following format:
   "credentials": {
     "scope": "$DATA",
     "type": "basic",
-    "userName": "{{Username}}",
-    "passWord": "{{Password}}"
+    "username": "{{Username}}",
+    "password": "{{Password}}"
   }
 }
 ```

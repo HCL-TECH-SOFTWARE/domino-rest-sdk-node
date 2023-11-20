@@ -4,6 +4,7 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
+import fs from 'fs';
 import sinon from 'sinon';
 import {
   CreateUpdateDesignOptions,
@@ -33,29 +34,36 @@ const fakeCredentials = {
   credentials: {
     scope: '',
     type: CredentialType.BASIC,
-    userName: 'fakeUsername',
-    passWord: 'fakePassword',
+    username: 'fakeUsername',
+    password: 'fakePassword',
   },
 };
 
-describe('DominoListViewOperations', () => {
-  const dc = new DominoConnector('', {} as DominoApiMeta);
+describe('DominoListViewOperations', async () => {
+  const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const dataSource = 'demoapi';
   const listViewName = 'Customers';
   const fakeToken = new DominoAccess(fakeCredentials);
 
+  let dc: DominoConnector;
   let operationId: string;
   let expectedParams: Map<string, any>;
   let expectedOptions: DominoRequestOptions;
   let dcRequestStub: sinon.SinonStub<[dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions], Promise<any>>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    const fetchStub = sinon.stub(global, 'fetch');
+    fetchStub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(baseApi))));
+
+    dc = await DominoConnector.getConnector('http://localhost:8880', {} as DominoApiMeta);
     dcRequestStub = sinon.stub(dc, 'request');
     expectedParams = new Map();
     expectedOptions = {
-      dataSource: dataSource,
+      dataSource,
       params: expectedParams,
     };
+
+    fetchStub.restore();
   });
 
   afterEach(() => {

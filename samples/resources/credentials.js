@@ -12,8 +12,8 @@ exports.getCredentials = () => {
       credentials: {
         scope: process.env.SCOPE,
         type: process.env.TYPE,
-        userName: process.env.USERNAME,
-        passWord: process.env.PASSWORD,
+        username: process.env.USERNAME,
+        password: process.env.PASSWORD,
       },
     };
   } else if (credentialsJson !== undefined) {

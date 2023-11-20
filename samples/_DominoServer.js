@@ -9,22 +9,26 @@
 const { DominoServer } = require('@hcl-software/domino-rest-sdk-node');
 const { dominoAccess } = require('./_DominoAccess');
 
-exports.dominoServer = new DominoServer(dominoAccess.baseUrl);
+exports.getDominoServer = async () => {
+  const dominoServer = await DominoServer.getServer(dominoAccess.baseUrl);
+  return dominoServer;
+};
 
 const showAvailableApis = async () => {
-  const apis = await this.dominoServer.availableApis();
+  const dominoServer = await getDominoServer();
+  const apis = dominoServer.availableApis();
   console.log(apis);
 };
 
 const showOperations = async () => {
-  const apis = await this.dominoServer.availableOperations("basis"); // can do other apis e.g setup,admin,pim
+  // Also available for other available APIs such as setup, admin, etc.
+  const dominoServer = await getDominoServer();
+  const apis = await dominoServer.availableOperations('basis');
   console.log(apis);
 };
-
 
 // Uncomment this to print all available APIs on the Domino REST API server.
 // showAvailableApis();
 
-// // Uncomment this to print all available operations on the Domino REST API server in basis.
+// Uncomment this to print all available operations on the Domino REST API server in basis.
 // showOperations();
-
