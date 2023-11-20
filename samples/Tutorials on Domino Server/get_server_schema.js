@@ -14,8 +14,10 @@ if (credentials.baseUrl === undefined) {
   return;
 }
 
-const dominoServer = new DominoServer(credentials.baseUrl);
-dominoServer
-  .availableApis()
-  .then((apis) => console.log(apis))
-  .catch((error) => console.error(error));
+const start = async () => {
+  const dominoServer = await DominoServer.getServer(credentials.baseUrl);
+
+  console.log(dominoServer.availableApis());
+};
+
+start();

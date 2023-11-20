@@ -12,17 +12,11 @@ const { getCredentials } = require('../resources/credentials');
 
 const start = async () => {
   const dominoAccess = new DominoAccess(getCredentials());
-  const dominoServer = new DominoServer(dominoAccess.baseUrl);
+  const dominoServer = await DominoServer.getServer(dominoAccess.baseUrl);
   // Let's try to get one operation under setup API.
   const dominoConnector = await dominoServer.getDominoConnector('setup');
 
-  await dominoConnector
-    .getOperation('fetchDesignAll')
-    .then((operation) => console.log(operation))
-    .catch((error) => console.log(error));
-
-  // In cases you don't have a Domino connector, but have a Domino user session,
-  // you can still call getOperation via 'dominoUserSession.dominoConnector.getOperation(...)'.
+  console.log(dominoConnector.getOperation('fetchDesignAll'));
 };
 
 start();

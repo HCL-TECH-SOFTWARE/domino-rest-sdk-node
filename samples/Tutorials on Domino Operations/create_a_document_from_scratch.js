@@ -15,7 +15,7 @@ const { getCredentials } = require('../resources/credentials');
 
 const start = async () => {
   const dominoAccess = new DominoAccess(getCredentials());
-  const dominoServer = new DominoServer(dominoAccess.baseUrl);
+  const dominoServer = await DominoServer.getServer(dominoAccess.baseUrl);
   // Get basis domino connector because create document is only available on basis API.
   const dominoConnector = await dominoServer.getDominoConnector('basis');
   const dominoUserSession = new DominoUserSession(dominoAccess, dominoConnector);

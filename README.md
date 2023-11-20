@@ -75,8 +75,8 @@ const credentials = {
   "credentials": {
     "scope": "$DATA",
     "type": "basic",
-    "userName": "username",
-    "passWord": "password"
+    "username": "username",
+    "password": "password"
   }
 }
 ```
@@ -98,10 +98,10 @@ Running the code above should print the access token if nothing went wrong.
 
 `DominoServer` is a class that is aware of the available APIs of the Domino REST API server and maps each of it to its own `DominoConnector`.
 
-To create a `DominoServer`, you need to provide it with the URL of the Domino REST API server. Make sure that it is the same URL that your `DominoAccess` uses.
+To create a `DominoServer`, you need to use the static factory method `DominoServer.getServer` and provide it with the URL of the Domino REST API server.
 
 ```javascript
-const dominoServer = new DominoServer('Domino REST API server URL');
+const dominoServer = await DominoServer.getServer('<Domino REST API server URL>');
 ```
 
 ### 🎮 Running a Domino REST API operation using the SDK
