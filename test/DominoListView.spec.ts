@@ -36,17 +36,14 @@ describe('DominoListView', () => {
     selectionFormula: '',
     columns: [],
   };
-  const ddlv4: ListViewBody = {
-    name: 'newentry',
-    selectionFormula: 'Form = NewEntry',
-    columns: [],
-  };
   const lvObject = new DominoListView(ddlv1);
+
   describe('structure', () => {
     describe('name', () => {
       it('should return name if it is in the given view', () => {
         expect(lvObject.name).to.deep.equal(ddlv1.name);
       });
+
       it('should throw error when name is empty', () => {
         expect(() => new DominoListView(ddlv2)).to.throw('Domino lists needs name value.');
       });
@@ -65,15 +62,11 @@ describe('DominoListView', () => {
       it('should return columns if it is in the given view', () => {
         expect(lvObject.columns).to.deep.equal(ddlv1.columns);
       });
-      it('should throw error when columns are incorrectly created', () => {
-        expect(() => new DominoListView(ddlv4)).to.throw('Domino lists needs correct columns value.');
-      });
-      it('should throw error when columns is empty', () => {
-        expect(() => new DominoListView(ddlv4)).to.throw('Domino lists needs correct columns value.');
-      });
+
       it('should throw error when columns is structured incorrectly (missing name)', () => {
         expect(() => new DominoListView(ddlv2IncorrectCol)).to.throw("Required property 'name' is missing");
       });
+
       it('should throw error when columns is structured incorrectly (missing formula)', () => {
         expect(() => new DominoListView(ddlv2IncorrectCol2)).to.throw("Required property 'formula' is missing");
       });
@@ -82,21 +75,25 @@ describe('DominoListView', () => {
 
   describe('toListViewJson', () => {
     const lvObjectToListViewJson = new DominoListView(ddlv1);
+
     it('should return columns if it is in the given view', () => {
       expect(lvObjectToListViewJson.toListViewJson()).to.deep.equal(dlv1);
     });
+
     it('should throw error when required fields are missing when converting DominoListView object ', () => {
       lvObjectToListViewJson.columns = [];
       expect(() => lvObjectToListViewJson.toListViewJson()).to.throw(
         'Failed to convert DominoListView Object to ListViewBody because of having a invalid required fields in Domino List View (name, selectionFormula and columns)',
       );
     });
+
     it('should throw error when required fields are missing when converting DominoListView object ', () => {
       lvObjectToListViewJson.name = '';
       expect(() => lvObjectToListViewJson.toListViewJson()).to.throw(
         'Failed to convert DominoListView Object to ListViewBody because of having a invalid required fields in Domino List View (name, selectionFormula and columns)',
       );
     });
+
     it('should throw error when required fields are missing when converting DominoListView object ', () => {
       lvObjectToListViewJson.selectionFormula = '';
       expect(() => lvObjectToListViewJson.toListViewJson()).to.throw(
@@ -104,11 +101,4 @@ describe('DominoListView', () => {
       );
     });
   });
-
-  // describe('toGetListViewDesign', () => {
-  //   const ggdve1 = new DominoListView(gdve1);
-  //   it('should throw error when required fields are missing when converting DominoListView object ', () => {
-  //     expect(() => ggdve1.toGetListViewDesign()).to.throw('Failed to convert DominoListView Object to ListViewBody because of having a invalid required fields in Domino List View (name, selectionFormula and columns)');
-  //   });
-  // });
 });

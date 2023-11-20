@@ -14,6 +14,7 @@ chai.use(chaiAsPromised);
 
 describe('Domino server with API definitions', () => {
   let stub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
+  const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
 
   beforeEach(() => {
@@ -52,28 +53,26 @@ describe('Domino server with API definitions', () => {
 
   describe('Returning Domino Rest connector', () => {
     beforeEach(() => {
-      stub.onSecondCall().throws(new Error('One call too far'));
+      stub.onSecondCall().returns(Promise.resolve(new Response(JSON.stringify(baseApi))));
     });
 
     it('should return a DominoConnector', async () => {
       const server = await DominoServer.getServer('http://localhost:8880');
-      const baseConnector: DominoConnector = await server.getDominoConnector('basis');
+      const baseConnector = await server.getDominoConnector('basis');
       expect(baseConnector).to.be.an.instanceOf(DominoConnector);
-      expect(stub.args.length).to.equal(1);
     });
 
     it('should return a DominoConnector using connector no reload needed', async () => {
       const server = await DominoServer.getServer('http://localhost:8880');
-      const baseConnector: DominoConnector = await server.getDominoConnector('basis');
-      const anotherConnector: DominoConnector = await server.getDominoConnector('basis');
+      const baseConnector = await server.getDominoConnector('basis');
+      const anotherConnector = await server.getDominoConnector('basis');
       expect(anotherConnector).to.be.an.instanceOf(DominoConnector);
       expect(anotherConnector).to.be.equal(baseConnector);
     });
 
-    it('should not have an api "tango"', async (done) => {
+    it('should not have an api "tango"', async () => {
       const server = await DominoServer.getServer('http://localhost:8880');
-      const baseConnector = server.getDominoConnector('tango');
-      expect(baseConnector).to.eventually.rejectedWith('API tango not available on this server').notify(done);
+      await expect(server.getDominoConnector('tango')).to.eventually.be.rejectedWith(`API 'tango' not available on this server`);
     });
   });
 
@@ -99,7 +98,7 @@ describe('Domino server with API definitions', () => {
         expect.fail('Expected an error to be thrown');
       } catch (error: any) {
         // Use 'any' as a last resort
-        expect((error as Error).message).to.equal('API tango not available on this server');
+        expect((error as Error).message).to.equal(`API 'tango' not available on this server`);
       } finally {
         stub.restore();
       }

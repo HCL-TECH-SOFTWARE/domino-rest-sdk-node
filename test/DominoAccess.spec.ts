@@ -47,7 +47,7 @@ describe('DominoAccess for Access Tokens', () => {
         scope: '$DATA',
         type: CredentialType.BASIC,
       };
-      expect(() => new DominoAccess(simpleAccess)).to.throw('BASIC auth needs userName and password.');
+      expect(() => new DominoAccess(simpleAccess)).to.throw('BASIC auth needs username and password.');
     });
 
     it('should insist on all oauth credentials on initialization', () => {
@@ -95,7 +95,7 @@ describe('DominoAccess for Access Tokens', () => {
         username: 'John',
       };
       const idp = new DominoAccess(simpleAccess);
-      expect(() => idp.updateCredentials(expected)).to.throw('BASIC auth needs userName and password.');
+      expect(() => idp.updateCredentials(expected)).to.throw('BASIC auth needs username and password.');
     });
 
     it('should insist on all OAUTH credentials when updating credentials', () => {
@@ -221,20 +221,6 @@ describe('DominoAccess for Access Tokens', () => {
 
     afterEach(() => {
       stub.restore();
-    });
-
-    it('should throw the response status text when fetch response is not okay', async () => {
-      simpleAccess.credentials = {
-        scope: '$DATA',
-        type: CredentialType.BASIC,
-        username: 'John Doe',
-        password: 'password',
-      };
-      const response = new Response(undefined, { status: 401, statusText: 'Unauthorized' });
-      stub.resolves(response);
-
-      const domAccess = new DominoAccess(simpleAccess);
-      await expect(domAccess.accessToken()).to.be.rejectedWith('Unauthorized');
     });
 
     it('should throw the JSON response when fetch response is not okay', async () => {

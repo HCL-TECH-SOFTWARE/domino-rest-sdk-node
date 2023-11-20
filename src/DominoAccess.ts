@@ -90,7 +90,7 @@ export class DominoAccess implements DominoRestAccess {
     }
     if (params.credentials.type == CredentialType.BASIC) {
       if (!params.credentials.username || !params.credentials.password) {
-        throw new Error('BASIC auth needs userName and password.');
+        throw new Error('BASIC auth needs username and password.');
       }
     } else {
       // Credentials type is OAuth
@@ -150,10 +150,10 @@ export class DominoAccess implements DominoRestAccess {
       };
       const data = new URLSearchParams();
       data.append('grant_type', 'refresh_token');
-      data.append('refresh_token', this.credentials.refreshToken ? this.credentials.refreshToken : '');
+      data.append('refresh_token', this.credentials.refreshToken as string);
       data.append('scope', this.credentials.scope);
-      data.append('client_id', this.credentials.appId ? this.credentials.appId : '');
-      data.append('client_secret', this.credentials.appSecret ? this.credentials.appSecret : '');
+      data.append('client_id', this.credentials.appId as string);
+      data.append('client_secret', this.credentials.appSecret as string);
       options.body = data;
     }
 
@@ -170,12 +170,18 @@ export class DominoAccess implements DominoRestAccess {
       const url = new URL(this.baseUrl);
       const options = this._buildAccessTokenOptions(url);
 
-      fetch(url.toString(), options)
-        .then((response) => response.json())
+      return fetch(url.toString(), options)
+        .then(async (response) => {
+          const json = await response.json();
+          if (!response.ok) {
+            throw new Error(json.message);
+          }
+          return json;
+        })
         .then((access) => {
           this.token = access.bearer;
           this.expiryTime = getExpiry(access.bearer);
-          resolve(access.bearer);
+          return resolve(access.bearer);
         })
         .catch((error) => reject(error));
     });
