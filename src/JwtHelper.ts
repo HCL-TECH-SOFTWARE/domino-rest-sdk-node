@@ -6,6 +6,7 @@
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import template from './resources/jwtTemplate.json';
+import { TokenDecodeError } from './errors/TokenDecodeError';
 
 type SampleJWT = {
   bearer: string;
@@ -51,7 +52,7 @@ export const getSampleJWT = (user: string): SampleJWT => {
 export const getExpiry = (token: string): number => {
   const decoded: jwt.JwtPayload | null = jwt.decode(token) as jwt.JwtPayload | null;
   if (decoded === null) {
-    throw new Error(`Can't decode token '${token}'.`);
+    throw new TokenDecodeError(token);
   }
   return decoded.exp ? decoded.exp : 0;
 };
@@ -67,7 +68,7 @@ export const getExpiry = (token: string): number => {
 export const isJwtExpired = (token: string): boolean => {
   const decoded: jwt.JwtPayload | null = jwt.decode(token) as jwt.JwtPayload | null;
   if (decoded === null) {
-    throw new Error(`Can't decode token '${token}'.`);
+    throw new TokenDecodeError(token);
   }
   const exp = (decoded.exp ?? 0) * 1000;
   const now = new Date().getTime();

@@ -8,6 +8,8 @@ import DominoConnector from './DominoConnector';
 import DominoDocument from './DominoDocument';
 import DominoListView from './DominoListView';
 import DominoListViewEntry from './DominoListViewEntry';
+import { isEmpty } from './Utilities';
+import { EmptyParamError } from './errors/EmptyParamError';
 
 export type GetListViewDesignJSON = {
   '@name': string;
@@ -246,18 +248,17 @@ export class DominoListViewOperations {
     options?: GetListViewEntryOptions,
   ) {
     return new Promise<ListViewEntryJSON[] | DominoDocument[] | void>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (listViewName.trim().length === 0) {
-        return reject(new Error('name must not be empty.'));
+      if (isEmpty(listViewName)) {
+        return reject(new EmptyParamError('listViewName'));
       }
 
       const params: Map<string, any> = new Map();
       let subscriber: (() => WritableStream<ListViewEntryJSON | DocumentBody>) | null | undefined = null;
       let returnAsDocument: boolean | undefined = false;
       params.set('name', listViewName);
-
       for (const key in options) {
         if (key === 'subscriber') {
           subscriber = options[key];
@@ -297,20 +298,19 @@ export class DominoListViewOperations {
     options?: GetListPivotViewEntryOptions,
   ) =>
     new Promise<PivotListViewResponse>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (listViewName.trim().length === 0) {
-        return reject(new Error('name must not be empty.'));
+      if (isEmpty(listViewName)) {
+        return reject(new EmptyParamError('listViewName'));
       }
-      if (pivotColumn.trim().length === 0) {
-        return reject(new Error('pivotColumn must not be empty.'));
+      if (isEmpty(pivotColumn)) {
+        return reject(new EmptyParamError('pivotColumn'));
       }
 
       const params: Map<string, any> = new Map();
       params.set('name', listViewName);
       params.set('pivotColumn', pivotColumn);
-
       for (const key in options) {
         params.set(key, options[key as keyof GetListPivotViewEntryOptions]);
       }
@@ -327,12 +327,11 @@ export class DominoListViewOperations {
 
   static getListViews = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, options?: GetListViewOptions) =>
     new Promise<GetListViewJSON[]>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
 
       const params: Map<string, any> = new Map();
-
       for (const key in options) {
         params.set(key, options[key as keyof GetListViewOptions]);
       }
@@ -353,19 +352,20 @@ export class DominoListViewOperations {
     options?: CreateUpdateDesignOptions,
   ) =>
     new Promise<CreateUpdateListResponse>((resolve, reject) => {
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
+      }
+      if (isEmpty(listView)) {
+        return reject(new EmptyParamError('listView'));
+      }
+      if (isEmpty(designName)) {
+        return reject(new EmptyParamError('designName'));
+      }
+
       const listViewObj = new DominoListView(listView);
       const params: Map<string, any> = new Map();
-
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
-      }
-      if (designName.trim().length === 0) {
-        return reject(new Error('designName must not be empty.'));
-      }
-
       params.set('designName', designName);
       params.set('designType', 'views');
-
       for (const key in options) {
         params.set(key, options[key as keyof CreateUpdateDesignOptions]);
       }
@@ -389,18 +389,16 @@ export class DominoListViewOperations {
     options?: GetDesignOptions,
   ) =>
     new Promise<GetListViewDesignJSON>((resolve, reject) => {
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
+      }
+      if (isEmpty(designName)) {
+        return reject(new EmptyParamError('designName'));
+      }
+
       const params: Map<string, any> = new Map();
-
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
-      }
-      if (designName.trim().length === 0) {
-        return reject(new Error('designName must not be empty.'));
-      }
-
       params.set('designName', designName);
       params.set('designType', 'views');
-
       for (const key in options) {
         params.set(key, options[key as keyof GetDesignOptions]);
       }

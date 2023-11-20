@@ -6,6 +6,8 @@
 import { DominoAccess, DominoRequestOptions, ScopeBody } from '.';
 import DominoConnector from './DominoConnector';
 import DominoScope from './DominoScope';
+import { isEmpty } from './Utilities';
+import { EmptyParamError } from './errors/EmptyParamError';
 
 /**
  * API call helper functions for scope operations.
@@ -24,8 +26,8 @@ export class DominoScopeOperations {
 
   static getScope = (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
-      if (scopeName.trim().length === 0) {
-        return reject(new Error('scopeName must not be empty.'));
+      if (isEmpty(scopeName)) {
+        return reject(new EmptyParamError('scopeName'));
       }
 
       const params: Map<string, any> = new Map();
@@ -51,8 +53,8 @@ export class DominoScopeOperations {
 
   static deleteScope = (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
-      if (scopeName.trim().length === 0) {
-        return reject(new Error('scopeName must not be empty.'));
+      if (isEmpty(scopeName)) {
+        return reject(new EmptyParamError('scopeName'));
       }
 
       const params: Map<string, any> = new Map();
@@ -67,6 +69,10 @@ export class DominoScopeOperations {
 
   static createUpdateScope = (scope: DominoScope | ScopeBody, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
+      if (isEmpty(scope)) {
+        return reject(new EmptyParamError('scope'));
+      }
+
       let dominoScope: DominoScope;
       if (!(scope instanceof DominoScope)) {
         dominoScope = new DominoScope(scope);

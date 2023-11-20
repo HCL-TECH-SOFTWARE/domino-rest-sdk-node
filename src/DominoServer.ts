@@ -5,6 +5,7 @@
 
 import DominoConnector from './DominoConnector';
 import { DominoRestServer } from './RestInterfaces';
+import { ApiNotAvailable } from './errors/ApiNotAvailable';
 
 /**
  * Data structure returned by the /api endpoint describing the available OpenAPI endpoints.
@@ -115,7 +116,7 @@ export class DominoServer implements DominoRestServer {
           .catch((error) => reject(error));
       }
 
-      return reject(new Error(`API '${apiName}' not available on this server`));
+      return reject(new ApiNotAvailable(apiName));
     });
 
   availableOperations = (apiName: string) =>

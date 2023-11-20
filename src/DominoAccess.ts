@@ -5,6 +5,10 @@
 
 import { getExpiry, isJwtExpired } from './JwtHelper';
 import { DominoRestAccess } from './RestInterfaces';
+import { isEmpty } from './Utilities';
+import { EmptyParamError } from './errors/EmptyParamError';
+import { HttpResponseError } from './errors/HttpResponseError';
+import { MissingParamError } from './errors/MissingParamError';
 
 /**
  * Credentials needed to access Domino REST API server. Required properties changes depending
@@ -15,11 +19,11 @@ export type RestCredentials = {
   /**
    * The scope/s you want access to separated by spaces.
    */
-  scope: string;
+  scope?: string;
   /**
-   * The type of credentials given. Can be 'basic' or 'oauth'.
+   * The type of credentials given. Can be 'basic' or 'oauth'. Defaults to 'basic' if not given.
    */
-  type: CredentialType;
+  type?: CredentialType;
   /**
    * Required for basic credentials. The username of user.
    */
@@ -85,17 +89,36 @@ export class DominoAccess implements DominoRestAccess {
   token?: string;
 
   constructor(params: DominoRestAccessJSON) {
-    if (params.baseUrl.trim().length === 0) {
-      throw new Error('Base URL should not be empty.');
+    if (!params.hasOwnProperty('baseUrl')) {
+      throw new MissingParamError('baseUrl');
     }
-    if (params.credentials.type == CredentialType.BASIC) {
-      if (!params.credentials.username || !params.credentials.password) {
-        throw new Error('BASIC auth needs username and password.');
+    if (isEmpty(params.baseUrl)) {
+      throw new EmptyParamError('baseUrl');
+    }
+    if (!params.hasOwnProperty('credentials')) {
+      throw new MissingParamError('credentials');
+    }
+    if (!params.credentials.hasOwnProperty('type')) {
+      throw new MissingParamError('credentials.type');
+    }
+    if (params.credentials.type === CredentialType.OAUTH) {
+      // Credentials type is OAuth
+      if (!params.credentials.hasOwnProperty('appSecret')) {
+        throw new MissingParamError('credentials.appSecret');
+      }
+      if (!params.credentials.hasOwnProperty('appId')) {
+        throw new MissingParamError('credentials.appId');
+      }
+      if (!params.credentials.hasOwnProperty('refreshToken')) {
+        throw new MissingParamError('credentials.refreshToken');
       }
     } else {
-      // Credentials type is OAuth
-      if (!params.credentials.appSecret || !params.credentials.appId || !params.credentials.refreshToken) {
-        throw new Error('OAuth needs appSecret, appId and refreshToken.');
+      // Default is basic credentials
+      if (!params.credentials.hasOwnProperty('username')) {
+        throw new MissingParamError('credentials.username');
+      }
+      if (!params.credentials.hasOwnProperty('password')) {
+        throw new MissingParamError('credentials.password');
       }
     }
 
@@ -103,20 +126,30 @@ export class DominoAccess implements DominoRestAccess {
     this.credentials = params.credentials;
   }
 
-  scope = (): string => {
-    return this.credentials.scope;
+  scope = (): string | null => {
+    return this.credentials.scope ? this.credentials.scope : null;
   };
 
   updateCredentials = (incomingCredentials: RestCredentials): RestCredentials => {
     // Check if credentials make sense
-    if (incomingCredentials.type == CredentialType.BASIC) {
-      if (!incomingCredentials.username || !incomingCredentials.password) {
-        throw new Error('BASIC auth needs username and password.');
+    if (incomingCredentials.type === CredentialType.OAUTH) {
+      // Credentials type is OAuth
+      if (!incomingCredentials.hasOwnProperty('appSecret')) {
+        throw new MissingParamError('appSecret');
+      }
+      if (!incomingCredentials.hasOwnProperty('appId')) {
+        throw new MissingParamError('appId');
+      }
+      if (!incomingCredentials.hasOwnProperty('refreshToken')) {
+        throw new MissingParamError('refreshToken');
       }
     } else {
-      // Type is OAuth
-      if (!incomingCredentials.appSecret || !incomingCredentials.appId || !incomingCredentials.refreshToken) {
-        throw new Error('OAuth needs appSecret, appId and refreshToken.');
+      // Default is basic credentials
+      if (!incomingCredentials.hasOwnProperty('username')) {
+        throw new MissingParamError('username');
+      }
+      if (!incomingCredentials.hasOwnProperty('password')) {
+        throw new MissingParamError('password');
       }
     }
 
@@ -133,11 +166,13 @@ export class DominoAccess implements DominoRestAccess {
 
     if (this.credentials.type === CredentialType.BASIC) {
       url.pathname = '/api/v1/auth';
-      const data = {
+      const data: { username?: string; password?: string; scope?: string } = {
         username: this.credentials.username,
         password: this.credentials.password,
-        scope: this.scope,
       };
+      if (this.credentials.scope !== undefined && this.credentials.scope !== null) {
+        data.scope = this.credentials.scope;
+      }
       options.headers = {
         'Content-Type': 'application/json',
       };
@@ -151,7 +186,7 @@ export class DominoAccess implements DominoRestAccess {
       const data = new URLSearchParams();
       data.append('grant_type', 'refresh_token');
       data.append('refresh_token', this.credentials.refreshToken as string);
-      data.append('scope', this.credentials.scope);
+      data.append('scope', this.credentials.scope as string);
       data.append('client_id', this.credentials.appId as string);
       data.append('client_secret', this.credentials.appSecret as string);
       options.body = data;
@@ -174,7 +209,7 @@ export class DominoAccess implements DominoRestAccess {
         .then(async (response) => {
           const json = await response.json();
           if (!response.ok) {
-            throw new Error(json.message);
+            throw new HttpResponseError(json);
           }
           return json;
         })
@@ -186,11 +221,8 @@ export class DominoAccess implements DominoRestAccess {
         .catch((error) => reject(error));
     });
 
-  expiry = (): number => {
-    if (!this.expiryTime) {
-      throw new Error('No token with expiry time found.');
-    }
-    return this.expiryTime;
+  expiry = (): number | null => {
+    return this.expiryTime ? this.expiryTime : null;
   };
 
   clone = (alternateScope: string): DominoAccess => {

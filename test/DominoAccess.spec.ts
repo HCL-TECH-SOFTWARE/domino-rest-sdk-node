@@ -163,8 +163,9 @@ describe('DominoAccess for Access Tokens', () => {
 
     it('should have called the right URL', async () => {
       const accessToken = await domAccess.accessToken();
-      const exp = await domAccess.expiry();
-      expect(exp * 1000).is.above(Number(new Date()));
+      const exp = domAccess.expiry();
+      expect(exp).not.null;
+      expect((exp as number) * 1000).is.above(Number(new Date()));
       expect(accessToken).to.be.equal(sampleJWT.bearer);
       expect(stub.args[0][0]).to.have.string('/api/v1/auth');
     });
@@ -197,8 +198,9 @@ describe('DominoAccess for Access Tokens', () => {
 
     it('should have called the OAuth token URL', async () => {
       const accessToken = await domAccess.accessToken();
-      const exp = await domAccess.expiry();
-      expect(exp * 1000).is.above(Number(new Date()));
+      const exp = domAccess.expiry();
+      expect(exp).not.null;
+      expect((exp as number) * 1000).is.above(Number(new Date()));
       expect(accessToken).to.be.equal(sampleJWT.bearer);
       expect(stub.args[0][0]).to.have.string('/oauth/token');
     });

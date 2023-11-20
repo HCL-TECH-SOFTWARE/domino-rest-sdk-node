@@ -88,17 +88,15 @@ export interface DominoRestAccess {
   /**
    * Get JWT token (if any) expiry.
    *
-   * @returns the current JWT token expiry time in seconds.
-   *
-   * @throws an error if there is no expiry in the JWT token.
+   * @returns the expiry time of token in seconds or null if there is no expiry time yet.
    */
-  expiry: () => number;
+  expiry: () => number | null;
   /**
    * Get current credentials given scope.
    *
-   * @returns the scope of given credentials.
+   * @returns the scope of given credentials or null of no scope is given.
    */
-  scope: () => string;
+  scope: () => string | null;
   /**
    * Creates a clone of current DominoAccess with the given alternate scope.
    *

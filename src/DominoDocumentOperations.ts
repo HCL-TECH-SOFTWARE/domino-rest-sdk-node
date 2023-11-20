@@ -6,6 +6,10 @@
 import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from '.';
 import DominoConnector from './DominoConnector';
 import DominoDocument from './DominoDocument';
+import { isEmpty } from './Utilities';
+import { EmptyParamError } from './errors/EmptyParamError';
+import { InvalidParamError } from './errors/InvalidParamError';
+import { NotAnArrayError } from './errors/NotAnArrayError';
 
 /**
  * A response for document operations that can return document's status after operation.
@@ -298,14 +302,14 @@ export class DominoDocumentOperations {
     options?: GetDocumentOptions,
   ) =>
     new Promise<DominoDocument>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (unid.trim().length === 0) {
-        return reject(new Error('UNID must not be empty.'));
+      if (isEmpty(unid)) {
+        return reject(new EmptyParamError('unid'));
       }
       if (unid.length !== 32) {
-        return reject(new Error('UNID has an invalid value.'));
+        return reject(new InvalidParamError('UNID has an invalid value.'));
       }
 
       const params: Map<string, any> = new Map();
@@ -329,8 +333,11 @@ export class DominoDocumentOperations {
     options?: CreateDocumentOptions,
   ) =>
     new Promise<DominoDocument>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
+      }
+      if (isEmpty(doc)) {
+        return reject(new EmptyParamError('doc'));
       }
 
       const dominoDoc = new DominoDocument(doc);
@@ -359,15 +366,17 @@ export class DominoDocumentOperations {
     options?: UpdateDocumentOptions,
   ) =>
     new Promise<DominoDocument>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
+      }
+      if (isEmpty(doc)) {
+        return reject(new EmptyParamError('doc'));
       }
       const unid = doc.getUNID();
-      if (unid === undefined || unid.trim().length === 0) {
-        return reject(new Error('Document UNID must not be empty.'));
-      }
-      if (unid.length !== 32) {
-        return reject(new Error('Document UNID has an invalid value.'));
+      if (isEmpty(unid)) {
+        return reject(new EmptyParamError('DominoDocument UNID'));
+      } else if ((unid as string).length !== 32) {
+        return reject(new InvalidParamError('Document UNID has an invalid value.'));
       }
 
       const params: Map<string, any> = new Map();
@@ -396,14 +405,17 @@ export class DominoDocumentOperations {
     options?: UpdateDocumentOptions,
   ) =>
     new Promise<DominoDocument>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (unid === undefined || unid.trim().length === 0) {
-        return reject(new Error('UNID must not be empty.'));
+      if (isEmpty(unid)) {
+        return reject(new EmptyParamError('unid'));
       }
       if (unid.length !== 32) {
-        return reject(new Error('UNID has an invalid value.'));
+        return reject(new InvalidParamError('UNID has an invalid value.'));
+      }
+      if (isEmpty(docJsonPatch)) {
+        return reject(new EmptyParamError('docJsonPatch'));
       }
 
       const params: Map<string, any> = new Map();
@@ -425,15 +437,18 @@ export class DominoDocumentOperations {
 
   static deleteDocument = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, doc: DominoDocument, mode?: string) =>
     new Promise<DocumentStatusResponse>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
+      }
+      if (isEmpty(doc)) {
+        return reject(new EmptyParamError('doc'));
       }
       const unid = doc.getUNID();
-      if (unid === undefined || unid.trim().length === 0) {
-        return reject(new Error('Document UNID should not be empty.'));
+      if (isEmpty(unid)) {
+        return reject(new EmptyParamError('Document UNID'));
       }
-      if (unid.length !== 32) {
-        return reject(new Error('Document UNID has an invalid value.'));
+      if ((unid as string).length !== 32) {
+        return reject(new InvalidParamError('Document UNID has an invalid value.'));
       }
 
       const params: Map<string, any> = new Map();
@@ -451,14 +466,14 @@ export class DominoDocumentOperations {
 
   static deleteDocumentByUNID = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, unid: string, mode?: string) =>
     new Promise<DocumentStatusResponse>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty('dataSource')) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (unid.trim().length === 0) {
-        return reject(new Error('UNID should not be empty.'));
+      if (isEmpty('unid')) {
+        return reject(new EmptyParamError('unid'));
       }
       if (unid.length !== 32) {
-        return reject(new Error('UNID has an invalid value.'));
+        return reject(new InvalidParamError('UNID has an invalid value.'));
       }
 
       const params: Map<string, any> = new Map();
@@ -482,18 +497,21 @@ export class DominoDocumentOperations {
     options?: BulkGetDocumentsOptions,
   ) =>
     new Promise<Array<DominoDocument | BulkGetErrorResponse>>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty('dataSource')) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (unids.length === 0) {
-        return reject(new Error('UNIDs array should not be empty.'));
+      if (isEmpty('unids')) {
+        return reject(new EmptyParamError('unids'));
+      }
+      if (!Array.isArray(unids)) {
+        return reject(new NotAnArrayError('unids'));
       }
       for (const unid of unids) {
         if (unid.trim().length === 0) {
-          return reject(new Error('One of given UNIDs is empty.'));
+          return reject(new InvalidParamError('One of given UNIDs is empty.'));
         }
         if (unid.length !== 32) {
-          return reject(new Error('One of given UNIDs is invalid.'));
+          return reject(new InvalidParamError('One of given UNIDs is invalid.'));
         }
       }
 
@@ -531,11 +549,20 @@ export class DominoDocumentOperations {
     options?: GetDocumentsByQueryOptions,
   ) =>
     new Promise<DominoDocument[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (request.query.trim().length === 0) {
-        return reject(new Error(`'query' inside Request Body should not be empty.`));
+      if (isEmpty(request)) {
+        return reject(new EmptyParamError('request'));
+      }
+      if (isEmpty(request.query)) {
+        return reject(new EmptyParamError('request.query'));
+      }
+      if (isEmpty(qaction)) {
+        return reject(new EmptyParamError('qaction'));
+      }
+      if (qaction !== QueryActions.EXECUTE && qaction !== QueryActions.EXPLAIN && qaction !== QueryActions.PARSE) {
+        return reject(new InvalidParamError(`Parameter 'qaction' should only have values: execute, explain, parse`));
       }
 
       const params: Map<string, any> = new Map();
@@ -576,11 +603,14 @@ export class DominoDocumentOperations {
     richTextAs?: RichTextRepresentation,
   ) =>
     new Promise<DominoDocument[]>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (docs.length === 0) {
-        return reject(new Error('Documents array should not be empty.'));
+      if (isEmpty(docs)) {
+        return reject(new EmptyParamError('docs'));
+      }
+      if (!Array.isArray(docs)) {
+        return reject(new NotAnArrayError('docs'));
       }
       const params: Map<string, any> = new Map();
       if (richTextAs !== undefined) {
@@ -606,14 +636,17 @@ export class DominoDocumentOperations {
     richTextAs?: RichTextRepresentation,
   ) =>
     new Promise<DominoDocument[] | DocumentStatusResponse[]>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (request.query.trim().length === 0) {
-        return reject(new Error(`'query' inside Request Body should not be empty.`));
+      if (isEmpty(request)) {
+        return reject(new EmptyParamError('request'));
       }
-      if (request.replaceItems === undefined || Object.keys(request.replaceItems).length === 0) {
-        return reject(new Error('Request replaceItems should not be empty.'));
+      if (isEmpty(request.query)) {
+        return reject(new EmptyParamError('request.query'));
+      }
+      if (isEmpty(request.replaceItems)) {
+        return reject(new EmptyParamError('request.replaceItems'));
       }
 
       const params: Map<string, any> = new Map();
@@ -650,22 +683,25 @@ export class DominoDocumentOperations {
     mode?: string,
   ) =>
     new Promise<DocumentStatusResponse[]>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (docs.length === 0) {
-        return reject(new Error('Documents array should not be empty.'));
+      if (isEmpty(docs)) {
+        return reject(new EmptyParamError('docs'));
+      }
+      if (!Array.isArray(docs)) {
+        return reject(new NotAnArrayError(`docs`));
       }
       const unids: string[] = [];
       for (const doc of docs) {
         const unid = doc.getUNID();
-        if (unid === undefined || unid.trim().length === 0) {
-          return reject(new Error('One of given documents has empty UNID.'));
+        if (isEmpty(unid)) {
+          return reject(new InvalidParamError('One of given documents has empty UNID.'));
         }
-        if (unid.length !== 32) {
-          return reject(new Error('One of given documents has invalid UNID.'));
+        if ((unid as string).length !== 32) {
+          return reject(new InvalidParamError('One of given documents has invalid UNID.'));
         }
-        unids.push(unid);
+        unids.push(unid as string);
       }
 
       const body: { unids: string[]; mode?: string } = { unids };
@@ -692,18 +728,21 @@ export class DominoDocumentOperations {
     mode?: string,
   ) =>
     new Promise<DocumentStatusResponse[]>((resolve, reject) => {
-      if (dataSource.trim().length === 0) {
-        return reject(new Error('dataSource must not be empty.'));
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
       }
-      if (unids.length === 0) {
-        return reject(new Error('UNIDs array should not be empty.'));
+      if (isEmpty(unids)) {
+        return reject(new EmptyParamError('unids'));
+      }
+      if (!Array.isArray(unids)) {
+        return reject(new NotAnArrayError('unids'));
       }
       for (const unid of unids) {
         if (unid.trim().length === 0) {
-          return reject(new Error('One of given UNIDs is empty.'));
+          return reject(new InvalidParamError('One of given UNIDs is empty.'));
         }
         if (unid.length !== 32) {
-          return reject(new Error('One of given UNIDs is invalid.'));
+          return reject(new InvalidParamError('One of given UNIDs is invalid.'));
         }
       }
 
