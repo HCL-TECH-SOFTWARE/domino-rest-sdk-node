@@ -22,3 +22,4 @@ jobs:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
+      - run: npm test
