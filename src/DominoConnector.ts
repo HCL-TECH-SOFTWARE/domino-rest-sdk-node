@@ -44,9 +44,7 @@ export type DominoRequestResponse = {
    * HTTP status code of response
    */
   status: number;
-  /**
-   *
-   */
+  // TODO: Add expect
   headers: Headers;
   dataStream: ReadableStream<any> | null;
 };

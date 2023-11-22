@@ -99,89 +99,32 @@ export class DominoAccess implements DominoRestAccess {
     if (!params.credentials.hasOwnProperty('type')) {
       throw new MissingParamError('credentials.type');
     }
-    this._checkCredentials(params.credentials);
+    DominoAccess._checkCredentials(params);
 
     this.baseUrl = params.baseUrl;
     this.credentials = params.credentials;
   }
 
   updateCredentials = (incomingCredentials: RestCredentials): RestCredentials => {
-    this._checkCredentials(incomingCredentials);
+    if (!incomingCredentials.hasOwnProperty('type')) {
+      throw new MissingParamError('type');
+    }
+    DominoAccess._checkCredentials(incomingCredentials);
 
     // Username/password or IdP information
     this.credentials = incomingCredentials;
     return this.credentials;
   };
 
-  private _checkCredentials = (credentials: RestCredentials) => {
-    if (credentials.type === CredentialType.OAUTH) {
-      // Credentials type is OAuth
-      if (!credentials.hasOwnProperty('appSecret')) {
-        throw new MissingParamError('credentials.appSecret');
-      }
-      if (!credentials.hasOwnProperty('appId')) {
-        throw new MissingParamError('credentials.appId');
-      }
-      if (!credentials.hasOwnProperty('refreshToken')) {
-        throw new MissingParamError('credentials.refreshToken');
-      }
-    } else {
-      // Default is basic credentials
-      if (!credentials.hasOwnProperty('username')) {
-        throw new MissingParamError('credentials.username');
-      }
-      if (!credentials.hasOwnProperty('password')) {
-        throw new MissingParamError('credentials.password');
-      }
-    }
-  };
-
-  private _buildAccessTokenOptions = (url: URL) => {
-    const options: RequestInit = {
-      method: 'POST',
-      headers: {},
-    };
-
-    if (this.credentials.type === CredentialType.BASIC) {
-      url.pathname = '/api/v1/auth';
-      const data: { username?: string; password?: string; scope?: string } = {
-        username: this.credentials.username,
-        password: this.credentials.password,
-      };
-      if (this.credentials.scope !== undefined && this.credentials.scope !== null) {
-        data.scope = this.credentials.scope;
-      }
-      options.headers = {
-        'Content-Type': 'application/json',
-      };
-      options.body = JSON.stringify(data);
-    } else {
-      // OAUTH refresh token flow
-      url.pathname = '/oauth/token';
-      options.headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      };
-      const data = new URLSearchParams();
-      data.append('grant_type', 'refresh_token');
-      data.append('refresh_token', this.credentials.refreshToken as string);
-      data.append('scope', this.credentials.scope as string);
-      data.append('client_id', this.credentials.appId as string);
-      data.append('client_secret', this.credentials.appSecret as string);
-      options.body = data;
-    }
-
-    return options;
-  };
-
   accessToken = () =>
     new Promise<string>((resolve, reject) => {
       // Check for a valid token and return that one instead of asking again
       if (this.token && !isJwtExpired(this.token)) {
-        resolve(this.token);
+        return resolve(this.token);
       }
 
       const url = new URL(this.baseUrl);
-      const options = this._buildAccessTokenOptions(url);
+      const options = DominoAccess._buildAccessTokenOptions(url, this.credentials);
 
       fetch(url.toString(), options)
         .then(async (response) => {
@@ -211,5 +154,72 @@ export class DominoAccess implements DominoRestAccess {
     const result = new DominoAccess(this);
     result.credentials.scope = alternateScope;
     return result;
+  };
+
+  private static _checkCredentials = (obj: any) => {
+    let credentials = obj;
+    let prependParamError = '';
+    if (obj.hasOwnProperty('credentials')) {
+      credentials = obj.credentials;
+      prependParamError = 'credentials.';
+    }
+
+    if (credentials.type === CredentialType.OAUTH) {
+      // Credentials type is OAuth
+      if (!credentials.hasOwnProperty('appSecret')) {
+        throw new MissingParamError(`${prependParamError}appSecret`);
+      }
+      if (!credentials.hasOwnProperty('appId')) {
+        throw new MissingParamError(`${prependParamError}appId`);
+      }
+      if (!credentials.hasOwnProperty('refreshToken')) {
+        throw new MissingParamError(`${prependParamError}refreshToken`);
+      }
+    } else {
+      // Default is basic credentials
+      if (!credentials.hasOwnProperty('username')) {
+        throw new MissingParamError(`${prependParamError}username`);
+      }
+      if (!credentials.hasOwnProperty('password')) {
+        throw new MissingParamError(`${prependParamError}password`);
+      }
+    }
+  };
+
+  private static _buildAccessTokenOptions = (url: URL, credentials: RestCredentials) => {
+    const options: RequestInit = {
+      method: 'POST',
+      headers: {},
+    };
+
+    if (credentials.type === CredentialType.BASIC) {
+      url.pathname = '/api/v1/auth';
+      const data: { username?: string; password?: string; scope?: string } = {
+        username: credentials.username,
+        password: credentials.password,
+      };
+      if (!isEmpty(credentials.scope)) {
+        data.scope = credentials.scope;
+      }
+      options.headers = {
+        'Content-Type': 'application/json',
+      };
+      options.body = JSON.stringify(data);
+    } else {
+      // OAUTH refresh token flow
+      url.pathname = '/oauth/token';
+      options.headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      };
+      const data = new URLSearchParams();
+      data.append('grant_type', 'refresh_token');
+      data.append('refresh_token', credentials.refreshToken as string);
+      data.append('scope', credentials.scope as string);
+      data.append('client_id', credentials.appId as string);
+      data.append('client_secret', credentials.appSecret as string);
+      options.body = data;
+    }
+
+    return options;
   };
 }

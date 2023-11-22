@@ -5,9 +5,10 @@
 
 /* Getting list view entries and manually handling the response datastream. */
 
-const { streamSplit, streamTransformToJson } = require('@hcl-software/domino-rest-sdk-node');
+const drapi = require('@hcl-software/domino-rest-sdk-node');
 const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
 
+// TODO: Document more with JSDoc.
 // The callback we provide. This will log each entry to console prettily.
 const logEntry = () => {
   let count = 1;
@@ -40,7 +41,11 @@ const start = async () => {
       // We first decode the stream as text then use the SDK's built in stream transform methods,
       // streamSplit and streamTransformToJson, and finally pipe it to our main function that
       // logs each view entry in the console.
-      response.dataStream.pipeThrough(new TextDecoderStream()).pipeThrough(streamSplit()).pipeThrough(streamTransformToJson()).pipeTo(logEntry());
+      response.dataStream
+        .pipeThrough(new TextDecoderStream())
+        .pipeThrough(drapi.streamSplit())
+        .pipeThrough(drapi.streamTransformToJson())
+        .pipeTo(logEntry());
     })
     .catch((error) => console.log(error));
 };

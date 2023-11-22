@@ -47,7 +47,7 @@ describe('DominoUserSession', async () => {
 
     dc = await DominoConnector.getConnector('http://localhost:8880', {} as DominoApiMeta);
     const dcRequestStub = sinon.stub(dc, 'request');
-    dcRequestStub.resolves({ key: 'value' });
+    dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream: new ReadableStream() });
     dus = new DominoUserSession(fakeToken, dc);
 
     const response = await dus.request('operation', { params: new Map() });

@@ -51,6 +51,8 @@ export class DominoUserSession implements DominoUserRestSession {
 
   request = (operationId: string, options: DominoRequestOptions) => this.dominoConnector.request(this.dominoAccess, operationId, options);
 
+  // TODO: requestJsonStream = (operationId, options, subscriber) => throw if HTTP error
+
   getDocument = (dataSource: string, unid: string, options?: GetDocumentOptions) =>
     DominoDocumentOperations.getDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, options);
 

@@ -7,12 +7,11 @@ import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
 import {
-  CreateUpdateDesignOptions,
+  DesignOptions,
   CredentialType,
   DominoAccess,
   DominoApiMeta,
   DominoRequestOptions,
-  GetDesignOptions,
   GetListPivotViewEntryOptions,
   GetListViewEntryOptions,
   GetListViewOptions,
@@ -132,7 +131,7 @@ describe('DominoListViewOperations', async () => {
       expectedParams.set('designType', 'views');
       expectedParams.set('raw', true);
       expectedParams.set('nsfPath', 'Demo.nsf');
-      const options: GetDesignOptions = {
+      const options: DesignOptions = {
         raw: true,
         // might be deprecated TO DO Need to test if nsfPath and dataSource are given together maybe on 1.0.9
         nsfPath: 'Demo.nsf',
@@ -146,7 +145,6 @@ describe('DominoListViewOperations', async () => {
   describe('getListViewEntry', () => {
     beforeEach(() => {
       operationId = 'fetchViewEntries';
-      expectedOptions.subscriber = null;
       dcRequestStub.resolves(lve1_response);
     });
 
@@ -184,40 +182,6 @@ describe('DominoListViewOperations', async () => {
       const response = await DominoListViewOperations.getListViewEntry(dataSource, fakeToken, dc, listViewName, options);
       expect(response).to.exist;
       expect(response.length).to.equal(50);
-    });
-
-    it('should be able to give correct response and params to request with subscriber', async () => {
-      const subscriber = () => new WritableStream();
-      expectedParams.set('name', listViewName);
-      expectedOptions.subscriber = subscriber;
-      const options = {
-        subscriber,
-      };
-      const response = await DominoListViewOperations.getListViewEntry(dataSource, fakeToken, dc, listViewName, options);
-      expect(response).to.be.undefined;
-    });
-
-    it('should be able to give correct response and params to request with subscriber and other options', async () => {
-      const subscriber = () => new WritableStream();
-      expectedParams.set('name', listViewName);
-      expectedParams.set('mode', 'default');
-      expectedParams.set('meta', true);
-      expectedParams.set('startsWith', 'startWithThis');
-      expectedParams.set('metaAdditional', true);
-      expectedParams.set('category', ['sampleCategorizedColumn']);
-      expectedParams.set('start', 1);
-      const options: GetListViewEntryOptions = {
-        mode: 'default',
-        meta: true,
-        startsWith: 'startWithThis',
-        metaAdditional: true,
-        category: ['sampleCategorizedColumn'],
-        start: 1,
-        subscriber,
-      };
-      expectedOptions.subscriber = subscriber;
-      const response = await DominoListViewOperations.getListViewEntry(dataSource, fakeToken, dc, listViewName, options);
-      expect(response).to.be.undefined;
     });
 
     it('should return an array of DominoDocuments if options.documents is true and no callback is given', async () => {
@@ -335,7 +299,7 @@ describe('DominoListViewOperations', async () => {
       expectedParams.set('designType', 'views');
       expectedParams.set('raw', true);
       expectedParams.set('nsfPath', 'Demo.nsf');
-      const options: CreateUpdateDesignOptions = {
+      const options: DesignOptions = {
         raw: true,
         // might be deprecated TO DO Need to test if nsfPath and dataSource are given together maybe on 1.0.9
         nsfPath: 'Demo.nsf',
