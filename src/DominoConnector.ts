@@ -5,6 +5,7 @@
 
 import { DominoAccess, DominoApiMeta } from '.';
 import { DominoRestConnector } from './RestInterfaces';
+import { HttpResponseError, MissingParamError, OperationNotAvailable } from './errors';
 
 /**
  * All information needed to read a method
@@ -33,10 +34,19 @@ export type DominoRequestOptions = {
    * for POST, PUT, PATCH: the request body
    */
   body?: any;
+};
+
+/**
+ * Response to the request
+ */
+export type DominoRequestResponse = {
   /**
-   * A function that subscribes to response and reacts to each JSON item received.
+   * HTTP status code of response
    */
-  subscriber?: (() => WritableStream<any>) | null;
+  status: number;
+  // TODO: Add expect
+  headers: Headers;
+  dataStream: ReadableStream<any> | null;
 };
 
 /**
@@ -62,7 +72,7 @@ export class DominoConnector implements DominoRestConnector {
 
   static getConnector = (baseUrl: string, meta: DominoApiMeta) =>
     new Promise<DominoConnector>((resolve, reject) => {
-      return DominoConnector._apiLoader(baseUrl, meta.mountPath, meta.fileName)
+      DominoConnector._apiLoader(baseUrl, meta.mountPath, meta.fileName)
         .then((apis) => {
           const schema = DominoConnector._operationLoader(apis);
           return resolve(new DominoConnector(baseUrl, meta, schema));
@@ -71,12 +81,18 @@ export class DominoConnector implements DominoRestConnector {
     });
 
   private static _apiLoader = (baseUrl: string, mountPath: string, fileName: string) =>
-    new Promise(async (resolve, reject) => {
+    new Promise((resolve, reject) => {
       const url = new URL(baseUrl);
       url.pathname = `${mountPath}${fileName}`;
 
-      return fetch(url.toString())
-        .then((response) => response.json())
+      fetch(url.toString())
+        .then(async (response) => {
+          const json = await response.json();
+          if (!response.ok) {
+            throw new HttpResponseError(json);
+          }
+          return json;
+        })
         .then((json) => resolve(json))
         .catch((error) => reject(error));
     });
@@ -101,24 +117,29 @@ export class DominoConnector implements DominoRestConnector {
             url: url,
             params: params,
           };
-
           // Load other definitions apart from the operationId and parameters
-          for (const key of Object.keys(path[method])) {
-            if (key === 'operationId' || key === 'parameters') {
-              continue;
-            }
-            operation[key] = path[method][key];
-          }
+          DominoConnector._loadOperationDefinitions(operation, path[method]);
 
-          if (path[method].requestBody && path[method].requestBody.content) {
+          if (path[method].requestBody?.content) {
             operation.mimeType = Object.keys(path[method].requestBody.content)[0];
           }
+
           schema.set(path[method].operationId, operation);
         }
       }
     }
 
     return schema;
+  };
+
+  private static _loadOperationDefinitions = (operation: DominoRestOperation, pathMethod: any) => {
+    for (const key of Object.keys(pathMethod)) {
+      // Skip manually added definitions
+      if (key === 'operationId' || key === 'parameters') {
+        continue;
+      }
+      operation[key] = pathMethod[key];
+    }
   };
 
   private static _parameterLoader = (source: any, result: Map<string, any>): void => {
@@ -135,14 +156,14 @@ export class DominoConnector implements DominoRestConnector {
       let candidate;
       if (pname === 'dataSource') {
         candidate = scope;
-        if (candidate === undefined || candidate.trim() == '') {
+        if (candidate === undefined || candidate.trim() === '') {
           candidate = params.get(pname);
         }
       } else {
         candidate = params.get(pname);
       }
-      if (candidate === undefined || candidate.trim() == '') {
-        throw new Error(`Parameter '${pname}' is mandatory!`);
+      if (candidate === undefined || candidate.trim() === '') {
+        throw new MissingParamError(pname);
       }
     }
   };
@@ -172,81 +193,31 @@ export class DominoConnector implements DominoRestConnector {
     return workingURL.toString();
   };
 
-  private _splitStream = () => {
-    const splitOn = '\n';
-    let buffer = '';
-    return new TransformStream({
-      transform(chunk, controller) {
-        buffer += chunk;
-        const parts = buffer.split(splitOn);
-        parts.slice(0, -1).forEach((part) => controller.enqueue(part));
-        buffer = parts[parts.length - 1];
-      },
-      flush(controller) {
-        if (buffer) {
-          controller.enqueue(buffer);
-        }
-      },
+  request = (dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions) =>
+    new Promise<DominoRequestResponse>((resolve, reject) => {
+      const scopeVal = options.dataSource ? options.dataSource : '';
+      const operation = this.getOperation(operationId);
+      const url = this.getUrl(operation, scopeVal, options.params);
+
+      this.getFetchOptions(dominoAccess, operation, options)
+        .then((params) => fetch(url, params))
+        .then((response) => {
+          const result: DominoRequestResponse = {
+            status: response.status,
+            headers: response.headers,
+            dataStream: response.body,
+          };
+
+          return resolve(result);
+        })
+        .catch((error) => reject(error));
     });
-  };
-
-  private _parseJSON = () => {
-    return new TransformStream({
-      transform(chunk, controller) {
-        if (chunk.endsWith(',')) {
-          controller.enqueue(JSON.parse(chunk.slice(0, -1)));
-        } else if (chunk.endsWith('}')) {
-          controller.enqueue(JSON.parse(chunk));
-        }
-      },
-    });
-  };
-
-  private async _handleChunkedResponse(httpBody: ReadableStream<Uint8Array>, subscriber: () => WritableStream<any>) {
-    await httpBody.pipeThrough(new TextDecoderStream()).pipeThrough(this._splitStream()).pipeThrough(this._parseJSON()).pipeTo(subscriber());
-  }
-
-  async request<T = any>(dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions): Promise<T> {
-    const scopeVal = options.dataSource ? options.dataSource : '';
-    const operation = this.getOperation(operationId);
-    const url = this.getUrl(operation, scopeVal, options.params);
-    const params = await this.getFetchOptions(dominoAccess, operation, options);
-
-    const response = await fetch(url, params);
-    const contentType = response.headers.get('content-type');
-
-    if (!response.ok && contentType === null) {
-      return Promise.reject(new Error(response.statusText));
-    } else if (contentType === null) {
-      return Promise.resolve() as any;
-    }
-
-    if (response.ok && options.subscriber !== undefined && options.subscriber !== null) {
-      if (response.body === null) {
-        return Promise.reject(new Error('Response body is null.'));
-      }
-      await this._handleChunkedResponse(response.body, options.subscriber);
-      return Promise.resolve() as any;
-    }
-
-    let responseBody: any;
-    if (contentType.indexOf('application/json') >= 0) {
-      responseBody = await response.json();
-    } else {
-      responseBody = await response.text();
-    }
-
-    if (!response.ok) {
-      return Promise.reject(responseBody);
-    }
-    return Promise.resolve(responseBody);
-  }
 
   getOperation = (operationId: string) => {
     if (this.schema.has(operationId)) {
       return this.schema.get(operationId);
     }
-    throw new Error(`Operation ID '${operationId}' is not available`);
+    throw new OperationNotAvailable(operationId);
   };
 
   getOperations = () => this.schema;
@@ -264,7 +235,7 @@ export class DominoConnector implements DominoRestConnector {
       operation.params.forEach((ops: any, pname: string) => {
         // Check for mandatory parameters missing
         if (ops.required && ops.in === 'header' && !params.has(pname)) {
-          return reject(new Error(`Parameter ${pname} is mandatory!`));
+          return reject(new MissingParamError(pname));
         }
         if (params.has(pname) && ops.in === 'header') {
           headers[pname] = params.get(pname);
@@ -274,7 +245,7 @@ export class DominoConnector implements DominoRestConnector {
         headers['Content-Type'] = operation.mimeType;
       }
 
-      return dominoAccess
+      dominoAccess
         .accessToken()
         .then((token) => {
           headers.Authorization = 'Bearer ' + token;

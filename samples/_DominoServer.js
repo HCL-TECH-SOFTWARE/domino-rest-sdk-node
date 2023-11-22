@@ -15,16 +15,24 @@ exports.getDominoServer = async () => {
 };
 
 const showAvailableApis = async () => {
-  const dominoServer = await getDominoServer();
+  const dominoServer = await this.getDominoServer();
   const apis = dominoServer.availableApis();
   console.log(apis);
 };
 
 const showOperations = async () => {
   // Also available for other available APIs such as setup, admin, etc.
-  const dominoServer = await getDominoServer();
+  const dominoServer = await this.getDominoServer();
   const apis = await dominoServer.availableOperations('basis');
   console.log(apis);
+};
+
+const getOperation = async () => {
+  // Also available for other available APIs such as setup, admin, etc.
+  const dominoServer = await this.getDominoServer();
+  const dominoConnector = await dominoServer.getDominoConnector('basis');
+  const op = dominoConnector.getOperation('createDocument');
+  console.log(op);
 };
 
 // Uncomment this to print all available APIs on the Domino REST API server.
@@ -32,3 +40,6 @@ const showOperations = async () => {
 
 // Uncomment this to print all available operations on the Domino REST API server in basis.
 // showOperations();
+
+// Uncomment this to print details of 'createDocument' operation.
+// getOperation();

@@ -4,6 +4,8 @@
  * ========================================================================== */
 
 import { DominoRestDocument } from './RestInterfaces';
+import { EmptyParamError, MissingParamError } from './errors';
+import { isEmpty } from './helpers/Utilities';
 
 /**
  * Base properties of a document.
@@ -120,8 +122,11 @@ export class DominoDocument implements DominoRestDocument {
     const doc = JSON.parse(JSON.stringify(_doc));
 
     this['@meta'] = doc['@meta'];
-    if (doc.Form === undefined || doc.Form === null || doc.Form.trim().length === 0) {
-      throw new Error('Domino document needs form value.');
+    if (!doc.hasOwnProperty('Form')) {
+      throw new MissingParamError('Form');
+    }
+    if (isEmpty(doc.Form)) {
+      throw new EmptyParamError('Form');
     }
     this.Form = doc.Form;
     this['@warnings'] = doc['@warnings'];

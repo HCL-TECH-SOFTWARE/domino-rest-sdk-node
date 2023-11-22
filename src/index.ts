@@ -7,7 +7,7 @@
 /* index have no testable code - no point including them in coverage reports */
 
 import { CredentialType, DominoAccess, DominoRestAccessJSON, RestCredentials } from './DominoAccess';
-import { DominoRequestOptions, DominoRestOperation } from './DominoConnector';
+import { DominoRequestOptions, DominoRequestResponse, DominoRestOperation } from './DominoConnector';
 import { DocumentBody, DocumentJSON, DominoBaseDocument, DominoDocumentMeta } from './DominoDocument';
 import {
   BulkCreateDocumentsOptions,
@@ -31,9 +31,8 @@ import {
 import { DesignColumnSimple, DominoBaseListView, ListViewBody, SortType } from './DominoListView';
 import { DominoBaseListViewEntry, ListType, ListViewEntryBody, ListViewEntryJSON } from './DominoListViewEntry';
 import {
-  CreateUpdateDesignOptions,
   CreateUpdateListResponse,
-  GetDesignOptions,
+  DesignOptions,
   GetListPivotViewEntryOptions,
   GetListViewDesignJSON,
   GetListViewEntryOptions,
@@ -49,18 +48,32 @@ import {
 import { AccessLevel, DominoBaseScope, ScopeBody, ScopeJSON } from './DominoScope';
 import { DominoApiMeta, DominoServer } from './DominoServer';
 import DominoUserSession from './DominoUserSession';
+import {
+  ApiNotAvailable,
+  EmptyParamError,
+  HttpResponseError,
+  InvalidParamError,
+  MissingParamError,
+  NoResponseBody,
+  NotAnArrayError,
+  OperationNotAvailable,
+  SdkError,
+  TokenDecodeError,
+} from './errors';
+import { streamSplit, streamToJson, streamToText, streamTransformToJson } from './helpers/StreamHelpers';
 
 export {
   AccessLevel,
+  ApiNotAvailable,
   BulkCreateDocumentsOptions,
   BulkGetDocumentsOptions,
   BulkGetErrorResponse,
   BulkUpdateDocumentsByQueryRequest,
   CreateDocumentOptions,
-  CreateUpdateDesignOptions,
   CreateUpdateListResponse,
   CredentialType,
   DesignColumnSimple,
+  DesignOptions,
   DocumentBody,
   DocumentJSON,
   DocumentOptions,
@@ -74,11 +87,12 @@ export {
   DominoDocumentMeta,
   DominoDocumentOperations,
   DominoRequestOptions,
+  DominoRequestResponse,
   DominoRestAccessJSON,
   DominoRestOperation,
   DominoServer,
   DominoUserSession,
-  GetDesignOptions,
+  EmptyParamError,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
   GetDocumentsByQueryRequest,
@@ -87,11 +101,17 @@ export {
   GetListViewEntryOptions,
   GetListViewJSON,
   GetListViewOptions,
+  HttpResponseError,
+  InvalidParamError,
   ListType,
   ListViewBody,
   ListViewEntryBody,
   ListViewEntryJSON,
   ListViewEntryOptions,
+  MissingParamError,
+  NoResponseBody,
+  NotAnArrayError,
+  OperationNotAvailable,
   PatchDocumentOptions,
   PivotListViewColumnElementResponse,
   PivotListViewColumnResponse,
@@ -103,8 +123,14 @@ export {
   RichTextRepresentation,
   ScopeBody,
   ScopeJSON,
+  SdkError,
   SortShort,
   SortType,
+  TokenDecodeError,
   UpdateDocumentOptions,
   ViewEntryScopes,
+  streamSplit,
+  streamToJson,
+  streamToText,
+  streamTransformToJson,
 };

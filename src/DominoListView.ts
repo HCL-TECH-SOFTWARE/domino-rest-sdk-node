@@ -5,6 +5,8 @@
 
 import { ListType } from '.';
 import { DominoRestListView } from './RestInterfaces';
+import { EmptyParamError, InvalidParamError, MissingParamError } from './errors';
+import { isEmpty } from './helpers/Utilities';
 
 export type DesignColumnSimple = {
   name: string;
@@ -89,72 +91,65 @@ export enum SortType {
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoListView implements DominoRestListView {
-  name: string | undefined;
-  selectionFormula: string | undefined;
+  name: string;
+  selectionFormula: string;
   columns: DesignColumnSimple[];
-  type?: ListType | undefined;
+  type?: ListType;
 
   readonly '@alias'?: string[] = [];
   readonly isFolder?: boolean;
-  readonly '@title'?: string | undefined;
-  readonly '@unid'?: string | undefined;
-  readonly '@noteid'?: string | undefined;
+  readonly '@title'?: string;
+  readonly '@unid'?: string;
+  readonly '@noteid'?: string;
 
   constructor(doc: ListViewBody) {
-    if (doc.hasOwnProperty('name') && doc.name && doc.name.length > 0) {
-      this.name = doc.name;
-    } else {
-      throw new Error('Domino lists needs name value.');
+    if (!doc.hasOwnProperty('name')) {
+      throw new MissingParamError('name');
     }
-    if (doc.hasOwnProperty('selectionFormula') && doc.selectionFormula != null && doc.selectionFormula.length > 0) {
-      this.selectionFormula = doc.selectionFormula;
-    } else {
-      throw new Error('Domino lists needs selectionFormula value.');
+    if (isEmpty(doc.name)) {
+      throw new EmptyParamError('name');
     }
-    if (doc.columns !== null && doc.hasOwnProperty('columns')) {
-      const arr: DesignColumnSimple[] = [];
-      doc.columns.forEach((column) => {
-        DominoListView._validateDesignColumnSimple(column);
-        arr.push(column);
-      });
-      this.columns = arr;
-    } else {
-      throw new Error('Domino lists needs correct columns value.');
+    if (!doc.hasOwnProperty('selectionFormula')) {
+      throw new MissingParamError('selectionFormula');
     }
+    if (isEmpty(doc.selectionFormula)) {
+      throw new EmptyParamError('selectionFormula');
+    }
+    if (!doc.hasOwnProperty('columns')) {
+      throw new MissingParamError('columns');
+    }
+    if (isEmpty(doc.columns)) {
+      throw new EmptyParamError('columns');
+    }
+    if (!Array.isArray(doc.columns)) {
+      throw new InvalidParamError(`Parameter 'columns' should be an array.`);
+    }
+
+    this.name = doc.name;
+    this.selectionFormula = doc.selectionFormula;
+    const arr: DesignColumnSimple[] = [];
+    doc.columns.forEach((column) => {
+      DominoListView._validateDesignColumnSimple(column);
+      arr.push(column);
+    });
+    this.columns = arr;
   }
 
   private static _validateDesignColumnSimple = (column: DesignColumnSimple) => {
     if (!column.hasOwnProperty('name')) {
-      throw new Error("Required property 'name' is missing");
+      throw new MissingParamError('columns.name');
     }
     if (!column.hasOwnProperty('formula')) {
-      throw new Error("Required property 'formula' is missing");
+      throw new MissingParamError('columns.formula');
     }
   };
 
   toListViewJson = (): ListViewBody => {
     const json: ListViewBody = {
-      name: '',
-      selectionFormula: '',
-      columns: [],
+      name: this.name,
+      selectionFormula: this.selectionFormula,
+      columns: this.columns,
     };
-
-    if (
-      this.name != undefined &&
-      this.name &&
-      this.selectionFormula != undefined &&
-      this.selectionFormula &&
-      this.columns != undefined &&
-      this.columns &&
-      this.columns.length > 0
-    ) {
-      (json.name = this.name), (json.selectionFormula = this.selectionFormula);
-      json.columns = this.columns;
-    } else {
-      throw Error(
-        'Failed to convert DominoListView Object to ListViewBody because of having a invalid required fields in Domino List View (name, selectionFormula and columns)',
-      );
-    }
 
     return json;
   };

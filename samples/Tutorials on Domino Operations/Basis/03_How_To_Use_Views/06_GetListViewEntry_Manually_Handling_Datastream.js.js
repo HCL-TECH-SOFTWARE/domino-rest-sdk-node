@@ -3,11 +3,12 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-/* Getting list view entries with callback example. This provides a callback
- * that consumes each JSON entry to be logged to console. */
+/* Getting list view entries and manually handling the response datastream. */
 
+const drapi = require('@hcl-software/domino-rest-sdk-node');
 const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
 
+// TODO: Document more with JSDoc.
 // The callback we provide. This will log each entry to console prettily.
 const logEntry = () => {
   let count = 1;
@@ -24,11 +25,29 @@ const logEntry = () => {
 const start = async () => {
   const dus = await getDominoUserSessionBasis();
 
-  const options = {
-    subscriber: logEntry,
+  // We manually formulate the request instead of using the built-in getListViewEntry method.
+  const params = new Map();
+  params.set('name', 'Customers');
+  params.set('count', 10000);
+
+  const requestOptions = {
+    dataSource: 'customersdb',
+    params,
   };
 
-  await dus.getListViewEntry('customersdb', 'Customers', options).catch((err) => console.log(err));
+  await dus
+    .request('fetchViewEntries', requestOptions)
+    .then((response) => {
+      // We first decode the stream as text then use the SDK's built in stream transform methods,
+      // streamSplit and streamTransformToJson, and finally pipe it to our main function that
+      // logs each view entry in the console.
+      response.dataStream
+        .pipeThrough(new TextDecoderStream())
+        .pipeThrough(drapi.streamSplit())
+        .pipeThrough(drapi.streamTransformToJson())
+        .pipeTo(logEntry());
+    })
+    .catch((error) => console.log(error));
 };
 
 start();

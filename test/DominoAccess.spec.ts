@@ -4,9 +4,10 @@
  * ========================================================================== */
 
 import chai, { expect } from 'chai';
+import jwt from 'jsonwebtoken';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoRestAccessJSON, RestCredentials } from '../src';
+import { CredentialType, DominoAccess, DominoRestAccessJSON, EmptyParamError, HttpResponseError, MissingParamError, RestCredentials } from '../src';
 import { getSampleJWT } from '../src/JwtHelper';
 
 chai.use(chaiAsPromised);
@@ -36,33 +37,242 @@ describe('DominoAccess for Access Tokens', () => {
     };
   });
 
-  describe('DominoAccess structure', () => {
-    it('should throw an error if given base URL is empty on initialization', () => {
+  describe('constructor', () => {
+    it(`should throw an error if 'baseUrl' is missing`, () => {
+      delete (simpleAccess as any).baseUrl;
+      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'baseUrl' is required.`);
+    });
+
+    it(`should throw an error if given 'baseUrl' is empty`, () => {
       simpleAccess.baseUrl = '';
-      expect(() => new DominoAccess(simpleAccess)).to.throw('Base URL should not be empty.');
+      expect(() => new DominoAccess(simpleAccess)).to.throw(EmptyParamError, `Parameter 'baseUrl' should not be empty.`);
     });
 
-    it('should insist on all basic credentials on initialization', () => {
-      simpleAccess.credentials = {
-        scope: '$DATA',
+    it(`should throw an error if 'credentials' is missing`, () => {
+      delete (simpleAccess as any).credentials;
+      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials' is required.`);
+    });
+
+    it(`should throw an error if 'credentials.type' is missing`, () => {
+      delete simpleAccess.credentials.type;
+      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.type' is required.`);
+    });
+
+    describe(`credentials are 'oauth' type`, () => {
+      beforeEach(() => {
+        simpleAccess.credentials = {
+          scope: '$DATA',
+          type: CredentialType.OAUTH,
+          appId: '123',
+          appSecret: '123',
+          refreshToken: '123',
+        };
+      });
+
+      it(`should successfully create a 'DominoAccess' object`, () => {
+        const dominoAccess = new DominoAccess(simpleAccess);
+        expect(dominoAccess).to.instanceOf(DominoAccess);
+        expect(dominoAccess.baseUrl).to.equal(simpleAccess.baseUrl);
+        expect(dominoAccess.credentials).to.deep.equal(simpleAccess.credentials);
+      });
+
+      it(`should throw an error if 'credentials.appSecret' is missing`, () => {
+        delete simpleAccess.credentials.appSecret;
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.appSecret' is required.`);
+      });
+
+      it(`should throw an error if 'credentials.appId' is missing`, () => {
+        delete simpleAccess.credentials.appId;
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.appId' is required.`);
+      });
+
+      it(`should throw an error if 'credentials.refreshToken' is missing`, () => {
+        delete simpleAccess.credentials.refreshToken;
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.refreshToken' is required.`);
+      });
+    });
+
+    describe(`credentials are 'basic' type`, () => {
+      it(`should successfully create a 'DominoAccess' object`, () => {
+        const dominoAccess = new DominoAccess(simpleAccess);
+        expect(dominoAccess).to.instanceOf(DominoAccess);
+        expect(dominoAccess.baseUrl).to.equal(simpleAccess.baseUrl);
+        expect(dominoAccess.credentials).to.deep.equal(simpleAccess.credentials);
+      });
+
+      it(`should throw an error if 'credentials.username' is missing`, () => {
+        delete simpleAccess.credentials.username;
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.username' is required.`);
+      });
+
+      it(`should throw an error if 'credentials.password' is missing`, () => {
+        delete simpleAccess.credentials.password;
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.password' is required.`);
+      });
+    });
+  });
+
+  describe('updateCredentials', () => {
+    let dominoAccessToUpdate: DominoAccess;
+    let incomingCredentials: RestCredentials;
+
+    beforeEach(() => {
+      dominoAccessToUpdate = new DominoAccess(simpleAccess);
+      incomingCredentials = {
+        scope: '$DATA,$SETUP',
         type: CredentialType.BASIC,
+        username: 'newuser',
+        password: 'newpassword',
       };
-      expect(() => new DominoAccess(simpleAccess)).to.throw('BASIC auth needs username and password.');
     });
 
-    it('should insist on all oauth credentials on initialization', () => {
-      simpleAccess.credentials = {
-        scope: '$DATA',
-        type: CredentialType.OAUTH,
-      };
-      expect(() => new DominoAccess(simpleAccess)).to.throw('OAuth needs appSecret, appId and refreshToken.');
+    it(`should throw an error if incoming 'type' is missing`, () => {
+      delete incomingCredentials.type;
+      expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(MissingParamError, `Parameter 'type' is required.`);
     });
 
-    it('should preserve the base url', () => {
-      const idp = new DominoAccess(simpleAccess);
-      expect(idp.baseUrl).equal(simpleAccess.baseUrl);
+    describe(`incoming credentials are 'oauth' type`, () => {
+      beforeEach(() => {
+        incomingCredentials = {
+          scope: '$DATA,$SETUP',
+          type: CredentialType.OAUTH,
+          appId: 'ABC',
+          appSecret: 'ABC',
+          refreshToken: 'ABC',
+        };
+      });
+
+      it(`should successfully update the credentials`, () => {
+        dominoAccessToUpdate.updateCredentials(incomingCredentials);
+        expect(dominoAccessToUpdate.credentials).to.deep.equal(incomingCredentials);
+      });
+
+      it(`should throw an error if incoming 'appSecret' is missing`, () => {
+        delete incomingCredentials.appSecret;
+        expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(MissingParamError, `Parameter 'appSecret' is required.`);
+      });
+
+      it(`should throw an error if incoming 'appId' is missing`, () => {
+        delete incomingCredentials.appId;
+        expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(MissingParamError, `Parameter 'appId' is required.`);
+      });
+
+      it(`should throw an error if incoming 'refreshToken' is missing`, () => {
+        delete incomingCredentials.refreshToken;
+        expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(
+          MissingParamError,
+          `Parameter 'refreshToken' is required.`,
+        );
+      });
     });
 
+    describe(`credentials are 'basic' type`, () => {
+      it(`should successfully update the credentials`, () => {
+        dominoAccessToUpdate.updateCredentials(incomingCredentials);
+        expect(dominoAccessToUpdate.credentials).to.deep.equal(incomingCredentials);
+      });
+
+      it(`should throw an error if incoming 'username' is missing`, () => {
+        delete incomingCredentials.username;
+        expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(MissingParamError, `Parameter 'username' is required.`);
+      });
+
+      it(`should throw an error if incoming 'password' is missing`, () => {
+        delete incomingCredentials.password;
+        expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(MissingParamError, `Parameter 'password' is required.`);
+      });
+    });
+  });
+
+  describe('accessToken', () => {
+    describe(`credentials type is 'basic'`, () => {
+      let dominoAccess: DominoAccess;
+      let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
+
+      beforeEach(() => {
+        dominoAccess = new DominoAccess(simpleAccess);
+        fetchStub = sinon.stub(global, 'fetch');
+        fetchStub.resolves(new Response(JSON.stringify(sampleJWT)));
+      });
+
+      afterEach(() => {
+        fetchStub.restore();
+      });
+
+      it('should call fetch with correct parameters then return the access token', async () => {
+        const accessToken = await dominoAccess.accessToken();
+        const expectedOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: dominoAccess.credentials.username,
+            password: dominoAccess.credentials.password,
+            scope: dominoAccess.credentials.scope,
+          }),
+        };
+
+        expect(fetchStub.getCall(0).args[0]).to.equal(`${dominoAccess.baseUrl}/api/v1/auth`);
+        expect(fetchStub.getCall(0).args[1]).to.deep.equal(expectedOptions);
+        expect(accessToken).to.be.equal(sampleJWT.bearer);
+      });
+
+      it(`should not have 'scope' in fetch options body if 'scope' is empty`, async () => {
+        dominoAccess.credentials.scope = '';
+        await dominoAccess.accessToken();
+        const expectedOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: dominoAccess.credentials.username,
+            password: dominoAccess.credentials.password,
+          }),
+        };
+
+        expect(fetchStub.getCall(0).args[1]).to.deep.equal(expectedOptions);
+      });
+
+      it('should reuse access token if it exists and not yet expired', async () => {
+        // Initialize access token
+        await dominoAccess.accessToken();
+        // Retry to fetch access token
+        await dominoAccess.accessToken();
+
+        // fetch should only be called once
+        expect(fetchStub.getCalls().length).to.equal(1);
+      });
+
+      it('should fetch again for an access token if access token is expired', async () => {
+        const decodeStub = sinon.stub(jwt, 'decode');
+        decodeStub.returns({ exp: 1694529248 });
+        fetchStub.onSecondCall().resolves(new Response(JSON.stringify(sampleJWT)));
+
+        // Initialize access token
+        await dominoAccess.accessToken();
+        // Retry to fetch access token
+        await dominoAccess.accessToken();
+
+        // fetch should only be called once
+        expect(fetchStub.getCalls().length).to.equal(2);
+      });
+
+      it('should throw an error if fetch response has an error status code', async () => {
+        const errorResponse = {
+          status: 401,
+          message: 'Invalid credentials or account locked',
+          errorId: 1008,
+        };
+        fetchStub.resolves(new Response(JSON.stringify(errorResponse), { status: 401, statusText: 'Unauthorized' }));
+
+        await expect(dominoAccess.accessToken()).to.be.rejectedWith(HttpResponseError, errorResponse.message);
+      });
+    });
+  });
+
+  describe('DominoAccess structure', () => {
     it('should retain baseURL on cloning', () => {
       const idp = new DominoAccess(simpleAccess);
       const clone = idp.clone('newScope');
@@ -74,67 +284,6 @@ describe('DominoAccess for Access Tokens', () => {
       const idp = new DominoAccess(simpleAccess);
       const clone = await idp.clone(updatedScope);
       expect(clone.scope()).to.equal(updatedScope);
-    });
-
-    it('should return credentials unharmed', () => {
-      const expected: RestCredentials = {
-        scope: 'Ice cream',
-        type: CredentialType.BASIC,
-        username: 'John',
-        password: 'secret',
-      };
-      const idp = new DominoAccess(simpleAccess);
-      const actual = idp.updateCredentials(expected);
-      expect(actual).to.deep.equal(expected);
-    });
-
-    it('should insist on all basic credentials when updating credentials.', () => {
-      const expected: RestCredentials = {
-        scope: 'Ice cream',
-        type: CredentialType.BASIC,
-        username: 'John',
-      };
-      const idp = new DominoAccess(simpleAccess);
-      expect(() => idp.updateCredentials(expected)).to.throw('BASIC auth needs username and password.');
-    });
-
-    it('should insist on all OAUTH credentials when updating credentials', () => {
-      const expected: RestCredentials = {
-        scope: 'Ice cream',
-        type: CredentialType.OAUTH,
-      };
-      const idp = new DominoAccess(simpleAccess);
-      expect(() => idp.updateCredentials(expected)).to.throw('OAuth needs appSecret, appId and refreshToken.');
-    });
-
-    it('should insist on all OAUTH credentials with fields that are empty strings', () => {
-      const expected: RestCredentials = {
-        scope: 'Ice cream',
-        type: CredentialType.OAUTH,
-        refreshToken: 'Token',
-        appId: '',
-        appSecret: '',
-      };
-      const idp = new DominoAccess(simpleAccess);
-      expect(() => idp.updateCredentials(expected)).to.throw('OAuth needs appSecret, appId and refreshToken.');
-    });
-
-    it('should pass when all fields are provided', async () => {
-      const incomingCredentials = {
-        scope: 'Ice cream',
-        type: CredentialType.OAUTH,
-        refreshToken: 'Token',
-        appId: 'value1',
-        appSecret: 'valuesecret',
-      };
-
-      try {
-        const idp = new DominoAccess(simpleAccess);
-        const actual = idp.updateCredentials(incomingCredentials);
-        expect(actual).to.be.undefined;
-      } catch (error: any) {
-        expect(error as Error);
-      }
     });
 
     it('should fail expired when no token is present', () => {
@@ -163,8 +312,9 @@ describe('DominoAccess for Access Tokens', () => {
 
     it('should have called the right URL', async () => {
       const accessToken = await domAccess.accessToken();
-      const exp = await domAccess.expiry();
-      expect(exp * 1000).is.above(Number(new Date()));
+      const exp = domAccess.expiry();
+      expect(exp).not.null;
+      expect((exp as number) * 1000).is.above(Number(new Date()));
       expect(accessToken).to.be.equal(sampleJWT.bearer);
       expect(stub.args[0][0]).to.have.string('/api/v1/auth');
     });
@@ -197,8 +347,9 @@ describe('DominoAccess for Access Tokens', () => {
 
     it('should have called the OAuth token URL', async () => {
       const accessToken = await domAccess.accessToken();
-      const exp = await domAccess.expiry();
-      expect(exp * 1000).is.above(Number(new Date()));
+      const exp = domAccess.expiry();
+      expect(exp).not.null;
+      expect((exp as number) * 1000).is.above(Number(new Date()));
       expect(accessToken).to.be.equal(sampleJWT.bearer);
       expect(stub.args[0][0]).to.have.string('/oauth/token');
     });
