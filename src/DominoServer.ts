@@ -5,7 +5,7 @@
 
 import DominoConnector from './DominoConnector';
 import { DominoRestServer } from './RestInterfaces';
-import { ApiNotAvailable } from './errors/ApiNotAvailable';
+import { ApiNotAvailable } from './errors';
 
 /**
  * Data structure returned by the /api endpoint describing the available OpenAPI endpoints.
@@ -68,7 +68,7 @@ export class DominoServer implements DominoRestServer {
    */
   static getServer = (baseUrl: string) =>
     new Promise<DominoServer>((resolve, reject) => {
-      return DominoServer._apiLoader(baseUrl)
+      DominoServer._apiLoader(baseUrl)
         .then((apis) => {
           const apiMap: Map<string, DominoApiMeta> = new Map();
           for (const key in apis) {
@@ -90,7 +90,8 @@ export class DominoServer implements DominoRestServer {
     new Promise<any>((resolve, reject) => {
       const url = new URL(baseUrl);
       url.pathname = '/api';
-      return fetch(url.toString())
+
+      fetch(url.toString())
         .then((response) => response.json())
         .then((apis) => resolve(apis))
         .catch((error) => {
@@ -108,21 +109,22 @@ export class DominoServer implements DominoRestServer {
       }
 
       if (this.apiMap.has(apiName)) {
-        return DominoConnector.getConnector(this.baseUrl, this.apiMap.get(apiName) as DominoApiMeta)
+        DominoConnector.getConnector(this.baseUrl, this.apiMap.get(apiName) as DominoApiMeta)
           .then((dominoConnector) => {
             this.connectorMap.set(apiName, dominoConnector);
             return resolve(dominoConnector);
           })
           .catch((error) => reject(error));
+        return;
       }
 
-      return reject(new ApiNotAvailable(apiName));
+      reject(new ApiNotAvailable(apiName));
     });
 
   availableOperations = (apiName: string) =>
-    new Promise<Map<string, any>>((resolve, reject) =>
+    new Promise<Map<string, any>>((resolve, reject) => {
       this.getDominoConnector(apiName)
         .then((dominoConnector) => resolve(dominoConnector.getOperations()))
-        .catch((error) => reject(error)),
-    );
+        .catch((error) => reject(error));
+    });
 }

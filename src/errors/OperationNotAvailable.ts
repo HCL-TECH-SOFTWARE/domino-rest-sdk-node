@@ -5,11 +5,11 @@
 
 import SdkError from './SdkError';
 
-export class InvalidParamError extends SdkError {
-  constructor(message: string) {
-    super(message);
-    this.name = 'InvalidParamError';
+export class OperationNotAvailable extends SdkError {
+  constructor(operation: string) {
+    super(`Operation ID '${operation}' is not available.`);
+    this.name = 'OperationNotAvailable';
   }
 }
 
-export default InvalidParamError;
+export default OperationNotAvailable;

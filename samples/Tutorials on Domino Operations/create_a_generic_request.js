@@ -18,7 +18,7 @@
  * and then perform the 'getDocumentMetadata' operation to it using the generic
  * request method. */
 
-const { DominoAccess, DominoServer, DominoUserSession } = require('@hcl-software/domino-rest-sdk-node');
+const { DominoAccess, DominoServer, DominoUserSession, streamToJson } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('../resources/credentials');
 
 const start = async () => {
@@ -45,7 +45,7 @@ const start = async () => {
 
   // The parameters that the operation we want to execute needs.
   const requestOptions = {
-    dataSource: 'customers',
+    dataSource: 'customersdb',
     params: new Map(),
   };
   // getDocumentMetadata needs a UNID parameter so we set it here with the UNID of the
@@ -60,7 +60,15 @@ const start = async () => {
   // Calling the generic request method with the operation ID and request options.
   await dominoUserSession
     .request('getDocumentMetadata', requestOptions)
-    .then((metadata) => console.log(metadata))
+    .then(async (response) => {
+      // Check HTTP status code
+      if (response.status >= 400) {
+        throw new Error(`Error status code: ${response.status}`);
+      }
+      // We parse the received datastream to JSON using SDK's built in streamToJson
+      const metadata = await streamToJson(response.dataStream);
+      console.log(metadata);
+    })
     .catch((err) => console.log(err));
 };
 

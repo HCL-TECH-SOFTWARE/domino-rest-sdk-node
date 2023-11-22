@@ -6,10 +6,9 @@
 import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from '.';
 import DominoConnector from './DominoConnector';
 import DominoDocument from './DominoDocument';
-import { isEmpty } from './Utilities';
-import { EmptyParamError } from './errors/EmptyParamError';
-import { InvalidParamError } from './errors/InvalidParamError';
-import { NotAnArrayError } from './errors/NotAnArrayError';
+import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors';
+import { streamToJson } from './helpers/StreamHelpers';
+import { isEmpty } from './helpers/Utilities';
 
 /**
  * A response for document operations that can return document's status after operation.
@@ -292,7 +291,24 @@ export class DominoDocumentOperations {
     dominoAccess: DominoAccess,
     operationId: string,
     options: DominoRequestOptions,
-  ): Promise<T> => dominoConnector.request<T>(dominoAccess, operationId, options);
+    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
+  ) =>
+    new Promise<T>((resolve, reject) => {
+      dominoConnector
+        .request(dominoAccess, operationId, options)
+        .then(async (result) => {
+          if (result.dataStream === null) {
+            throw new NoResponseBody(operationId);
+          }
+          const decodedStream = await streamDecoder(result.dataStream);
+          if (result.status >= 400) {
+            throw new HttpResponseError(decodedStream as any);
+          }
+
+          return resolve(decodedStream);
+        })
+        .catch((error) => reject(error));
+    });
 
   static getDocument = (
     dataSource: string,
@@ -318,9 +334,9 @@ export class DominoDocumentOperations {
         params.set(key, options[key as keyof GetDocumentOptions]);
       }
 
-      const reqOptions: DominoRequestOptions = { dataSource, params };
+      const reqOptions = { dataSource, params };
 
-      return this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'getDocument', reqOptions)
+      this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'getDocument', reqOptions, streamToJson)
         .then((document) => resolve(new DominoDocument(document)))
         .catch((error) => reject(error));
     });
@@ -353,7 +369,7 @@ export class DominoDocumentOperations {
         body: JSON.stringify(dominoDoc.toDocJson()),
       };
 
-      return this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'createDocument', reqOptions)
+      this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'createDocument', reqOptions, streamToJson)
         .then((document) => resolve(new DominoDocument(document)))
         .catch((error) => reject(error));
     });
@@ -391,7 +407,7 @@ export class DominoDocumentOperations {
         body: JSON.stringify(doc.toDocJson()),
       };
 
-      return this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'updateDocument', reqOptions)
+      this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'updateDocument', reqOptions, streamToJson)
         .then((document) => resolve(new DominoDocument(document)))
         .catch((error) => reject(error));
     });
@@ -430,7 +446,7 @@ export class DominoDocumentOperations {
         body: JSON.stringify(docJsonPatch),
       };
 
-      return this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'patchDocument', reqOptions)
+      this._executeOperation<DocumentBody>(dominoConnector, dominoAccess, 'patchDocument', reqOptions, streamToJson)
         .then((document) => resolve(new DominoDocument(document)))
         .catch((error) => reject(error));
     });
@@ -459,7 +475,7 @@ export class DominoDocumentOperations {
 
       const reqOptions: DominoRequestOptions = { dataSource, params };
 
-      return this._executeOperation<DocumentStatusResponse>(dominoConnector, dominoAccess, 'deleteDocument', reqOptions)
+      this._executeOperation<DocumentStatusResponse>(dominoConnector, dominoAccess, 'deleteDocument', reqOptions, streamToJson)
         .then((response) => resolve(response))
         .catch((error) => reject(error));
     });
@@ -484,7 +500,7 @@ export class DominoDocumentOperations {
 
       const reqOptions: DominoRequestOptions = { dataSource, params };
 
-      return this._executeOperation<DocumentStatusResponse>(dominoConnector, dominoAccess, 'deleteDocument', reqOptions)
+      this._executeOperation<DocumentStatusResponse>(dominoConnector, dominoAccess, 'deleteDocument', reqOptions, streamToJson)
         .then((response) => resolve(response))
         .catch((error) => reject(error));
     });
@@ -526,7 +542,13 @@ export class DominoDocumentOperations {
         body: JSON.stringify({ unids }),
       };
 
-      return this._executeOperation<Array<DocumentBody | BulkGetErrorResponse>>(dominoConnector, dominoAccess, 'bulkGetDocumentsByUnid', reqOptions)
+      this._executeOperation<Array<DocumentBody | BulkGetErrorResponse>>(
+        dominoConnector,
+        dominoAccess,
+        'bulkGetDocumentsByUnid',
+        reqOptions,
+        streamToJson,
+      )
         .then((response) =>
           resolve(
             response.map((item) => {
@@ -577,11 +599,12 @@ export class DominoDocumentOperations {
         body: JSON.stringify(request),
       };
 
-      return this._executeOperation<DocumentBody[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>(
+      this._executeOperation<DocumentBody[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>(
         dominoConnector,
         dominoAccess,
         'query',
         reqOptions,
+        streamToJson,
       )
         .then((response) => {
           if (qaction === QueryActions.EXPLAIN) {
@@ -623,7 +646,7 @@ export class DominoDocumentOperations {
         body: JSON.stringify({ documents: docs }),
       };
 
-      return this._executeOperation<DocumentBody[]>(dominoConnector, dominoAccess, 'bulkCreateDocuments', reqOptions)
+      this._executeOperation<DocumentBody[]>(dominoConnector, dominoAccess, 'bulkCreateDocuments', reqOptions, streamToJson)
         .then((documents) => resolve(documents.map((document) => new DominoDocument(document))))
         .catch((error) => reject(error));
     });
@@ -660,11 +683,12 @@ export class DominoDocumentOperations {
         body: JSON.stringify(request),
       };
 
-      return this._executeOperation<DocumentBody[] | DocumentStatusResponse[]>(
+      this._executeOperation<DocumentBody[] | DocumentStatusResponse[]>(
         dominoConnector,
         dominoAccess,
         'bulkUpdateDocumentsByQuery',
         reqOptions,
+        streamToJson,
       )
         .then((response) => {
           if (request.returnUpdatedDocument === true) {
@@ -715,7 +739,7 @@ export class DominoDocumentOperations {
         body: JSON.stringify(body),
       };
 
-      return this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions)
+      this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions, streamToJson)
         .then((response) => resolve(response))
         .catch((error) => reject(error));
     });
@@ -757,7 +781,7 @@ export class DominoDocumentOperations {
         body: JSON.stringify(body),
       };
 
-      return this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions)
+      this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions, streamToJson)
         .then((response) => resolve(response))
         .catch((error) => reject(error));
     });

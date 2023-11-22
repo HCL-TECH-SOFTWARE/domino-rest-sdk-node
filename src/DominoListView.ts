@@ -5,10 +5,8 @@
 
 import { ListType } from '.';
 import { DominoRestListView } from './RestInterfaces';
-import { isEmpty } from './Utilities';
-import { EmptyParamError } from './errors/EmptyParamError';
-import { InvalidParamError } from './errors/InvalidParamError';
-import { MissingParamError } from './errors/MissingParamError';
+import { EmptyParamError, InvalidParamError, MissingParamError } from './errors';
+import { isEmpty } from './helpers/Utilities';
 
 export type DesignColumnSimple = {
   name: string;
@@ -96,13 +94,13 @@ export class DominoListView implements DominoRestListView {
   name: string;
   selectionFormula: string;
   columns: DesignColumnSimple[];
-  type?: ListType | undefined;
+  type?: ListType;
 
   readonly '@alias'?: string[] = [];
   readonly isFolder?: boolean;
-  readonly '@title'?: string | undefined;
-  readonly '@unid'?: string | undefined;
-  readonly '@noteid'?: string | undefined;
+  readonly '@title'?: string;
+  readonly '@unid'?: string;
+  readonly '@noteid'?: string;
 
   constructor(doc: ListViewBody) {
     if (!doc.hasOwnProperty('name')) {

@@ -7,10 +7,11 @@
 /* Interfaces have no testable code - no point including them in coverage reports */
 import {
   BulkGetDocumentsOptions,
+  BulkGetErrorResponse,
   BulkUpdateDocumentsByQueryRequest,
   CreateDocumentOptions,
-  CreateUpdateDesignOptions,
   CreateUpdateListResponse,
+  DesignOptions,
   DocumentBody,
   DocumentJSON,
   DocumentStatusResponse,
@@ -22,8 +23,9 @@ import {
   DominoBaseScope,
   DominoRequestOptions,
   DominoRestOperation,
-  GetDesignOptions,
   GetDocumentOptions,
+  GetDocumentsByQueryOptions,
+  GetDocumentsByQueryRequest,
   GetListPivotViewEntryOptions,
   GetListViewDesignJSON,
   GetListViewEntryOptions,
@@ -31,19 +33,16 @@ import {
   GetListViewOptions,
   ListViewBody,
   PivotListViewResponse,
+  QueryActions,
+  QueryDocumentExplainResponse,
+  QueryDocumentParseResponse,
   RestCredentials,
   RichTextRepresentation,
   ScopeBody,
   ScopeJSON,
   UpdateDocumentOptions,
-  QueryActions,
-  GetDocumentsByQueryRequest,
-  GetDocumentsByQueryOptions,
-  QueryDocumentExplainResponse,
-  QueryDocumentParseResponse,
-  BulkGetErrorResponse,
 } from '.';
-import DominoConnector from './DominoConnector';
+import DominoConnector, { DominoRequestResponse } from './DominoConnector';
 import DominoDocument from './DominoDocument';
 import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry';
 import DominoScope from './DominoScope';
@@ -263,10 +262,8 @@ export interface DominoUserRestSession {
    * @param operationId the operation ID according to OpenAPI specification
    * @param options all data that needs to be provided to the Domino Rest connector
    * @returns a promise that resolves to the request's response.
-   *
-   * @template T the expected response type of a request, defaults to `any` if not given.
    */
-  request: <T = any>(operationId: string, options: DominoRequestOptions) => Promise<T>;
+  request: (operationId: string, options: DominoRequestOptions) => Promise<DominoRequestResponse>;
   /**
    * Get a document via its UNID. Additional request options can be provided.
    *
@@ -522,7 +519,7 @@ export interface DominoUserRestSession {
     dataSource: string,
     listView: ListViewBody,
     designName: string,
-    options?: CreateUpdateDesignOptions,
+    options?: DesignOptions,
   ) => Promise<CreateUpdateListResponse>;
   /**
    * Retrieve individual design element (view) for a database.
@@ -535,7 +532,7 @@ export interface DominoUserRestSession {
    * @throws an error if given scope name is empty.
    * @throws an error if given design name is empty.
    */
-  getListView: (dataSource: string, designName: string, options?: GetDesignOptions) => Promise<GetListViewDesignJSON>;
+  getListView: (dataSource: string, designName: string, options?: DesignOptions) => Promise<GetListViewDesignJSON>;
 }
 
 /**
@@ -558,10 +555,9 @@ export interface DominoRestConnector {
    * @param options contains all parameters for the request
    * @returns a promise that resolves to the response to the request
    *
-   * @template T the expected response type of a request, defaults to `any` if not given.
    * @throws an error if response is not okay.
    */
-  request: <T = any>(dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions) => Promise<T>;
+  request: (dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions) => Promise<DominoRequestResponse>;
   /**
    * Return information about the given operation ID.
    *

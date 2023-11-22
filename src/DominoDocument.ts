@@ -4,9 +4,8 @@
  * ========================================================================== */
 
 import { DominoRestDocument } from './RestInterfaces';
-import { isEmpty } from './Utilities';
-import { EmptyParamError } from './errors/EmptyParamError';
-import { MissingParamError } from './errors/MissingParamError';
+import { EmptyParamError, MissingParamError } from './errors';
+import { isEmpty } from './helpers/Utilities';
 
 /**
  * Base properties of a document.

@@ -5,8 +5,8 @@
 
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import { TokenDecodeError } from './errors';
 import template from './resources/jwtTemplate.json';
-import { TokenDecodeError } from './errors/TokenDecodeError';
 
 type SampleJWT = {
   bearer: string;

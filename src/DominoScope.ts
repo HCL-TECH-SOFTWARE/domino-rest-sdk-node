@@ -5,6 +5,8 @@
 
 import { DominoBaseDocument, DominoDocumentMeta } from '.';
 import { DominoRestScope } from './RestInterfaces';
+import { EmptyParamError, MissingParamError } from './errors';
+import { isEmpty } from './helpers/Utilities';
 
 /**
  * Domino REST API scope base properties.
@@ -125,16 +127,6 @@ export enum AccessLevel {
   NoAccess = 'NoAccess',
 }
 
-const MAXIMUM_ACCESS_LEVEL = {
-  Manager: 'Manager',
-  Designer: 'Designer',
-  Editor: 'Editor',
-  Author: 'Author',
-  Reader: 'Reader',
-  Depositor: 'Depositor',
-  NoAccess: 'NoAccess',
-};
-
 /**
  * Holds Domino REST API scope information and utility functions.
  *
@@ -161,45 +153,34 @@ export class DominoScope implements DominoRestScope {
   readonly $Revisions?: string;
 
   constructor(doc: ScopeBody) {
-    if (doc.hasOwnProperty('apiName') && doc.apiName != null && doc.apiName.trim().length > 0) {
-      this.apiName = doc.apiName;
-    } else {
-      throw new Error('Domino scope needs apiName value.');
+    if (!doc.hasOwnProperty('apiName')) {
+      throw new MissingParamError('apiName');
     }
-    if (doc.hasOwnProperty('schemaName') && doc.schemaName != null && doc.schemaName.trim().length > 0) {
-      this.schemaName = doc.schemaName;
-    } else {
-      throw new Error('Domino scope needs schemaName value.');
+    if (isEmpty(doc.apiName)) {
+      throw new EmptyParamError('apiName');
     }
-    if (doc.hasOwnProperty('nsfPath') && doc.nsfPath != null && doc.nsfPath.trim().length > 0) {
-      this.nsfPath = doc.nsfPath;
-    } else {
-      throw new Error('Domino scope needs nsfPath value.');
+    if (!doc.hasOwnProperty('schemaName')) {
+      throw new MissingParamError('schemaName');
     }
-
-    if (doc.hasOwnProperty('description') && doc.description != null && doc.description.trim().length > 0) {
-      this.description = doc.description;
+    if (isEmpty(doc.schemaName)) {
+      throw new EmptyParamError('schemaName');
     }
-    if (doc.hasOwnProperty('icon') && doc.icon != null && doc.icon.trim().length > 0) {
-      this.icon = doc.icon;
+    if (!doc.hasOwnProperty('nsfPath')) {
+      throw new MissingParamError('nsfPath');
     }
-    if (doc.hasOwnProperty('iconName') && doc.iconName != null && doc.iconName.trim().length > 0) {
-      this.iconName = doc.iconName;
-    }
-    if (doc.hasOwnProperty('isActive') && doc.isActive != null) {
-      this.isActive = doc.isActive;
-    }
-    if (
-      doc.hasOwnProperty('maximumAccessLevel') &&
-      doc.maximumAccessLevel != null &&
-      Object.values(MAXIMUM_ACCESS_LEVEL).includes(doc.maximumAccessLevel)
-    ) {
-      this.maximumAccessLevel = doc.maximumAccessLevel;
-    }
-    if (doc.hasOwnProperty('server') && doc.server != null && doc.server.trim().length > 0) {
-      this.server = doc.server;
+    if (isEmpty(doc.nsfPath)) {
+      throw new EmptyParamError('nsfPath');
     }
 
+    this.apiName = doc.apiName;
+    this.schemaName = doc.schemaName;
+    this.nsfPath = doc.nsfPath;
+    this.description = doc.description;
+    this.iconName = doc.iconName;
+    this.isActive = doc.isActive;
+    this.maximumAccessLevel = doc.maximumAccessLevel;
+    this.server = doc.server;
+    this.icon = doc.icon;
     this['@meta'] = doc['@meta'];
     this.Form = doc.Form;
     this.Type = doc.Type;

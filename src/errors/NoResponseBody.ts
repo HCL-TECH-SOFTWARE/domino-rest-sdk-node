@@ -5,11 +5,11 @@
 
 import SdkError from './SdkError';
 
-export class InvalidParamError extends SdkError {
-  constructor(message: string) {
-    super(message);
-    this.name = 'InvalidParamError';
+export class NoResponseBody extends SdkError {
+  constructor(operation: string) {
+    super(`Operation '${operation}' received no response body.`);
+    this.name = 'NoResponseBody';
   }
 }
 
-export default InvalidParamError;
+export default NoResponseBody;

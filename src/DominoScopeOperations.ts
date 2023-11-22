@@ -6,8 +6,9 @@
 import { DominoAccess, DominoRequestOptions, ScopeBody } from '.';
 import DominoConnector from './DominoConnector';
 import DominoScope from './DominoScope';
-import { isEmpty } from './Utilities';
-import { EmptyParamError } from './errors/EmptyParamError';
+import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors';
+import { streamToJson } from './helpers/StreamHelpers';
+import { isEmpty } from './helpers/Utilities';
 
 /**
  * API call helper functions for scope operations.
@@ -22,7 +23,24 @@ export class DominoScopeOperations {
     dominoAccess: DominoAccess,
     operationId: string,
     options: DominoRequestOptions,
-  ) => dominoConnector.request<T>(dominoAccess, operationId, options);
+    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
+  ) =>
+    new Promise<T>((resolve, reject) => {
+      dominoConnector
+        .request(dominoAccess, operationId, options)
+        .then(async (result) => {
+          if (result.dataStream === null) {
+            throw new NoResponseBody(operationId);
+          }
+          const decodedStream = await streamDecoder(result.dataStream);
+          if (result.status >= 400) {
+            throw new HttpResponseError(decodedStream as any);
+          }
+
+          return resolve(decodedStream);
+        })
+        .catch((error) => reject(error));
+    });
 
   static getScope = (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
@@ -35,7 +53,7 @@ export class DominoScopeOperations {
 
       const reqOptions: DominoRequestOptions = { params };
 
-      return this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'getScopeMapping', reqOptions)
+      this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'getScopeMapping', reqOptions, streamToJson)
         .then((scope) => resolve(new DominoScope(scope)))
         .catch((error) => reject(error));
     });
@@ -46,7 +64,7 @@ export class DominoScopeOperations {
 
       const reqOptions: DominoRequestOptions = { params };
 
-      return this._executeOperation<ScopeBody[]>(dominoConnector, dominoAccess, 'fetchScopeMappings', reqOptions)
+      this._executeOperation<ScopeBody[]>(dominoConnector, dominoAccess, 'fetchScopeMappings', reqOptions, streamToJson)
         .then((scopes) => resolve(scopes.map((scope) => new DominoScope(scope))))
         .catch((error) => reject(error));
     });
@@ -62,7 +80,7 @@ export class DominoScopeOperations {
 
       const reqOptions: DominoRequestOptions = { params };
 
-      return this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'deleteScopeMapping', reqOptions)
+      this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'deleteScopeMapping', reqOptions, streamToJson)
         .then((scope) => resolve(new DominoScope(scope)))
         .catch((error) => reject(error));
     });
@@ -86,7 +104,7 @@ export class DominoScopeOperations {
         body: JSON.stringify(dominoScope.toScopeJson()),
       };
 
-      return this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'createUpdateScopeMapping', reqOptions)
+      this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'createUpdateScopeMapping', reqOptions, streamToJson)
         .then((scope) => resolve(new DominoScope(scope)))
         .catch((error) => reject(error));
     });

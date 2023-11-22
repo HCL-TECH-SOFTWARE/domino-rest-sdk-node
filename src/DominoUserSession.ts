@@ -7,14 +7,12 @@ import {
   BulkGetDocumentsOptions,
   BulkUpdateDocumentsByQueryRequest,
   CreateDocumentOptions,
-  CreateUpdateDesignOptions,
   DocumentBody,
   DocumentJSON,
   DocumentStatusResponse,
   DominoAccess,
   DominoDocumentOperations,
   DominoRequestOptions,
-  GetDesignOptions,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
   GetDocumentsByQueryRequest,
@@ -29,7 +27,7 @@ import {
 } from '.';
 import DominoConnector from './DominoConnector';
 import DominoDocument from './DominoDocument';
-import DominoListViewOperations from './DominoListViewOperations';
+import DominoListViewOperations, { DesignOptions } from './DominoListViewOperations';
 import DominoScope from './DominoScope';
 import DominoScopeOperations from './DominoScopeOperations';
 import { DominoUserRestSession } from './RestInterfaces';
@@ -51,7 +49,7 @@ export class DominoUserSession implements DominoUserRestSession {
     this.dominoConnector = dominoConnector;
   }
 
-  request = <T = any>(operationId: string, options: DominoRequestOptions) => this.dominoConnector.request<T>(this.dominoAccess, operationId, options);
+  request = (operationId: string, options: DominoRequestOptions) => this.dominoConnector.request(this.dominoAccess, operationId, options);
 
   getDocument = (dataSource: string, unid: string, options?: GetDocumentOptions) =>
     DominoDocumentOperations.getDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, options);
@@ -106,10 +104,10 @@ export class DominoUserSession implements DominoUserRestSession {
   getListViewPivotEntry = (dataSource: string, listViewName: string, pivotColumn: string, options?: GetListPivotViewEntryOptions) =>
     DominoListViewOperations.getListViewPivotEntry(dataSource, this.dominoAccess, this.dominoConnector, listViewName, pivotColumn, options);
 
-  createUpdateListView = (dataSource: string, listView: ListViewBody, designName: string, options?: CreateUpdateDesignOptions) =>
+  createUpdateListView = (dataSource: string, listView: ListViewBody, designName: string, options?: DesignOptions) =>
     DominoListViewOperations.createUpdateListView(dataSource, this.dominoAccess, this.dominoConnector, listView, designName, options);
 
-  getListView = (dataSource: string, designName: string, options?: GetDesignOptions) =>
+  getListView = (dataSource: string, designName: string, options?: DesignOptions) =>
     DominoListViewOperations.getListView(dataSource, this.dominoAccess, this.dominoConnector, designName, options);
 }
 

@@ -26,7 +26,7 @@ First is creating a a `credentials.json` in root with the following format:
 {
   "baseUrl": "{{Rest API or other Idp's URL}}",
   "credentials": {
-    "scope": "$DATA",
+    "scope": "$DATA,$SETUP",
     "type": "basic",
     "username": "{{Username}}",
     "password": "{{Password}}"
@@ -42,7 +42,7 @@ Another method is to use .env, which VS code reads if you run a sample using the
 BASE_URL={{Rest API or other Idp's URL}}
 USERNAME={{Username}}
 PASSWORD={{Password}}
-SCOPE=$DATA
+SCOPE=$DATA,$SETUP
 TYPE=basic
 ```
 

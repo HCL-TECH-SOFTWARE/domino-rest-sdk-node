@@ -8,8 +8,9 @@ import DominoConnector from './DominoConnector';
 import DominoDocument from './DominoDocument';
 import DominoListView from './DominoListView';
 import DominoListViewEntry from './DominoListViewEntry';
-import { isEmpty } from './Utilities';
-import { EmptyParamError } from './errors/EmptyParamError';
+import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors';
+import { streamToJson } from './helpers/StreamHelpers';
+import { isEmpty } from './helpers/Utilities';
 
 export type GetListViewDesignJSON = {
   '@name': string;
@@ -79,7 +80,7 @@ export type ListViewEntryOptions = {
    */
   ftSearchQuery?: string;
   /**
-   * How many entries shall be returned, default = Integer.MaxInteger
+   * How many entries shall be returned, default = 1000
    */
   count?: number;
   /**
@@ -130,12 +131,7 @@ export type ListViewEntryOptions = {
 /**
  * Options for GET /lists/{name} document operation.
  */
-export type GetListViewEntryOptions = Omit<ListViewEntryOptions, 'pivotColumn'> & {
-  /**
-   * A function that subscribes to response and reacts to each JSON item received.
-   */
-  subscriber?: () => WritableStream<ListViewEntryJSON | DocumentBody>;
-};
+export type GetListViewEntryOptions = Omit<ListViewEntryOptions, 'pivotColumn'>;
 
 /**
  * Options for GET /listspivot/{name} document operation.
@@ -160,17 +156,12 @@ export type GetListViewOptions = {
 };
 
 /**
- * Options for GET /design/designName/designName document operation.
+ * Options for GET/PUT /design/designName/designName document operation.
  */
-export type GetDesignOptions = {
+export type DesignOptions = {
   raw?: boolean;
   nsfPath?: string;
 };
-
-/**
- * Options for PUT /design/designName/designName document operation.
- */
-export type CreateUpdateDesignOptions = GetDesignOptions;
 
 /**
  * Fetch view entries direction for alternative sorting.
@@ -217,14 +208,31 @@ export class DominoListViewOperations {
     dominoAccess: DominoAccess,
     operationId: string,
     options: DominoRequestOptions,
-  ): Promise<T> => dominoConnector.request<T>(dominoAccess, operationId, options);
+    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
+  ): Promise<T> =>
+    new Promise<T>((resolve, reject) => {
+      dominoConnector
+        .request(dominoAccess, operationId, options)
+        .then(async (result) => {
+          if (result.dataStream === null) {
+            throw new NoResponseBody(operationId);
+          }
+          const decodedStream = await streamDecoder(result.dataStream);
+          if (result.status >= 400) {
+            throw new HttpResponseError(decodedStream as any);
+          }
+
+          return resolve(decodedStream);
+        })
+        .catch((error) => reject(error));
+    });
 
   static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
-    options?: GetListViewEntryOptions | { document?: false; subscriber?: undefined },
+    options?: GetListViewEntryOptions | { document: false },
   ): Promise<ListViewEntryJSON[]>;
   static getListViewEntry(
     dataSource: string,
@@ -238,16 +246,9 @@ export class DominoListViewOperations {
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
-    options?: GetListViewEntryOptions | { subscriber: () => WritableStream<ListViewEntryJSON | DocumentBody> },
-  ): Promise<DominoDocument[]>;
-  static getListViewEntry(
-    dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
-    listViewName: string,
     options?: GetListViewEntryOptions,
   ) {
-    return new Promise<ListViewEntryJSON[] | DominoDocument[] | void>((resolve, reject) => {
+    return new Promise<ListViewEntryJSON[] | DominoDocument[]>((resolve, reject) => {
       if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
       }
@@ -256,31 +257,20 @@ export class DominoListViewOperations {
       }
 
       const params: Map<string, any> = new Map();
-      let subscriber: (() => WritableStream<ListViewEntryJSON | DocumentBody>) | null | undefined = null;
       let returnAsDocument: boolean | undefined = false;
       params.set('name', listViewName);
       for (const key in options) {
-        if (key === 'subscriber') {
-          subscriber = options[key];
-        } else {
-          if (key === 'documents') {
-            returnAsDocument = options[key];
-          }
-          params.set(key, options[key as keyof GetListViewEntryOptions]);
+        if (key === 'documents') {
+          returnAsDocument = options[key];
         }
+        params.set(key, options[key as keyof GetListViewEntryOptions]);
       }
 
-      const reqOptions: DominoRequestOptions = {
-        dataSource,
-        params,
-        subscriber,
-      };
+      const reqOptions: DominoRequestOptions = { dataSource, params };
 
-      return this._executeOperation<void | DocumentBody[] | ListViewEntryJSON[]>(dominoConnector, dominoAccess, 'fetchViewEntries', reqOptions)
+      this._executeOperation<void | DocumentBody[] | ListViewEntryJSON[]>(dominoConnector, dominoAccess, 'fetchViewEntries', reqOptions, streamToJson)
         .then((response) => {
-          if (subscriber) {
-            return resolve();
-          } else if (returnAsDocument) {
+          if (returnAsDocument) {
             return resolve((response as DocumentBody[]).map((doc) => new DominoDocument(doc)));
           }
           return resolve((response as ListViewEntryJSON[]).map((viewEntry) => new DominoListViewEntry(viewEntry).toListViewJson()));
@@ -320,7 +310,7 @@ export class DominoListViewOperations {
         params,
       };
 
-      return this._executeOperation<PivotListViewResponse>(dominoConnector, dominoAccess, 'pivotViewEntries', reqOptions)
+      this._executeOperation<PivotListViewResponse>(dominoConnector, dominoAccess, 'pivotViewEntries', reqOptions, streamToJson)
         .then((pivotListViews) => resolve(pivotListViews))
         .catch((error) => reject(error));
     });
@@ -338,7 +328,7 @@ export class DominoListViewOperations {
 
       const reqOptions: DominoRequestOptions = { dataSource, params };
 
-      this._executeOperation<GetListViewJSON[]>(dominoConnector, dominoAccess, 'fetchViews', reqOptions)
+      this._executeOperation<GetListViewJSON[]>(dominoConnector, dominoAccess, 'fetchViews', reqOptions, streamToJson)
         .then((listViews) => resolve(listViews))
         .catch((error) => reject(error));
     });
@@ -349,7 +339,7 @@ export class DominoListViewOperations {
     dominoConnector: DominoConnector,
     listView: ListViewBody,
     designName: string,
-    options?: CreateUpdateDesignOptions,
+    options?: DesignOptions,
   ) =>
     new Promise<CreateUpdateListResponse>((resolve, reject) => {
       if (isEmpty(dataSource)) {
@@ -367,7 +357,7 @@ export class DominoListViewOperations {
       params.set('designName', designName);
       params.set('designType', 'views');
       for (const key in options) {
-        params.set(key, options[key as keyof CreateUpdateDesignOptions]);
+        params.set(key, options[key as keyof DesignOptions]);
       }
 
       const reqOptions: DominoRequestOptions = {
@@ -376,7 +366,7 @@ export class DominoListViewOperations {
         body: JSON.stringify(listViewObj.toListViewJson()),
       };
 
-      return this._executeOperation<CreateUpdateListResponse>(dominoConnector, dominoAccess, 'updateCreateDesign', reqOptions)
+      this._executeOperation<CreateUpdateListResponse>(dominoConnector, dominoAccess, 'updateCreateDesign', reqOptions, streamToJson)
         .then((listView) => resolve(listView))
         .catch((error) => reject(error));
     });
@@ -386,7 +376,7 @@ export class DominoListViewOperations {
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     designName: string,
-    options?: GetDesignOptions,
+    options?: DesignOptions,
   ) =>
     new Promise<GetListViewDesignJSON>((resolve, reject) => {
       if (isEmpty(dataSource)) {
@@ -400,12 +390,12 @@ export class DominoListViewOperations {
       params.set('designName', designName);
       params.set('designType', 'views');
       for (const key in options) {
-        params.set(key, options[key as keyof GetDesignOptions]);
+        params.set(key, options[key as keyof DesignOptions]);
       }
 
       const reqOptions: DominoRequestOptions = { dataSource, params };
 
-      return this._executeOperation<GetListViewDesignJSON>(dominoConnector, dominoAccess, 'getDesign', reqOptions)
+      this._executeOperation<GetListViewDesignJSON>(dominoConnector, dominoAccess, 'getDesign', reqOptions, streamToJson)
         .then((listView) => resolve(listView))
         .catch((error) => reject(error));
     });
