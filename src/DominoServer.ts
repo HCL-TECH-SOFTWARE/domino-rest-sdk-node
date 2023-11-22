@@ -41,7 +41,6 @@ export type DominoApiMeta = {
  * @author <emmanuelryan.gamla@hcl.software>
  * @author <alecvincent.bardiano@hcl.software>
  */
-
 export class DominoServer implements DominoRestServer {
   baseUrl: string;
   /**
@@ -52,11 +51,6 @@ export class DominoServer implements DominoRestServer {
    * Maps APIs to its own DominoConnector.
    */
   connectorMap: Map<string, DominoConnector> = new Map();
-
-  private constructor(baseUrl: string, apiMap: Map<string, DominoApiMeta>) {
-    this.baseUrl = baseUrl;
-    this.apiMap = apiMap;
-  }
 
   /**
    * Factory for getting DominoServer class.
@@ -79,26 +73,10 @@ export class DominoServer implements DominoRestServer {
         .catch((error) => reject(error));
     });
 
-  /**
-   * Loads all available APIs on Domino REST API server using /api endpoint.
-   *
-   * @returns a promise that resolves to a void.
-   *
-   * @throws an error if something went wrong when fetching.
-   */
-  private static _apiLoader = (baseUrl: string) =>
-    new Promise<any>((resolve, reject) => {
-      const url = new URL(baseUrl);
-      url.pathname = '/api';
-
-      fetch(url.toString())
-        .then((response) => response.json())
-        .then((apis) => resolve(apis))
-        .catch((error) => {
-          error.message = '_apiLoader failed';
-          reject(error);
-        });
-    });
+  private constructor(baseUrl: string, apiMap: Map<string, DominoApiMeta>) {
+    this.baseUrl = baseUrl;
+    this.apiMap = apiMap;
+  }
 
   availableApis = () => Array.from(this.apiMap.keys());
 
@@ -125,6 +103,24 @@ export class DominoServer implements DominoRestServer {
     new Promise<Map<string, any>>((resolve, reject) => {
       this.getDominoConnector(apiName)
         .then((dominoConnector) => resolve(dominoConnector.getOperations()))
+        .catch((error) => reject(error));
+    });
+
+  /**
+   * Loads all available APIs on Domino REST API server using /api endpoint.
+   *
+   * @returns a promise that resolves to a void.
+   *
+   * @throws an error if something went wrong when fetching.
+   */
+  private static _apiLoader = (baseUrl: string) =>
+    new Promise<any>((resolve, reject) => {
+      const url = new URL(baseUrl);
+      url.pathname = '/api';
+
+      fetch(url.toString())
+        .then((response) => response.json())
+        .then((apis) => resolve(apis))
         .catch((error) => reject(error));
     });
 }

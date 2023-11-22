@@ -12,18 +12,11 @@ import { getSampleJWT } from '../src/JwtHelper';
 
 chai.use(chaiAsPromised);
 
-describe('DominoAccess for Access Tokens', () => {
+describe('DominoAccess', () => {
   const sampleJWT = getSampleJWT('John Doe');
 
-  let simpleAccess: DominoRestAccessJSON = {
-    baseUrl: 'https://frascati.projectkeep.local:8880',
-    credentials: {
-      scope: '$DATA',
-      type: CredentialType.BASIC,
-      username: 'testuser',
-      password: 'testpassword',
-    },
-  };
+  let simpleAccess: DominoRestAccessJSON;
+  let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
 
   beforeEach(() => {
     simpleAccess = {
@@ -69,7 +62,7 @@ describe('DominoAccess for Access Tokens', () => {
         };
       });
 
-      it(`should successfully create a 'DominoAccess' object`, () => {
+      it(`should create a 'DominoAccess' object`, () => {
         const dominoAccess = new DominoAccess(simpleAccess);
         expect(dominoAccess).to.instanceOf(DominoAccess);
         expect(dominoAccess.baseUrl).to.equal(simpleAccess.baseUrl);
@@ -93,7 +86,7 @@ describe('DominoAccess for Access Tokens', () => {
     });
 
     describe(`credentials are 'basic' type`, () => {
-      it(`should successfully create a 'DominoAccess' object`, () => {
+      it(`should create a 'DominoAccess' object`, () => {
         const dominoAccess = new DominoAccess(simpleAccess);
         expect(dominoAccess).to.instanceOf(DominoAccess);
         expect(dominoAccess.baseUrl).to.equal(simpleAccess.baseUrl);
@@ -185,10 +178,9 @@ describe('DominoAccess for Access Tokens', () => {
   });
 
   describe('accessToken', () => {
-    describe(`credentials type is 'basic'`, () => {
-      let dominoAccess: DominoAccess;
-      let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
+    let dominoAccess: DominoAccess;
 
+    describe(`credentials type is 'basic'`, () => {
       beforeEach(() => {
         dominoAccess = new DominoAccess(simpleAccess);
         fetchStub = sinon.stub(global, 'fetch');
@@ -257,6 +249,7 @@ describe('DominoAccess for Access Tokens', () => {
 
         // fetch should only be called once
         expect(fetchStub.getCalls().length).to.equal(2);
+        decodeStub.restore();
       });
 
       it('should throw an error if fetch response has an error status code', async () => {
@@ -269,149 +262,143 @@ describe('DominoAccess for Access Tokens', () => {
 
         await expect(dominoAccess.accessToken()).to.be.rejectedWith(HttpResponseError, errorResponse.message);
       });
-    });
-  });
 
-  describe('DominoAccess structure', () => {
-    it('should retain baseURL on cloning', () => {
-      const idp = new DominoAccess(simpleAccess);
-      const clone = idp.clone('newScope');
-      expect(clone).to.have.property('baseUrl', simpleAccess.baseUrl);
+      it('should throw an error if fetch fails', async () => {
+        fetchStub.rejects(new Error('Fetch error.'));
+
+        await expect(dominoAccess.accessToken()).to.be.rejectedWith('Fetch error.');
+      });
     });
 
-    it('should update scope on cloning', async () => {
-      const updatedScope = 'some scope here';
-      const idp = new DominoAccess(simpleAccess);
-      const clone = await idp.clone(updatedScope);
-      expect(clone.scope()).to.equal(updatedScope);
-    });
-
-    it('should fail expired when no token is present', () => {
-      const idp = new DominoAccess(simpleAccess);
-      expect(() => idp.expiry()).to.throw('No token with expiry time found.');
-    });
-  });
-
-  describe('Retrieving AccessToken using Basic', () => {
-    simpleAccess.credentials = {
-      scope: '$DATA',
-      type: CredentialType.BASIC,
-      username: 'John Doe',
-      password: 'password',
-    };
-    const domAccess = new DominoAccess(simpleAccess);
-    let stub: any;
-    beforeEach(() => {
-      stub = sinon.stub(global, 'fetch');
-      stub.returns(Promise.resolve(new Response(JSON.stringify(sampleJWT))));
-    });
-
-    afterEach(() => {
-      stub.restore();
-    });
-
-    it('should have called the right URL', async () => {
-      const accessToken = await domAccess.accessToken();
-      const exp = domAccess.expiry();
-      expect(exp).not.null;
-      expect((exp as number) * 1000).is.above(Number(new Date()));
-      expect(accessToken).to.be.equal(sampleJWT.bearer);
-      expect(stub.args[0][0]).to.have.string('/api/v1/auth');
-    });
-
-    it('should return the same token while it is valid', async () => {
-      const accessToken = await domAccess.accessToken();
-      const accessToken2 = await domAccess.accessToken();
-      expect(accessToken).to.be.equal(accessToken2);
-    });
-  });
-
-  describe('Retrieving AccessToken using OAUTH', () => {
-    simpleAccess.credentials = {
-      scope: '$DATA',
-      type: CredentialType.OAUTH,
-      refreshToken: 'Token',
-      appId: 'appId',
-      appSecret: 'secret',
-    };
-    const domAccess = new DominoAccess(simpleAccess);
-    let stub: any;
-    beforeEach(() => {
-      stub = sinon.stub(global, 'fetch');
-      stub.returns(Promise.resolve(new Response(JSON.stringify(sampleJWT))));
-    });
-
-    afterEach(() => {
-      stub.restore();
-    });
-
-    it('should have called the OAuth token URL', async () => {
-      const accessToken = await domAccess.accessToken();
-      const exp = domAccess.expiry();
-      expect(exp).not.null;
-      expect((exp as number) * 1000).is.above(Number(new Date()));
-      expect(accessToken).to.be.equal(sampleJWT.bearer);
-      expect(stub.args[0][0]).to.have.string('/oauth/token');
-    });
-  });
-
-  describe('Error retrieving access token', () => {
-    const errorResponse = {
-      status: 401,
-      message: 'Invalid credentials or account locked',
-      errorId: 1008,
-    };
-
-    let stub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
-
-    beforeEach(() => {
-      stub = sinon.stub(global, 'fetch');
-      const response = new Response(JSON.stringify(errorResponse), { status: 401, statusText: 'Unauthorized' });
-      stub.resolves(response);
-    });
-
-    afterEach(() => {
-      stub.restore();
-    });
-
-    it('should throw the JSON response when fetch response is not okay', async () => {
-      simpleAccess.credentials = {
-        scope: '$DATA',
-        type: CredentialType.BASIC,
-        username: 'John Doe',
-        password: 'password',
-      };
-
-      const domAccess = new DominoAccess(simpleAccess);
-      await expect(domAccess.accessToken()).to.be.rejectedWith('Invalid credentials or account locked');
-    });
-  });
-
-  /* This is not particularly useful, just an exercise in manually mocking */
-  describe('Mocking fetch', () => {
-    let saveFetch: any;
-    before(() => {
-      saveFetch = global.fetch;
-      global.fetch = (input: RequestInfo | URL): Promise<Response> => {
-        let params = {
-          status: 200,
-          headers: {
-            'Content-type': 'application/json',
-          },
+    describe(`credentials type is 'oauth'`, () => {
+      beforeEach(() => {
+        simpleAccess.credentials = {
+          scope: '$DATA',
+          type: CredentialType.OAUTH,
+          appId: '123',
+          appSecret: '123',
+          refreshToken: '123',
         };
-        let result = new Response(JSON.stringify(sampleJWT), params);
-        return Promise.resolve(result);
-      };
+        dominoAccess = new DominoAccess(simpleAccess);
+        fetchStub = sinon.stub(global, 'fetch');
+        fetchStub.resolves(new Response(JSON.stringify(sampleJWT)));
+      });
+
+      afterEach(() => {
+        fetchStub.restore();
+      });
+
+      it('should call fetch with correct parameters then return the access token', async () => {
+        const accessToken = await dominoAccess.accessToken();
+        const data = new URLSearchParams();
+        data.append('grant_type', 'refresh_token');
+        data.append('refresh_token', dominoAccess.credentials.refreshToken as string);
+        data.append('scope', dominoAccess.credentials.scope as string);
+        data.append('client_id', dominoAccess.credentials.appId as string);
+        data.append('client_secret', dominoAccess.credentials.appSecret as string);
+        const expectedOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: data,
+        };
+
+        expect(fetchStub.getCall(0).args[0]).to.equal(`${dominoAccess.baseUrl}/oauth/token`);
+        expect(fetchStub.getCall(0).args[1]).to.deep.equal(expectedOptions);
+        expect(accessToken).to.be.equal(sampleJWT.bearer);
+      });
+
+      it('should reuse access token if it exists and not yet expired', async () => {
+        // Initialize access token
+        await dominoAccess.accessToken();
+        // Retry to fetch access token
+        await dominoAccess.accessToken();
+
+        // fetch should only be called once
+        expect(fetchStub.getCalls().length).to.equal(1);
+      });
+
+      it('should fetch again for an access token if access token is expired', async () => {
+        const decodeStub = sinon.stub(jwt, 'decode');
+        decodeStub.returns({ exp: 1694529248 });
+        fetchStub.onSecondCall().resolves(new Response(JSON.stringify(sampleJWT)));
+
+        // Initialize access token
+        await dominoAccess.accessToken();
+        // Retry to fetch access token
+        await dominoAccess.accessToken();
+
+        // fetch should only be called once
+        expect(fetchStub.getCalls().length).to.equal(2);
+        decodeStub.restore();
+      });
+
+      it('should throw an error if fetch response has an error status code', async () => {
+        const errorResponse = {
+          status: 401,
+          message: 'Invalid credentials or account locked',
+          errorId: 1008,
+        };
+        fetchStub.resolves(new Response(JSON.stringify(errorResponse), { status: 401, statusText: 'Unauthorized' }));
+
+        await expect(dominoAccess.accessToken()).to.be.rejectedWith(HttpResponseError, errorResponse.message);
+      });
+
+      it('should throw an error if fetch fails', async () => {
+        fetchStub.rejects(new Error('Fetch error.'));
+
+        await expect(dominoAccess.accessToken()).to.be.rejectedWith('Fetch error.');
+      });
     });
-    after(() => {
-      global.fetch = saveFetch;
+  });
+
+  describe('scope', () => {
+    let dominoAccess: DominoAccess;
+
+    beforeEach(() => {
+      dominoAccess = new DominoAccess(simpleAccess);
     });
 
-    it('should mock fetch', async () => {
-      const where: string = simpleAccess.baseUrl || '';
-      const result = await fetch(where);
-      const jsonResult = await result.json();
-      expect(jsonResult).to.eql(sampleJWT);
+    it('should return access scope', () => {
+      expect(dominoAccess.scope()).to.equal(simpleAccess.credentials.scope);
+    });
+
+    it('should return null if scope is undefined', () => {
+      dominoAccess.credentials.scope = undefined;
+      expect(dominoAccess.scope()).to.be.null;
+    });
+  });
+
+  describe('expiry', () => {
+    let dominoAccess: DominoAccess;
+
+    beforeEach(() => {
+      dominoAccess = new DominoAccess(simpleAccess);
+      fetchStub = sinon.stub(global, 'fetch');
+      fetchStub.resolves(new Response(JSON.stringify(sampleJWT)));
+    });
+
+    afterEach(() => {
+      fetchStub.restore();
+    });
+
+    it('should return expiry time in seconds if access token is already fetched', async () => {
+      await dominoAccess.accessToken();
+      expect(dominoAccess.expiry()).to.equal(dominoAccess.expiryTime);
+    });
+
+    it('should return null if expiry time is yet to be set', () => {
+      expect(dominoAccess.expiry()).to.be.null;
+    });
+  });
+
+  describe('clone', () => {
+    it(`should create a new 'DominoAccess' with the new scope`, () => {
+      const newScope = 'newScope';
+      const dominoAccess = new DominoAccess(simpleAccess);
+      const clone = dominoAccess.clone(newScope);
+      expect(clone.scope()).to.equal(newScope);
     });
   });
 });
