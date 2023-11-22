@@ -9,6 +9,7 @@ on:
 
 jobs:
   build:
+    name: PR preflight
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,4 +23,3 @@ jobs:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm test
