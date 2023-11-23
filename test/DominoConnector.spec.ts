@@ -10,6 +10,7 @@ import sinon from 'sinon';
 import { CredentialType, DominoAccess, DominoRequestOptions, DominoServer, MissingParamError } from '../src';
 import DominoConnector from '../src/DominoConnector';
 import createDocResponse from './resources/DominoDocumentOperations/doc_response.json';
+import { RequestInfo } from 'undici-types';
 
 chai.use(chaiAsPromised);
 
@@ -27,7 +28,7 @@ describe('DominoConnector', () => {
   };
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
+  let fetchStub: sinon.SinonStub<[input: RequestInfo, init?: RequestInit | undefined], Promise<Response>>;
   let accessTokenStub: sinon.SinonStub<[], Promise<string>>;
   let baseConnector: DominoConnector;
 

@@ -9,6 +9,7 @@ import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import { CredentialType, DominoAccess, DominoRestAccessJSON, EmptyParamError, HttpResponseError, MissingParamError, RestCredentials } from '../src';
 import { getSampleJWT } from '../src/JwtHelper';
+import { RequestInfo } from 'undici-types';
 
 chai.use(chaiAsPromised);
 
@@ -16,7 +17,7 @@ describe('DominoAccess', () => {
   const sampleJWT = getSampleJWT('John Doe');
 
   let simpleAccess: DominoRestAccessJSON;
-  let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
+  let fetchStub: sinon.SinonStub<[input: RequestInfo, init?: RequestInit | undefined], Promise<Response>>;
 
   beforeEach(() => {
     simpleAccess = {
