@@ -36,7 +36,7 @@ describe('DominoAccess', () => {
       expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'baseUrl' is required.`);
     });
 
-    it(`should throw an error if given 'baseUrl' is empty`, () => {
+    it(`should throw an error if 'baseUrl' is empty`, () => {
       simpleAccess.baseUrl = '';
       expect(() => new DominoAccess(simpleAccess)).to.throw(EmptyParamError, `Parameter 'baseUrl' should not be empty.`);
     });
