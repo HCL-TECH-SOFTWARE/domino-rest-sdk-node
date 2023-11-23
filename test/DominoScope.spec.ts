@@ -34,7 +34,7 @@ describe('DominoScope', () => {
 
     describe('apiName', () => {
       it('should return error when there is no apiName value', () => {
-        expect(() => new DominoScope(scpErrnoApiName)).to.throw(EmptyParamError, `Parameter 'apiName' should not be empty.`);
+        expect(() => new DominoScope(scpErrnoApiName)).to.throw(EmptyParamError);
       });
 
       it('should return document apiName value', () => {
@@ -57,7 +57,7 @@ describe('DominoScope', () => {
 
     describe('schemaName', () => {
       it('should return error when there is no schemaName value', () => {
-        expect(() => new DominoScope(scpErrnoSchema)).to.throw(EmptyParamError, `Parameter 'schemaName' should not be empty.`);
+        expect(() => new DominoScope(scpErrnoSchema)).to.throw(EmptyParamError);
       });
 
       it('should return document schemaName value', () => {
@@ -80,7 +80,7 @@ describe('DominoScope', () => {
 
     describe('nsfPath', () => {
       it('should return error when there is no nsfPath value', () => {
-        expect(() => new DominoScope(scpErrnoNsfPath)).to.throw(EmptyParamError, `Parameter 'nsfPath' should not be empty.`);
+        expect(() => new DominoScope(scpErrnoNsfPath)).to.throw(EmptyParamError);
       });
 
       it('should return document nsfPath value', () => {

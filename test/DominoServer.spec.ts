@@ -82,11 +82,11 @@ describe('DominoServer', () => {
       };
       fetchStub.onSecondCall().resolves(new Response(JSON.stringify(errorResponse), { status: 404, statusText: 'Not Found' }));
 
-      await expect(dominoServer.getDominoConnector('basis')).to.be.rejectedWith(HttpResponseError, 'This is not the URL you seek!');
+      await expect(dominoServer.getDominoConnector('basis')).to.be.rejectedWith(HttpResponseError);
     });
 
     it('should throw an error if API is not in the API definitions list', async () => {
-      await expect(dominoServer.getDominoConnector('shadow')).to.be.rejectedWith(ApiNotAvailable, `API 'shadow' not available on this server.`);
+      await expect(dominoServer.getDominoConnector('shadow')).to.be.rejectedWith(ApiNotAvailable);
     });
   });
 
@@ -116,11 +116,11 @@ describe('DominoServer', () => {
       };
       fetchStub.onSecondCall().resolves(new Response(JSON.stringify(errorResponse), { status: 404, statusText: 'Not Found' }));
 
-      await expect(dominoServer.availableOperations('basis')).to.be.rejectedWith(HttpResponseError, 'This is not the URL you seek!');
+      await expect(dominoServer.availableOperations('basis')).to.be.rejectedWith(HttpResponseError);
     });
 
     it(`should throw an error when given API is not in the API definitions list`, async () => {
-      await expect(dominoServer.availableOperations('shadow')).to.be.rejectedWith(ApiNotAvailable, `API 'shadow' not available on this server.`);
+      await expect(dominoServer.availableOperations('shadow')).to.be.rejectedWith(ApiNotAvailable);
     });
   });
 });

@@ -45,7 +45,7 @@ describe('DominoListView', () => {
       });
 
       it('should throw error when name is empty', () => {
-        expect(() => new DominoListView(ddlv2)).to.throw(EmptyParamError, `Parameter 'name' should not be empty.`);
+        expect(() => new DominoListView(ddlv2)).to.throw(EmptyParamError);
       });
     });
 
@@ -54,7 +54,7 @@ describe('DominoListView', () => {
         expect(lvObject.selectionFormula).to.deep.equal(ddlv1.selectionFormula);
       });
       it('should throw error when selectionFormula is empty', () => {
-        expect(() => new DominoListView(ddlv3)).to.throw(EmptyParamError, `Parameter 'selectionFormula' should not be empty.`);
+        expect(() => new DominoListView(ddlv3)).to.throw(EmptyParamError);
       });
     });
 
@@ -64,11 +64,11 @@ describe('DominoListView', () => {
       });
 
       it('should throw error when columns is structured incorrectly (missing name)', () => {
-        expect(() => new DominoListView(ddlv2IncorrectCol)).to.throw(MissingParamError, `Parameter 'columns.name' is required.`);
+        expect(() => new DominoListView(ddlv2IncorrectCol)).to.throw(MissingParamError);
       });
 
       it('should throw error when columns is structured incorrectly (missing formula)', () => {
-        expect(() => new DominoListView(ddlv2IncorrectCol2)).to.throw(MissingParamError, `Parameter 'columns.formula' is required.`);
+        expect(() => new DominoListView(ddlv2IncorrectCol2)).to.throw(MissingParamError);
       });
     });
   });

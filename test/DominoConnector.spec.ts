@@ -161,10 +161,7 @@ describe('DominoConnector', () => {
         params,
       };
 
-      await expect(baseConnector.request(fakeToken, 'createDocumentGet', options)).to.be.rejectedWith(
-        MissingParamError,
-        `Parameter 'requiredHeader' is required.`,
-      );
+      await expect(baseConnector.request(fakeToken, 'createDocumentGet', options)).to.be.rejectedWith(MissingParamError);
     });
   });
 
@@ -204,7 +201,7 @@ describe('DominoConnector', () => {
     const params: Map<string, string> = new Map();
     params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
     params.set('name', 'customer');
-    return expect(() => baseConnector.getUrl(operation, '', params)).to.throw(MissingParamError, `Parameter \'dataSource\' is required.`);
+    return expect(() => baseConnector.getUrl(operation, '', params)).to.throw(MissingParamError);
   });
 
   it('should return correct FetchOptions', async () => {

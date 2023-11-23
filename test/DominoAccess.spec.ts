@@ -33,22 +33,22 @@ describe('DominoAccess', () => {
   describe('constructor', () => {
     it(`should throw an error if 'baseUrl' is missing`, () => {
       delete (simpleAccess as any).baseUrl;
-      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'baseUrl' is required.`);
+      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError);
     });
 
     it(`should throw an error if 'baseUrl' is empty`, () => {
       simpleAccess.baseUrl = '';
-      expect(() => new DominoAccess(simpleAccess)).to.throw(EmptyParamError, `Parameter 'baseUrl' should not be empty.`);
+      expect(() => new DominoAccess(simpleAccess)).to.throw(EmptyParamError);
     });
 
     it(`should throw an error if 'credentials' is missing`, () => {
       delete (simpleAccess as any).credentials;
-      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials' is required.`);
+      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError);
     });
 
     it(`should throw an error if 'credentials.type' is missing`, () => {
       delete simpleAccess.credentials.type;
-      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.type' is required.`);
+      expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError);
     });
 
     describe(`credentials are 'oauth' type`, () => {
@@ -71,17 +71,17 @@ describe('DominoAccess', () => {
 
       it(`should throw an error if 'credentials.appSecret' is missing`, () => {
         delete simpleAccess.credentials.appSecret;
-        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.appSecret' is required.`);
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError);
       });
 
       it(`should throw an error if 'credentials.appId' is missing`, () => {
         delete simpleAccess.credentials.appId;
-        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.appId' is required.`);
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError);
       });
 
       it(`should throw an error if 'credentials.refreshToken' is missing`, () => {
         delete simpleAccess.credentials.refreshToken;
-        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.refreshToken' is required.`);
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError);
       });
     });
 

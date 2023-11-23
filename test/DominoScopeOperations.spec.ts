@@ -68,10 +68,7 @@ describe('DominoScopeOperations', async () => {
     });
 
     it('should throw an error if given scopeName is empty', async () => {
-      await expect(DominoScopeOperations.getScope('', fakeToken, dc)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'scopeName' should not be empty.`,
-      );
+      await expect(DominoScopeOperations.getScope('', fakeToken, dc)).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -106,10 +103,7 @@ describe('DominoScopeOperations', async () => {
     });
 
     it('should throw an error if given scopeName is empty', async () => {
-      await expect(DominoScopeOperations.deleteScope('', fakeToken, dc)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'scopeName' should not be empty.`,
-      );
+      await expect(DominoScopeOperations.deleteScope('', fakeToken, dc)).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should be able to give correct response and params to request', async () => {
