@@ -8,43 +8,48 @@ import DominoDocument from '../src/DominoDocument';
 import doc1 from './resources/DominoDocument/doc1.json';
 import doc2 from './resources/DominoDocument/doc2.json';
 import doc3 from './resources/DominoDocument/doc3.json';
-import docErr from './resources/DominoDocument/doc_err.json';
+import { EmptyParamError, MissingParamError } from '../src';
 
 describe('DominoDocument', () => {
-  it('should throw an error if given form value is an empty string', () => {
-    const doc = {
-      ...docErr,
-      Form: '',
-    };
-    expect(() => new DominoDocument(doc)).to.throw('Domino document needs form value.');
-  });
-
-  describe('@meta', () => {
-    it('should return @meta if it is in the given document', () => {
-      const ddoc = new DominoDocument(doc1);
-      expect(ddoc['@meta']).to.deep.equal(doc1['@meta']);
+  describe('constructor', () => {
+    it(`should create a 'DominoDocument' object`, () => {
+      const dominoDocument = new DominoDocument(doc1);
+      expect(dominoDocument).to.instanceOf(DominoDocument);
+      expect(dominoDocument['@meta']).to.deep.equal(doc1['@meta']);
+      expect(dominoDocument['@warnings']).to.deep.equal(doc1['@warnings']);
+      expect(dominoDocument.Form).to.deep.equal(doc1.Form);
+      expect(dominoDocument.fields.size).to.equal(3);
     });
 
-    it('should be undefined if @meta is not in the given document', () => {
-      const ddoc = new DominoDocument(doc2);
-      expect(ddoc['@meta']).to.be.undefined;
+    it(`should throw an error if 'Form' is missing`, () => {
+      const doc = JSON.parse(JSON.stringify(doc1));
+      delete doc.Form;
+
+      expect(() => new DominoDocument(doc)).to.throw(MissingParamError, `Parameter 'Form' is required.`);
+    });
+
+    it(`should throw an error if 'Form' is empty`, () => {
+      const doc = JSON.parse(JSON.stringify(doc1));
+      doc.Form = '';
+
+      expect(() => new DominoDocument(doc)).to.throw(EmptyParamError, `Parameter 'Form' should not be empty.`);
     });
   });
 
   describe('getUNID', () => {
-    it('should return document UNID if @meta is in the given document', () => {
+    it('should return document UNID if it exists', () => {
       const ddoc = new DominoDocument(doc1);
       expect(ddoc.getUNID()).equal(doc1['@meta'].unid);
     });
 
-    it('should be undefined if @meta is not in the given document', () => {
+    it(`should return 'undefined' if document UNID is missing`, () => {
       const ddoc = new DominoDocument(doc2);
       expect(ddoc.getUNID()).to.be.undefined;
     });
   });
 
   describe('setUNID', () => {
-    it('should update UNID', () => {
+    it('should update document UNID', () => {
       const ddoc1 = new DominoDocument(doc1);
       const newUNID1 = 'new_UNID';
       ddoc1.setUNID(newUNID1);
@@ -58,49 +63,60 @@ describe('DominoDocument', () => {
   });
 
   describe('getRevision', () => {
-    it('should return document UNID if @meta is in the given document', () => {
+    it('should return document revision if it exists', () => {
       const ddoc = new DominoDocument(doc1);
       expect(ddoc.getRevision()).equal(doc1['@meta'].revision);
     });
 
-    it('should be undefined if @meta is not in the given document', () => {
+    it(`should return 'undefined' if document revision is missing`, () => {
       const ddoc = new DominoDocument(doc2);
       expect(ddoc.getRevision()).to.be.undefined;
     });
   });
 
-  describe('Form', () => {
-    it('should return document form value', () => {
-      const ddoc = new DominoDocument(doc1);
-      expect(ddoc.Form).equal(doc1.Form);
-    });
-
-    it('should update Form', () => {
+  describe('toDocJson', () => {
+    it('should return an object containing only form value and form fields', () => {
+      const expected1 = {
+        category: doc1.category,
+        name: doc1.name,
+        age: doc1.age,
+        Form: doc1.Form,
+      };
       const ddoc1 = new DominoDocument(doc1);
-      const newForm1 = 'new_Form';
-      ddoc1.Form = newForm1;
-      expect(ddoc1.Form).equal(newForm1);
+      expect(ddoc1.toDocJson()).to.deep.equal(expected1);
+
+      const expected2 = {
+        category: doc2.category,
+        website: doc2.website,
+        name: doc2.name,
+        age: doc2.age,
+        Form: doc2.Form,
+      };
+      const ddoc2 = new DominoDocument(doc2);
+      expect(ddoc2.toDocJson()).to.deep.equal(expected2);
+
+      const expected3 = {
+        Form: doc3.Form,
+      };
+      const ddoc3 = new DominoDocument(doc3);
+      expect(ddoc3.toDocJson()).to.deep.equal(expected3);
+    });
+  });
+
+  describe('toJson', () => {
+    it('should return an object containing all document data', () => {
+      const ddoc1 = new DominoDocument(doc1);
+      expect(ddoc1.toJson()).to.deep.equal(doc1);
 
       const ddoc2 = new DominoDocument(doc2);
-      const newForm2 = 'Pandora';
-      ddoc2.Form = newForm2;
-      expect(ddoc2.Form).equal(newForm2);
+      expect(ddoc2.toJson()).to.deep.equal(doc2);
+
+      const ddoc3 = new DominoDocument(doc3);
+      expect(ddoc3.toJson()).to.deep.equal(doc3);
     });
   });
 
-  describe('@warnings', () => {
-    it('should return @warnings if it is in the given document', () => {
-      const ddoc = new DominoDocument(doc1);
-      expect(ddoc['@warnings']).to.deep.equal(doc1['@warnings']);
-    });
-
-    it('should be undefined if @warnings is not in the given document', () => {
-      const ddoc = new DominoDocument(doc2);
-      expect(ddoc['@warnings']).to.be.undefined;
-    });
-  });
-
-  describe('fields', () => {
+  describe('Document fields', () => {
     it('should return an object specified by the given fields type', () => {
       const nonFieldKeys = ['@meta', 'Form', '@warnings'];
 
@@ -187,48 +203,6 @@ describe('DominoDocument', () => {
       newCustomer.set('website', 'https://how-to-money.com');
       ddoc.fields = newCustomer;
       expect(ddoc.fields).to.deep.equal(newCustomer);
-    });
-  });
-
-  describe('toDocJson', () => {
-    it('should return an object containing only form value and form fields', () => {
-      const expected1 = {
-        category: doc1.category,
-        name: doc1.name,
-        age: doc1.age,
-        Form: doc1.Form,
-      };
-      const ddoc1 = new DominoDocument(doc1);
-      expect(ddoc1.toDocJson()).to.deep.equal(expected1);
-
-      const expected2 = {
-        category: doc2.category,
-        website: doc2.website,
-        name: doc2.name,
-        age: doc2.age,
-        Form: doc2.Form,
-      };
-      const ddoc2 = new DominoDocument(doc2);
-      expect(ddoc2.toDocJson()).to.deep.equal(expected2);
-
-      const expected3 = {
-        Form: doc3.Form,
-      };
-      const ddoc3 = new DominoDocument(doc3);
-      expect(ddoc3.toDocJson()).to.deep.equal(expected3);
-    });
-  });
-
-  describe('toJson', () => {
-    it('should return an object containing all document data', () => {
-      const ddoc1 = new DominoDocument(doc1);
-      expect(ddoc1.toJson()).to.deep.equal(doc1);
-
-      const ddoc2 = new DominoDocument(doc2);
-      expect(ddoc2.toJson()).to.deep.equal(doc2);
-
-      const ddoc3 = new DominoDocument(doc3);
-      expect(ddoc3.toJson()).to.deep.equal(doc3);
     });
   });
 });

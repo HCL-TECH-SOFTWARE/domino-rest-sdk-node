@@ -7,101 +7,120 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { DominoServer } from '../src';
+import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src';
 import DominoConnector from '../src/DominoConnector';
 
 chai.use(chaiAsPromised);
 
-describe('Domino server with API definitions', () => {
-  let stub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
-  const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
+describe('DominoServer', () => {
+  const basisApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
+  const sampleUrl = 'http://localhost:8880';
+
+  let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
 
   beforeEach(() => {
-    stub = sinon.stub(global, 'fetch');
-    stub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(apiDefinitions))));
+    fetchStub = sinon.stub(global, 'fetch');
+    fetchStub.onFirstCall().resolves(new Response(JSON.stringify(apiDefinitions)));
   });
 
   afterEach(() => {
-    stub.restore();
+    fetchStub.restore();
   });
 
-  describe('Loading available APIs', () => {
-    it('should return 5 keys', async () => {
-      const server = await DominoServer.getServer('http://localhost:8880');
-      const apis = server.availableApis();
-      expect(apis.length).to.equal(5);
-      expect(stub.args[0][0]).to.have.string('http://localhost:8880/api');
+  describe('getServer', () => {
+    it(`should properly load APIs then return a 'DominoServer' object`, async () => {
+      const dominoServer = await DominoServer.getServer(sampleUrl);
+      expect(fetchStub.getCall(0).args[0]).to.equal(`${sampleUrl}/api`);
+      expect(dominoServer).to.be.instanceOf(DominoServer);
+      expect(dominoServer.baseUrl).to.equal(sampleUrl);
     });
 
-    it('should call out only once', async () => {
-      const server = await DominoServer.getServer('http://localhost:8880');
-      const apis = server.availableApis();
-      const apis2 = server.availableApis();
-      expect(apis).to.eql(apis2);
-      expect(stub.args.length).to.equal(1);
-    });
+    it(`should throw an error if loading APIs fail`, async () => {
+      fetchStub.onFirstCall().rejects(new Error('Fetch error.'));
 
-    it('should have the same APIs on multiple calls', async () => {
-      const server = await DominoServer.getServer('http://localhost:8880');
-      const apis = server.availableApis();
-      const apis2 = server.availableApis();
-      expect(apis).to.eql(apis2);
-      expect(stub.args.length).to.equal(1);
+      await expect(DominoServer.getServer(sampleUrl)).to.be.rejectedWith('Fetch error.');
     });
   });
 
-  describe('Returning Domino Rest connector', () => {
-    beforeEach(() => {
-      stub.onSecondCall().returns(Promise.resolve(new Response(JSON.stringify(baseApi))));
-    });
-
-    it('should return a DominoConnector', async () => {
-      const server = await DominoServer.getServer('http://localhost:8880');
-      const baseConnector = await server.getDominoConnector('basis');
-      expect(baseConnector).to.be.an.instanceOf(DominoConnector);
-    });
-
-    it('should return a DominoConnector using connector no reload needed', async () => {
-      const server = await DominoServer.getServer('http://localhost:8880');
-      const baseConnector = await server.getDominoConnector('basis');
-      const anotherConnector = await server.getDominoConnector('basis');
-      expect(anotherConnector).to.be.an.instanceOf(DominoConnector);
-      expect(anotherConnector).to.be.equal(baseConnector);
-    });
-
-    it('should not have an api "tango"', async () => {
-      const server = await DominoServer.getServer('http://localhost:8880');
-      await expect(server.getDominoConnector('tango')).to.eventually.be.rejectedWith(`API 'tango' not available on this server`);
+  describe('availableApis', () => {
+    it('should return correct list of API definitions', async () => {
+      const server = await DominoServer.getServer(sampleUrl);
+      const apis = server.availableApis();
+      expect(apis.length).to.equal(Object.keys(apiDefinitions).length);
+      expect(apis).to.deep.equal(Object.keys(apiDefinitions));
     });
   });
 
-  describe('Loading available operations on a Server using an apiName of a Connector', () => {
-    const operationDefinitions = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
+  describe('getDominoConnector', () => {
+    let dominoServer: DominoServer;
 
-    beforeEach(() => {
-      stub.onSecondCall().returns(Promise.resolve(new Response(JSON.stringify(operationDefinitions))));
+    beforeEach(async () => {
+      fetchStub.onSecondCall().resolves(new Response(JSON.stringify(basisApi)));
+      dominoServer = await DominoServer.getServer(sampleUrl);
     });
 
-    it('should return 58 keys', async () => {
-      const server = await DominoServer.getServer('http://localhost:8880');
-      const ops = await server.availableOperations('basis');
-      expect(ops.size).to.equal(58);
+    it(`should return a 'DominoConnector' object`, async () => {
+      const baseConnector = await dominoServer.getDominoConnector('basis');
+      expect(baseConnector).to.be.instanceOf(DominoConnector);
+      expect(baseConnector.baseUrl).to.equal(sampleUrl);
+      expect(baseConnector.meta).to.deep.equal(dominoServer.apiMap.get('basis'));
     });
 
-    it('should throw an eror when operationsLoader fails', async () => {
-      const server = await DominoServer.getServer('http://localhost:8880');
-      stub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(apiDefinitions))));
+    it(`should return the same 'DominoConnector' if called again with the same API`, async () => {
+      const baseConnector1 = await dominoServer.getDominoConnector('basis');
+      const baseConnector2 = await dominoServer.getDominoConnector('basis');
+      expect(fetchStub.callCount).to.equal(2);
+      expect(baseConnector1).to.deep.equal(baseConnector2);
+    });
 
-      try {
-        await server.availableOperations('tango');
-        expect.fail('Expected an error to be thrown');
-      } catch (error: any) {
-        // Use 'any' as a last resort
-        expect((error as Error).message).to.equal(`API 'tango' not available on this server`);
-      } finally {
-        stub.restore();
-      }
+    it('should throw an error if an error is encountered when getting connector from factory method', async () => {
+      const errorResponse = {
+        status: 404,
+        message: 'This is not the URL you seek!',
+        errorId: 0,
+      };
+      fetchStub.onSecondCall().resolves(new Response(JSON.stringify(errorResponse), { status: 404, statusText: 'Not Found' }));
+
+      await expect(dominoServer.getDominoConnector('basis')).to.be.rejectedWith(HttpResponseError, 'This is not the URL you seek!');
+    });
+
+    it('should throw an error if API is not in the API definitions list', async () => {
+      await expect(dominoServer.getDominoConnector('shadow')).to.be.rejectedWith(ApiNotAvailable, `API 'shadow' not available on this server.`);
+    });
+  });
+
+  describe('availableOperations', () => {
+    const basisApiOperations = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
+
+    let dominoServer: DominoServer;
+
+    beforeEach(async () => {
+      fetchStub.onSecondCall().resolves(new Response(JSON.stringify(basisApi)));
+      fetchStub.onThirdCall().resolves(new Response(JSON.stringify(basisApiOperations)));
+      dominoServer = await DominoServer.getServer(sampleUrl);
+    });
+
+    it('should return all available operations from API', async () => {
+      const operations = await dominoServer.availableOperations('basis');
+      const dominoConnector = await dominoServer.getDominoConnector('basis');
+      expect(operations.size).to.deep.equal(dominoConnector.schema.size);
+      expect(operations).to.deep.equal(dominoConnector.schema);
+    });
+
+    it(`should throw an error when factory method for getting a connector fails`, async () => {
+      const errorResponse = {
+        status: 404,
+        message: 'This is not the URL you seek!',
+        errorId: 0,
+      };
+      fetchStub.onSecondCall().resolves(new Response(JSON.stringify(errorResponse), { status: 404, statusText: 'Not Found' }));
+
+      await expect(dominoServer.availableOperations('basis')).to.be.rejectedWith(HttpResponseError, 'This is not the URL you seek!');
+    });
+
+    it(`should throw an error when given API is not in the API definitions list`, async () => {
+      await expect(dominoServer.availableOperations('shadow')).to.be.rejectedWith(ApiNotAvailable, `API 'shadow' not available on this server.`);
     });
   });
 });

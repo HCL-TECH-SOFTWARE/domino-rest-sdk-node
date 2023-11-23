@@ -1,3 +1,4 @@
+import { transformToRequestResponse } from './helpers/transformToRequestResponse';
 /* ========================================================================== *
  * Copyright (C) 2023 HCL America Inc.                                        *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
@@ -6,8 +7,8 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoApiMeta, DominoRequestOptions } from '../src';
-import DominoConnector from '../src/DominoConnector';
+import { CredentialType, DominoAccess, DominoApiMeta, DominoRequestOptions, EmptyParamError } from '../src';
+import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector';
 import DominoScope from '../src/DominoScope';
 import DominoScopeOperations from '../src/DominoScopeOperations';
 import scp from './resources/DominoScope/scpJson.json';
@@ -31,7 +32,10 @@ describe('DominoScopeOperations', async () => {
   let operationId: string;
   let expectedParams: Map<string, any>;
   let expectedOptions: DominoRequestOptions;
-  let dcRequestStub: sinon.SinonStub<[dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions], Promise<any>>;
+  let dcRequestStub: sinon.SinonStub<
+    [dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions],
+    Promise<DominoRequestResponse>
+  >;
 
   beforeEach(async () => {
     const fetchStub = sinon.stub(global, 'fetch');
@@ -60,11 +64,14 @@ describe('DominoScopeOperations', async () => {
   describe('getScope', () => {
     beforeEach(() => {
       operationId = 'getScopeMapping';
-      dcRequestStub.resolves(scpResponse);
+      dcRequestStub.resolves(transformToRequestResponse(scpResponse));
     });
 
     it('should throw an error if given scopeName is empty', async () => {
-      await expect(DominoScopeOperations.getScope('', fakeToken, dc)).to.be.rejectedWith('scopeName must not be empty.');
+      await expect(DominoScopeOperations.getScope('', fakeToken, dc)).to.be.rejectedWith(
+        EmptyParamError,
+        `Parameter 'scopeName' should not be empty.`,
+      );
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -79,7 +86,7 @@ describe('DominoScopeOperations', async () => {
   describe('getScopes', () => {
     beforeEach(() => {
       operationId = 'fetchScopeMappings';
-      dcRequestStub.resolves([scpResponse, scpResponse, scpResponse]);
+      dcRequestStub.resolves(transformToRequestResponse([scpResponse, scpResponse, scpResponse]));
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -95,11 +102,14 @@ describe('DominoScopeOperations', async () => {
   describe('deleteScope', () => {
     beforeEach(() => {
       operationId = 'deleteScopeMapping';
-      dcRequestStub.resolves(scpResponse);
+      dcRequestStub.resolves(transformToRequestResponse(scpResponse));
     });
 
     it('should throw an error if given scopeName is empty', async () => {
-      await expect(DominoScopeOperations.deleteScope('', fakeToken, dc)).to.be.rejectedWith('scopeName must not be empty.');
+      await expect(DominoScopeOperations.deleteScope('', fakeToken, dc)).to.be.rejectedWith(
+        EmptyParamError,
+        `Parameter 'scopeName' should not be empty.`,
+      );
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -116,7 +126,7 @@ describe('DominoScopeOperations', async () => {
 
     beforeEach(() => {
       operationId = 'createUpdateScopeMapping';
-      dcRequestStub.resolves(scpResponse);
+      dcRequestStub.resolves(transformToRequestResponse(scpResponse));
       scope = new DominoScope(scp);
       expectedOptions.body = JSON.stringify(scope.toScopeJson());
     });

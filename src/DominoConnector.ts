@@ -91,9 +91,8 @@ export class DominoConnector implements DominoRestConnector {
           if (!response.ok) {
             throw new HttpResponseError(json);
           }
-          return json;
+          return resolve(json);
         })
-        .then((json) => resolve(json))
         .catch((error) => reject(error));
     });
 

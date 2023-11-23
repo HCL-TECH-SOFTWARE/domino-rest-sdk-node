@@ -4,7 +4,7 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
-import { DesignColumnSimple, ListViewBody } from '../src';
+import { DesignColumnSimple, EmptyParamError, ListViewBody, MissingParamError } from '../src';
 import DominoListView from '../src/DominoListView';
 import dlv1 from './resources/DominoListView/dlv1_request.json';
 import dlv2NoFormulaCol from './resources/DominoListView/dlv2_incorrectCols_noFormula.json';
@@ -45,7 +45,7 @@ describe('DominoListView', () => {
       });
 
       it('should throw error when name is empty', () => {
-        expect(() => new DominoListView(ddlv2)).to.throw('Domino lists needs name value.');
+        expect(() => new DominoListView(ddlv2)).to.throw(EmptyParamError, `Parameter 'name' should not be empty.`);
       });
     });
 
@@ -54,7 +54,7 @@ describe('DominoListView', () => {
         expect(lvObject.selectionFormula).to.deep.equal(ddlv1.selectionFormula);
       });
       it('should throw error when selectionFormula is empty', () => {
-        expect(() => new DominoListView(ddlv3)).to.throw('Domino lists needs selectionFormula value.');
+        expect(() => new DominoListView(ddlv3)).to.throw(EmptyParamError, `Parameter 'selectionFormula' should not be empty.`);
       });
     });
 
@@ -64,11 +64,11 @@ describe('DominoListView', () => {
       });
 
       it('should throw error when columns is structured incorrectly (missing name)', () => {
-        expect(() => new DominoListView(ddlv2IncorrectCol)).to.throw("Required property 'name' is missing");
+        expect(() => new DominoListView(ddlv2IncorrectCol)).to.throw(MissingParamError, `Parameter 'columns.name' is required.`);
       });
 
       it('should throw error when columns is structured incorrectly (missing formula)', () => {
-        expect(() => new DominoListView(ddlv2IncorrectCol2)).to.throw("Required property 'formula' is missing");
+        expect(() => new DominoListView(ddlv2IncorrectCol2)).to.throw(MissingParamError, `Parameter 'columns.formula' is required.`);
       });
     });
   });
@@ -78,27 +78,6 @@ describe('DominoListView', () => {
 
     it('should return columns if it is in the given view', () => {
       expect(lvObjectToListViewJson.toListViewJson()).to.deep.equal(dlv1);
-    });
-
-    it('should throw error when required fields are missing when converting DominoListView object ', () => {
-      lvObjectToListViewJson.columns = [];
-      expect(() => lvObjectToListViewJson.toListViewJson()).to.throw(
-        'Failed to convert DominoListView Object to ListViewBody because of having a invalid required fields in Domino List View (name, selectionFormula and columns)',
-      );
-    });
-
-    it('should throw error when required fields are missing when converting DominoListView object ', () => {
-      lvObjectToListViewJson.name = '';
-      expect(() => lvObjectToListViewJson.toListViewJson()).to.throw(
-        'Failed to convert DominoListView Object to ListViewBody because of having a invalid required fields in Domino List View (name, selectionFormula and columns)',
-      );
-    });
-
-    it('should throw error when required fields are missing when converting DominoListView object ', () => {
-      lvObjectToListViewJson.selectionFormula = '';
-      expect(() => lvObjectToListViewJson.toListViewJson()).to.throw(
-        'Failed to convert DominoListView Object to ListViewBody because of having a invalid required fields in Domino List View (name, selectionFormula and columns)',
-      );
     });
   });
 });

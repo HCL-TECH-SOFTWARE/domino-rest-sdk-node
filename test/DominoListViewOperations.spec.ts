@@ -1,3 +1,4 @@
+import { transformToRequestResponse } from './helpers/transformToRequestResponse';
 /* ========================================================================== *
  * Copyright (C) 2023 HCL America Inc.                                        *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
@@ -16,8 +17,9 @@ import {
   GetListViewEntryOptions,
   GetListViewOptions,
   SortType,
+  EmptyParamError,
 } from '../src';
-import DominoConnector from '../src/DominoConnector';
+import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector';
 import DominoDocument from '../src/DominoDocument';
 import DominoListView from '../src/DominoListView';
 import DominoListViewOperations from '../src/DominoListViewOperations';
@@ -28,31 +30,33 @@ import lv1_response from './resources/DominoListView/lv1_response.json';
 import lve1_response from './resources/DominoListView/lve1_response.json';
 import lvpe1_response from './resources/DominoListView/lvpe1_response.json';
 
-const fakeCredentials = {
-  baseUrl: 'somewhere',
-  credentials: {
-    scope: '',
-    type: CredentialType.BASIC,
-    username: 'fakeUsername',
-    password: 'fakePassword',
-  },
-};
-
 describe('DominoListViewOperations', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const dataSource = 'demoapi';
   const listViewName = 'Customers';
+  const fakeCredentials = {
+    baseUrl: 'somewhere',
+    credentials: {
+      scope: '',
+      type: CredentialType.BASIC,
+      username: 'fakeUsername',
+      password: 'fakePassword',
+    },
+  };
   const fakeToken = new DominoAccess(fakeCredentials);
 
   let dc: DominoConnector;
   let operationId: string;
   let expectedParams: Map<string, any>;
   let expectedOptions: DominoRequestOptions;
-  let dcRequestStub: sinon.SinonStub<[dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions], Promise<any>>;
+  let dcRequestStub: sinon.SinonStub<
+    [dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions],
+    Promise<DominoRequestResponse>
+  >;
 
   beforeEach(async () => {
     const fetchStub = sinon.stub(global, 'fetch');
-    fetchStub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(baseApi))));
+    fetchStub.onFirstCall().resolves(new Response(JSON.stringify(baseApi)));
 
     dc = await DominoConnector.getConnector('http://localhost:8880', {} as DominoApiMeta);
     dcRequestStub = sinon.stub(dc, 'request');
@@ -78,11 +82,14 @@ describe('DominoListViewOperations', async () => {
   describe('getListViews', () => {
     beforeEach(() => {
       operationId = 'fetchViews';
-      dcRequestStub.resolves(lv1_response);
+      dcRequestStub.resolves(transformToRequestResponse(lv1_response));
     });
 
     it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoListViewOperations.getListViews('', fakeToken, dc)).to.be.rejectedWith('dataSource must not be empty.');
+      await expect(DominoListViewOperations.getListViews('', fakeToken, dc)).to.be.rejectedWith(
+        EmptyParamError,
+        `Parameter 'dataSource' should not be empty.`,
+      );
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -107,15 +114,21 @@ describe('DominoListViewOperations', async () => {
   describe('getListView', () => {
     beforeEach(() => {
       operationId = 'getDesign';
-      dcRequestStub.resolves(dlv1_response);
+      dcRequestStub.resolves(transformToRequestResponse(dlv1_response));
     });
 
     it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoListViewOperations.getListView('', fakeToken, dc, listViewName)).to.be.rejectedWith('dataSource must not be empty.');
+      await expect(DominoListViewOperations.getListView('', fakeToken, dc, listViewName)).to.be.rejectedWith(
+        EmptyParamError,
+        `Parameter 'dataSource' should not be empty.`,
+      );
     });
 
     it('should throw an error if given designName is empty', async () => {
-      await expect(DominoListViewOperations.getListView(dataSource, fakeToken, dc, '')).to.be.rejectedWith('designName must not be empty.');
+      await expect(DominoListViewOperations.getListView(dataSource, fakeToken, dc, '')).to.be.rejectedWith(
+        EmptyParamError,
+        `Parameter 'designName' should not be empty.`,
+      );
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -145,15 +158,21 @@ describe('DominoListViewOperations', async () => {
   describe('getListViewEntry', () => {
     beforeEach(() => {
       operationId = 'fetchViewEntries';
-      dcRequestStub.resolves(lve1_response);
+      dcRequestStub.resolves(transformToRequestResponse(lve1_response));
     });
 
     it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoListViewOperations.getListViewEntry('', fakeToken, dc, listViewName)).to.be.rejectedWith('dataSource must not be empty.');
+      await expect(DominoListViewOperations.getListViewEntry('', fakeToken, dc, listViewName)).to.be.rejectedWith(
+        EmptyParamError,
+        `Parameter 'dataSource' should not be empty.`,
+      );
     });
 
     it('should throw an error if given listViewName is empty', async () => {
-      await expect(DominoListViewOperations.getListViewEntry(dataSource, fakeToken, dc, '')).to.be.rejectedWith('name must not be empty.');
+      await expect(DominoListViewOperations.getListViewEntry(dataSource, fakeToken, dc, '')).to.be.rejectedWith(
+        EmptyParamError,
+        `Parameter 'listViewName' should not be empty.`,
+      );
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -185,7 +204,7 @@ describe('DominoListViewOperations', async () => {
     });
 
     it('should return an array of DominoDocuments if options.documents is true and no callback is given', async () => {
-      dcRequestStub.resolves([docResponse, docResponse, docResponse, docResponse, docResponse]);
+      dcRequestStub.resolves(transformToRequestResponse([docResponse, docResponse, docResponse, docResponse, docResponse]));
       expectedParams.set('name', listViewName);
       expectedParams.set('documents', true);
       const options = {
@@ -204,24 +223,27 @@ describe('DominoListViewOperations', async () => {
     const pivotColumn = 'Color';
     beforeEach(() => {
       operationId = 'pivotViewEntries';
-      dcRequestStub.resolves(lvpe1_response);
+      dcRequestStub.resolves(transformToRequestResponse(lvpe1_response));
     });
 
     it('should throw an error if given dataSource is empty', async () => {
       await expect(DominoListViewOperations.getListViewPivotEntry('', fakeToken, dc, listViewName, pivotColumn)).to.be.rejectedWith(
-        'dataSource must not be empty.',
+        EmptyParamError,
+        `Parameter 'dataSource' should not be empty.`,
       );
     });
 
     it('should throw an error if given listViewName is empty', async () => {
       await expect(DominoListViewOperations.getListViewPivotEntry(dataSource, fakeToken, dc, '', pivotColumn)).to.be.rejectedWith(
-        'name must not be empty.',
+        EmptyParamError,
+        `Parameter 'listViewName' should not be empty.`,
       );
     });
 
     it('should throw an error if given pivotColumn is empty', async () => {
       await expect(DominoListViewOperations.getListViewPivotEntry(dataSource, fakeToken, dc, listViewName, '')).to.be.rejectedWith(
-        'pivotColumn must not be empty.',
+        EmptyParamError,
+        `Parameter 'pivotColumn' should not be empty.`,
       );
     });
 
@@ -278,19 +300,21 @@ describe('DominoListViewOperations', async () => {
 
     beforeEach(() => {
       operationId = 'updateCreateDesign';
-      dcRequestStub.resolves(create_dlv1_response);
+      dcRequestStub.resolves(transformToRequestResponse(create_dlv1_response));
       expectedOptions.body = JSON.stringify(lv1.toListViewJson());
     });
 
     it('should throw an error if given dataSource is empty', async () => {
       await expect(DominoListViewOperations.createUpdateListView('', fakeToken, dc, listViewObject, listViewName)).to.be.rejectedWith(
-        'dataSource must not be empty.',
+        EmptyParamError,
+        `Parameter 'dataSource' should not be empty.`,
       );
     });
 
     it('should throw an error if given designName is empty', async () => {
       await expect(DominoListViewOperations.createUpdateListView(dataSource, fakeToken, dc, listViewObject, '')).to.be.rejectedWith(
-        'designName must not be empty.',
+        EmptyParamError,
+        `Parameter 'designName' should not be empty.`,
       );
     });
 

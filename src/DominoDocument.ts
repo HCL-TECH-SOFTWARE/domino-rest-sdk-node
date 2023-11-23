@@ -121,16 +121,16 @@ export class DominoDocument implements DominoRestDocument {
     // Make a deep copy of passed object
     const doc = JSON.parse(JSON.stringify(_doc));
 
-    this['@meta'] = doc['@meta'];
     if (!doc.hasOwnProperty('Form')) {
       throw new MissingParamError('Form');
     }
     if (isEmpty(doc.Form)) {
       throw new EmptyParamError('Form');
     }
-    this.Form = doc.Form;
-    this['@warnings'] = doc['@warnings'];
 
+    this.Form = doc.Form;
+    this['@meta'] = doc['@meta'];
+    this['@warnings'] = doc['@warnings'];
     const nonFieldKeys = ['@meta', 'Form', '@warnings'];
     for (const key in doc) {
       if (!nonFieldKeys.includes(key)) {

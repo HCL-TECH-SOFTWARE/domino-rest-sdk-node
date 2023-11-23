@@ -54,7 +54,6 @@ describe('DominoUserSession', async () => {
     expect(dcRequestStub.callCount).equal(1);
     expect(response).to.exist;
     expect(dcRequestStub.getCall(0).args).to.deep.equal([dus.dominoAccess, 'operation', { params: new Map() }]);
-    expect(response).to.deep.equal({ key: 'value' });
 
     fetchStub.restore();
   });
