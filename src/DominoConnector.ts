@@ -229,18 +229,8 @@ export class DominoConnector implements DominoRestConnector {
       const result: any = {
         method: operation.method,
       };
-      if (request.body && typeof request.body === 'string') {
-        // check if body is of JSON format, might want to check url encoded apis
-          try {
-              var obj = JSON.parse(request.body);
-              if (obj && typeof obj === "object") {
-                  result.body = JSON.stringify(obj);
-              }
-          }
-          catch (e) {
-            throw "Error found when parsing request.body to JSON with message: " + e;
-          }
-       
+      if (request.body) {
+        result.body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body)
       }
       operation.params.forEach((ops: any, pname: string) => {
         // Check for mandatory parameters missing
