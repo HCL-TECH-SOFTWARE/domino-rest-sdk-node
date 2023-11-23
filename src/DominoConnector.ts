@@ -229,7 +229,7 @@ export class DominoConnector implements DominoRestConnector {
         method: operation.method,
       };
       if (request.body) {
-        result.body = request.body;
+        result.body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body)
       }
       operation.params.forEach((ops: any, pname: string) => {
         // Check for mandatory parameters missing
