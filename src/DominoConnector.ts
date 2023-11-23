@@ -234,7 +234,7 @@ export class DominoConnector implements DominoRestConnector {
           try {
               var obj = JSON.parse(request.body);
               if (obj && typeof obj === "object") {
-                  result.body = request.body;
+                  result.body = JSON.stringify(obj);
               }
           }
           catch (e) {
