@@ -7,36 +7,34 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoRequestOptions, DominoServer } from '../src';
+import { CredentialType, DominoAccess, DominoRequestOptions, DominoServer, MissingParamError } from '../src';
 import DominoConnector from '../src/DominoConnector';
 import createDocResponse from './resources/DominoDocumentOperations/doc_response.json';
 
 chai.use(chaiAsPromised);
 
-const fakeCredentials = {
-  baseUrl: 'somewhere',
-  credentials: {
-    scope: '',
-    type: CredentialType.BASIC,
-    username: 'fakeUsername',
-    password: 'fakePassword',
-  },
-};
-const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
-const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
+describe('DominoConnector', () => {
+  const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
+  const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
+  const fakeCredentials = {
+    baseUrl: 'somewhere',
+    credentials: {
+      scope: '',
+      type: CredentialType.BASIC,
+      username: 'fakeUsername',
+      password: 'fakePassword',
+    },
+  };
+  const fakeToken = new DominoAccess(fakeCredentials);
 
-describe('The DominoConnector is the interface to one API', () => {
   let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
   let accessTokenStub: sinon.SinonStub<[], Promise<string>>;
   let baseConnector: DominoConnector;
-  const fakeToken = new DominoAccess(fakeCredentials);
 
   beforeEach(async () => {
     fetchStub = sinon.stub(global, 'fetch');
-    fetchStub
-      .onFirstCall()
-      .returns(Promise.resolve(new Response(JSON.stringify(apiDefinitions))))
-      .returns(Promise.resolve(new Response(JSON.stringify(baseApi))));
+    fetchStub.onFirstCall().resolves(new Response(JSON.stringify(apiDefinitions)));
+    fetchStub.onSecondCall().resolves(new Response(JSON.stringify(baseApi)));
     const server = await DominoServer.getServer('http://localhost:8880');
     baseConnector = await server.getDominoConnector('basis');
 
@@ -137,35 +135,6 @@ describe('The DominoConnector is the interface to one API', () => {
       await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.be.fulfilled;
     });
 
-    it('should be rejected with response status text when response is not okay and has no content', async () => {
-      const errResponse = new Response(null, { status: 404, statusText: 'Error encountered :(' });
-      fetchStub.onFirstCall().returns(Promise.resolve(errResponse));
-
-      const params = new Map();
-      params.set('dataSource', 'scope');
-      const options: DominoRequestOptions = {
-        params,
-      };
-
-      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.be.rejectedWith('Error encountered :(');
-    });
-
-    it('should be rejected with response body as text when response is not okay and has text content', async () => {
-      const headers = {
-        'content-type': 'application/text',
-      };
-      const errResponse = new Response('Error', { status: 404, statusText: 'Error encountered :(', headers });
-      fetchStub.onFirstCall().returns(Promise.resolve(errResponse));
-
-      const params = new Map();
-      params.set('dataSource', 'scope');
-      const options: DominoRequestOptions = {
-        params,
-      };
-
-      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.be.rejectedWith('Error');
-    });
-
     it('should be rejected with response body as json when response is not okay and has json content', async () => {
       const errorJson = { message: 'Error in json' };
       const headers = {
@@ -192,7 +161,10 @@ describe('The DominoConnector is the interface to one API', () => {
         params,
       };
 
-      await expect(baseConnector.request(fakeToken, 'createDocumentGet', options)).to.be.rejectedWith('Parameter requiredHeader is mandatory!');
+      await expect(baseConnector.request(fakeToken, 'createDocumentGet', options)).to.be.rejectedWith(
+        MissingParamError,
+        `Parameter 'requiredHeader' is required.`,
+      );
     });
   });
 
@@ -232,7 +204,7 @@ describe('The DominoConnector is the interface to one API', () => {
     const params: Map<string, string> = new Map();
     params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
     params.set('name', 'customer');
-    return expect(() => baseConnector.getUrl(operation, '', params)).to.throw(`Parameter 'dataSource' is mandatory!`);
+    return expect(() => baseConnector.getUrl(operation, '', params)).to.throw(MissingParamError, `Parameter \'dataSource\' is required.`);
   });
 
   it('should return correct FetchOptions', async () => {

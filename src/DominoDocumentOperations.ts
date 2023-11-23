@@ -482,10 +482,10 @@ export class DominoDocumentOperations {
 
   static deleteDocumentByUNID = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, unid: string, mode?: string) =>
     new Promise<DocumentStatusResponse>((resolve, reject) => {
-      if (isEmpty('dataSource')) {
+      if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
       }
-      if (isEmpty('unid')) {
+      if (isEmpty(unid)) {
         return reject(new EmptyParamError('unid'));
       }
       if (unid.length !== 32) {
@@ -513,10 +513,10 @@ export class DominoDocumentOperations {
     options?: BulkGetDocumentsOptions,
   ) =>
     new Promise<Array<DominoDocument | BulkGetErrorResponse>>((resolve, reject) => {
-      if (isEmpty('dataSource')) {
+      if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
       }
-      if (isEmpty('unids')) {
+      if (isEmpty(unids)) {
         return reject(new EmptyParamError('unids'));
       }
       if (!Array.isArray(unids)) {

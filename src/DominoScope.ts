@@ -175,11 +175,11 @@ export class DominoScope implements DominoRestScope {
     this.apiName = doc.apiName;
     this.schemaName = doc.schemaName;
     this.nsfPath = doc.nsfPath;
-    this.description = doc.description;
-    this.iconName = doc.iconName;
-    this.isActive = doc.isActive;
-    this.maximumAccessLevel = doc.maximumAccessLevel;
-    this.server = doc.server;
+    this.description = doc.description ?? '';
+    this.iconName = doc.iconName ?? 'beach';
+    this.isActive = doc.isActive ?? true;
+    this.maximumAccessLevel = doc.maximumAccessLevel ?? AccessLevel.Editor;
+    this.server = doc.server ?? '*';
     this.icon = doc.icon;
     this['@meta'] = doc['@meta'];
     this.Form = doc.Form;
