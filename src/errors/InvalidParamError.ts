@@ -6,7 +6,8 @@
 import SdkError from './SdkError';
 
 export class InvalidParamError extends SdkError {
-  constructor(message: string) {
+  constructor(param: string, itShould?: string) {
+    const message = `Parameter '${param}' is invalid.${itShould ? ` It should ${itShould}.` : ''}`;
     super(message);
     this.name = 'InvalidParamError';
   }

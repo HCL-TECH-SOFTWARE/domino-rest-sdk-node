@@ -286,30 +286,6 @@ export enum QueryActions {
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoDocumentOperations {
-  private static _executeOperation = <T = any>(
-    dominoConnector: DominoConnector,
-    dominoAccess: DominoAccess,
-    operationId: string,
-    options: DominoRequestOptions,
-    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
-  ) =>
-    new Promise<T>((resolve, reject) => {
-      dominoConnector
-        .request(dominoAccess, operationId, options)
-        .then(async (result) => {
-          if (result.dataStream === null) {
-            throw new NoResponseBody(operationId);
-          }
-          const decodedStream = await streamDecoder(result.dataStream);
-          if (result.status >= 400) {
-            throw new HttpResponseError(decodedStream as any);
-          }
-
-          return resolve(decodedStream);
-        })
-        .catch((error) => reject(error));
-    });
-
   static getDocument = (
     dataSource: string,
     dominoAccess: DominoAccess,
@@ -325,7 +301,7 @@ export class DominoDocumentOperations {
         return reject(new EmptyParamError('unid'));
       }
       if (unid.length !== 32) {
-        return reject(new InvalidParamError('UNID has an invalid value.'));
+        return reject(new InvalidParamError('unid', 'have a length of 32'));
       }
 
       const params: Map<string, any> = new Map();
@@ -390,9 +366,9 @@ export class DominoDocumentOperations {
       }
       const unid = doc.getUNID();
       if (isEmpty(unid)) {
-        return reject(new EmptyParamError('DominoDocument UNID'));
+        return reject(new EmptyParamError('document unid'));
       } else if ((unid as string).length !== 32) {
-        return reject(new InvalidParamError('Document UNID has an invalid value.'));
+        return reject(new InvalidParamError('document unid', 'have a length of 32'));
       }
 
       const params: Map<string, any> = new Map();
@@ -428,7 +404,7 @@ export class DominoDocumentOperations {
         return reject(new EmptyParamError('unid'));
       }
       if (unid.length !== 32) {
-        return reject(new InvalidParamError('UNID has an invalid value.'));
+        return reject(new InvalidParamError('unid', 'have a length of 32'));
       }
       if (isEmpty(docJsonPatch)) {
         return reject(new EmptyParamError('docJsonPatch'));
@@ -461,10 +437,10 @@ export class DominoDocumentOperations {
       }
       const unid = doc.getUNID();
       if (isEmpty(unid)) {
-        return reject(new EmptyParamError('Document UNID'));
+        return reject(new EmptyParamError('document unid'));
       }
       if ((unid as string).length !== 32) {
-        return reject(new InvalidParamError('Document UNID has an invalid value.'));
+        return reject(new InvalidParamError('Document unid has an invalid value.'));
       }
 
       const params: Map<string, any> = new Map();
@@ -523,11 +499,11 @@ export class DominoDocumentOperations {
         return reject(new NotAnArrayError('unids'));
       }
       for (const unid of unids) {
-        if (unid.trim().length === 0) {
-          return reject(new InvalidParamError('One of given UNIDs is empty.'));
+        if (isEmpty(unid)) {
+          return reject(new InvalidParamError('unids', 'have non-empty entries'));
         }
         if (unid.length !== 32) {
-          return reject(new InvalidParamError('One of given UNIDs is invalid.'));
+          return reject(new InvalidParamError('unids', 'have all entries should have length of 32'));
         }
       }
 
@@ -583,9 +559,6 @@ export class DominoDocumentOperations {
       if (isEmpty(qaction)) {
         return reject(new EmptyParamError('qaction'));
       }
-      if (qaction !== QueryActions.EXECUTE && qaction !== QueryActions.EXPLAIN && qaction !== QueryActions.PARSE) {
-        return reject(new InvalidParamError(`Parameter 'qaction' should only have values: execute, explain, parse`));
-      }
 
       const params: Map<string, any> = new Map();
       for (const key in options) {
@@ -635,6 +608,7 @@ export class DominoDocumentOperations {
       if (!Array.isArray(docs)) {
         return reject(new NotAnArrayError('docs'));
       }
+
       const params: Map<string, any> = new Map();
       if (richTextAs !== undefined) {
         params.set('richTextAs', richTextAs);
@@ -720,10 +694,10 @@ export class DominoDocumentOperations {
       for (const doc of docs) {
         const unid = doc.getUNID();
         if (isEmpty(unid)) {
-          return reject(new InvalidParamError('One of given documents has empty UNID.'));
+          return reject(new InvalidParamError('docs', 'have documents with non-empty unid'));
         }
         if ((unid as string).length !== 32) {
-          return reject(new InvalidParamError('One of given documents has invalid UNID.'));
+          return reject(new InvalidParamError('docs', 'have documents with unid having length of 32'));
         }
         unids.push(unid as string);
       }
@@ -762,11 +736,11 @@ export class DominoDocumentOperations {
         return reject(new NotAnArrayError('unids'));
       }
       for (const unid of unids) {
-        if (unid.trim().length === 0) {
-          return reject(new InvalidParamError('One of given UNIDs is empty.'));
+        if (isEmpty(unid)) {
+          return reject(new InvalidParamError('unids', 'have non-empty entries'));
         }
         if (unid.length !== 32) {
-          return reject(new InvalidParamError('One of given UNIDs is invalid.'));
+          return reject(new InvalidParamError('unids', 'have all entries should have length of 32'));
         }
       }
 
@@ -783,6 +757,30 @@ export class DominoDocumentOperations {
 
       this._executeOperation<DocumentStatusResponse[]>(dominoConnector, dominoAccess, 'bulkDeleteDocuments', reqOptions, streamToJson)
         .then((response) => resolve(response))
+        .catch((error) => reject(error));
+    });
+
+  private static _executeOperation = <T = any>(
+    dominoConnector: DominoConnector,
+    dominoAccess: DominoAccess,
+    operationId: string,
+    options: DominoRequestOptions,
+    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
+  ) =>
+    new Promise<T>((resolve, reject) => {
+      dominoConnector
+        .request(dominoAccess, operationId, options)
+        .then(async (result) => {
+          if (result.dataStream === null) {
+            throw new NoResponseBody(operationId);
+          }
+          const decodedStream = await streamDecoder(result.dataStream);
+          if (result.status >= 400) {
+            throw new HttpResponseError(decodedStream as any);
+          }
+
+          return resolve(decodedStream);
+        })
         .catch((error) => reject(error));
     });
 }

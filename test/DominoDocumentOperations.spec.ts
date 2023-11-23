@@ -20,7 +20,10 @@ import {
   EmptyParamError,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
+  HttpResponseError,
   InvalidParamError,
+  NoResponseBody,
+  NotAnArrayError,
   QueryActions,
   RichTextRepresentation,
   UpdateDocumentOptions,
@@ -92,35 +95,14 @@ describe('DominoDocumentOperations', async () => {
       dcRequestStub.resolves(transformToRequestResponse(docResponse));
     });
 
-    it(`should return a 'DominoDocument' object`, async () => {
+    it(`should be able to execute operation`, async () => {
       expectedParams.set('unid', '28FB14A0F6BB9A3A00258A1D004C6F9C');
 
       const response = await DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, '28FB14A0F6BB9A3A00258A1D004C6F9C');
       expect(response instanceof DominoDocument).to.be.true;
     });
 
-    it(`should throw an error if 'dataSource' is empty`, async () => {
-      await expect(DominoDocumentOperations.getDocument('', fakeToken, dc, '')).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it(`should throw an error if 'unid' is empty`, async () => {
-      await expect(DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, '')).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'unid' should not be empty.`,
-      );
-    });
-
-    it(`should throw an error if 'unid' is invalid`, async () => {
-      await expect(DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, 'UNID')).to.be.rejectedWith(
-        InvalidParamError,
-        `UNID has an invalid value.`,
-      );
-    });
-
-    it('should be able to give correct response and params to request when given options', async () => {
+    it(`should be able to execute operation with options`, async () => {
       expectedParams.set('unid', '28FB14A0F6BB9A3A00258A1D004C6F9C');
       expectedParams.set('computeWithForm', true);
       expectedParams.set('mode', 'mode');
@@ -132,8 +114,28 @@ describe('DominoDocumentOperations', async () => {
         parentUnid: 'parentUnid',
       };
       const response = await DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, '28FB14A0F6BB9A3A00258A1D004C6F9C', options);
-      expect(response).to.exist;
       expect(response instanceof DominoDocument).to.be.true;
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.getDocument('', fakeToken, dc, '')).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unid' is empty`, async () => {
+      await expect(DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, '')).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unid' is invalid`, async () => {
+      await expect(DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, 'UNID')).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+      expectedParams.set('unid', '28FB14A0F6BB9A3A00258A1D004C6F9C');
+
+      await expect(DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, '28FB14A0F6BB9A3A00258A1D004C6F9C')).to.be.rejectedWith(
+        'Execute operation error.',
+      );
     });
   });
 
@@ -147,27 +149,32 @@ describe('DominoDocumentOperations', async () => {
       expectedOptions.body = JSON.stringify(ddoc1.toDocJson());
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.createDocument('', fakeToken, dc, doc)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.createDocument(dataSource, fakeToken, dc, doc);
-      expect(response).to.exist;
       expect(response instanceof DominoDocument).to.be.true;
     });
 
-    it('should be able to give correct response and params to request when given options', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedParams.set('parentUnid', 'parent');
       expectedParams.set('richTextAs', 'html');
 
       const options: CreateDocumentOptions = { parentUnid: 'parent', richTextAs: RichTextRepresentation.HTML };
       const response = await DominoDocumentOperations.createDocument(dataSource, fakeToken, dc, doc, options);
-      expect(response).to.exist;
       expect(response instanceof DominoDocument).to.be.true;
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.createDocument('', fakeToken, dc, doc)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'doc' is empty`, async () => {
+      await expect(DominoDocumentOperations.createDocument(dataSource, fakeToken, dc, undefined as any)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.createDocument(dataSource, fakeToken, dc, doc)).to.be.rejectedWith('Execute operation error.');
     });
   });
 
@@ -182,42 +189,42 @@ describe('DominoDocumentOperations', async () => {
       expectedParams.set('unid', ddoc1.getUNID());
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.updateDocument('', fakeToken, dc, ddoc1)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given document has empty UNID', async () => {
-      ddoc1.setUNID('');
-
-      await expect(DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'DominoDocument UNID' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given document has invalid UNID', async () => {
-      ddoc1.setUNID('UNID');
-
-      await expect(DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith('UNID has an invalid value.');
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, ddoc1);
-      expect(response).to.exist;
       expect(response instanceof DominoDocument).to.be.true;
     });
 
-    it('should be able to give correct response and params to request when given options', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedParams.set('parentUnid', 'parent');
       expectedParams.set('richTextAs', 'html');
 
       const options: UpdateDocumentOptions = { richTextAs: RichTextRepresentation.HTML, parentUnid: 'parent' };
       const response = await DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, ddoc1, options);
-      expect(response).to.exist;
       expect(response instanceof DominoDocument).to.be.true;
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.updateDocument('', fakeToken, dc, ddoc1)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'doc' is empty`, async () => {
+      await expect(DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, undefined as any)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'document unid' is empty`, async () => {
+      ddoc1.setUNID('');
+      await expect(DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'document unid' is invalid`, async () => {
+      ddoc1.setUNID('UNID');
+      await expect(DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith('Execute operation error.');
     });
   });
 
@@ -231,40 +238,42 @@ describe('DominoDocumentOperations', async () => {
       expectedParams.set('unid', patchUnid);
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.patchDocument('', fakeToken, dc, '', docPatchReq)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given UNID is empty', async () => {
-      await expect(DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, '', docPatchReq)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'unid' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given document has invalid UNID', async () => {
-      await expect(DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, 'UNID', docPatchReq)).to.be.rejectedWith(
-        'UNID has an invalid value.',
-      );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, patchUnid, docPatchReq);
-      expect(response).to.exist;
       expect(response instanceof DominoDocument).to.be.true;
     });
 
-    it('should be able to give correct response and params to request when given options', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedParams.set('parentUnid', 'parent');
       expectedParams.set('richTextAs', 'html');
 
       const options: CreateDocumentOptions = { parentUnid: 'parent', richTextAs: RichTextRepresentation.HTML };
       const response = await DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, patchUnid, docPatchReq, options);
-      expect(response).to.exist;
       expect(response instanceof DominoDocument).to.be.true;
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.patchDocument('', fakeToken, dc, '', docPatchReq)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unid' is empty`, async () => {
+      await expect(DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, '', docPatchReq)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unid' is invalid`, async () => {
+      await expect(DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, 'UNID', docPatchReq)).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it(`should throw an error if 'docJsonPatch' is empty`, async () => {
+      await expect(DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, patchUnid, {} as any)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, patchUnid, docPatchReq)).to.be.rejectedWith(
+        'Execute operation error.',
+      );
     });
   });
 
@@ -278,40 +287,40 @@ describe('DominoDocumentOperations', async () => {
       expectedParams.set('unid', ddoc1.getUNID());
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.deleteDocument('', fakeToken, dc, ddoc1)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given document has no UNID', async () => {
-      ddoc1.setUNID('');
-
-      await expect(DominoDocumentOperations.deleteDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'Document UNID' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given document has invalid UNID', async () => {
-      ddoc1.setUNID('UNID');
-
-      await expect(DominoDocumentOperations.deleteDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith(
-        'Document UNID has an invalid value.',
-      );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.deleteDocument(dataSource, fakeToken, dc, ddoc1);
       expect(response).to.exist;
     });
 
-    it('should be able to give correct response and params to request when given mode', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedParams.set('mode', 'myMode');
 
       const response = await DominoDocumentOperations.deleteDocument(dataSource, fakeToken, dc, ddoc1, 'myMode');
       expect(response).to.exist;
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.deleteDocument('', fakeToken, dc, ddoc1)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'doc' is empty`, async () => {
+      await expect(DominoDocumentOperations.deleteDocument(dataSource, fakeToken, dc, undefined as any)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it('should throw an error if given document has no UNID', async () => {
+      ddoc1.setUNID('');
+      await expect(DominoDocumentOperations.deleteDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it('should throw an error if given document has invalid UNID', async () => {
+      ddoc1.setUNID('UNID');
+      await expect(DominoDocumentOperations.deleteDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.deleteDocument(dataSource, fakeToken, dc, ddoc1)).to.be.rejectedWith('Execute operation error.');
     });
   });
 
@@ -323,45 +332,44 @@ describe('DominoDocumentOperations', async () => {
       dcRequestStub.resolves(transformToRequestResponse(operationStatusResponse));
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.deleteDocumentByUNID('', fakeToken, dc, unid)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given UNID is empty', async () => {
-      await expect(DominoDocumentOperations.deleteDocumentByUNID(dataSource, fakeToken, dc, '')).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'unid' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given UNID is invalid', async () => {
-      await expect(DominoDocumentOperations.deleteDocumentByUNID(dataSource, fakeToken, dc, 'UNID')).to.be.rejectedWith(
-        InvalidParamError,
-        `UNID has an invalid value.`,
-      );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       expectedParams.set('unid', unid);
 
       const response = await DominoDocumentOperations.deleteDocumentByUNID(dataSource, fakeToken, dc, unid);
       expect(response).to.exist;
     });
 
-    it('should be able to give correct response and params to request when given mode', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedParams.set('unid', unid);
       expectedParams.set('mode', 'myMode');
 
       const response = await DominoDocumentOperations.deleteDocumentByUNID(dataSource, fakeToken, dc, unid, 'myMode');
       expect(response).to.exist;
     });
+
+    it(`should throw an error if dataSource is empty`, async () => {
+      await expect(DominoDocumentOperations.deleteDocumentByUNID('', fakeToken, dc, unid)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unid' is empty`, async () => {
+      await expect(DominoDocumentOperations.deleteDocumentByUNID(dataSource, fakeToken, dc, '')).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unid' is invalid`, async () => {
+      await expect(DominoDocumentOperations.deleteDocumentByUNID(dataSource, fakeToken, dc, 'UNID')).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+      expectedParams.set('unid', unid);
+
+      await expect(DominoDocumentOperations.deleteDocumentByUNID(dataSource, fakeToken, dc, unid)).to.be.rejectedWith('Execute operation error.');
+    });
   });
 
   describe('bulkGetDocuments', () => {
     const unids = ['28FB14A0F6BB9A3A00258A1D004C6F9D', '28FB14A0F6BB9A3A00258A1D004C6F9E', '28FB14A0F6BB9A3A00258A1D004C6F9F'];
+
     const bulkGetErrorResponse = {
       status: 404,
       message: 'No document you can access found for F9D1F6348963AB6000258A0D006015AB',
@@ -375,43 +383,7 @@ describe('DominoDocumentOperations', async () => {
       expectedOptions.body = JSON.stringify({ unids });
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.bulkGetDocuments('', fakeToken, dc, unids)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given UNIDs array is empty', async () => {
-      await expect(DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, [])).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'unids' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if one of given UNIDs is empty', async () => {
-      await expect(
-        DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, [
-          '28FB14A0F6BB9A3A00258A1D004C6F9D',
-          '',
-          '28FB14A0F6BB9A3A00258A1D004C6F9E',
-          '28FB14A0F6BB9A3A00258A1D004C6F9F',
-        ]),
-      ).to.be.rejectedWith('One of given UNIDs is empty.');
-    });
-
-    it('should throw an error if one of given UNIDs is invalid', async () => {
-      await expect(
-        DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, [
-          '28FB14A0F6BB9A3A00258A1D004C6F9D',
-          'UNID',
-          '28FB14A0F6BB9A3A00258A1D004C6F9E',
-          '28FB14A0F6BB9A3A00258A1D004C6F9F',
-        ]),
-      ).to.be.rejectedWith('One of given UNIDs is invalid.');
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, unids);
       expect(response).to.exist;
       expect(response.length).to.be.equal(3);
@@ -424,7 +396,7 @@ describe('DominoDocumentOperations', async () => {
       }
     });
 
-    it('should be able to give correct response and params to request when given options', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedParams.set('meta', true);
       expectedParams.set('richTextAs', 'html');
 
@@ -443,6 +415,132 @@ describe('DominoDocumentOperations', async () => {
           expect(Object.keys(item)).to.deep.equal(Object.keys(bulkGetErrorResponse));
         }
       }
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkGetDocuments('', fakeToken, dc, unids)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unids' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, [])).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unids' is not an array`, async () => {
+      await expect(DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, 'unids' as any)).to.be.rejectedWith(NotAnArrayError);
+    });
+
+    it(`should throw an error if one of 'unids' entries is empty`, async () => {
+      await expect(
+        DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, [
+          '28FB14A0F6BB9A3A00258A1D004C6F9D',
+          '',
+          '28FB14A0F6BB9A3A00258A1D004C6F9E',
+          '28FB14A0F6BB9A3A00258A1D004C6F9F',
+        ]),
+      ).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it(`should throw an error if one of 'unids' entries is invalid`, async () => {
+      await expect(
+        DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, [
+          '28FB14A0F6BB9A3A00258A1D004C6F9D',
+          'UNID',
+          '28FB14A0F6BB9A3A00258A1D004C6F9E',
+          '28FB14A0F6BB9A3A00258A1D004C6F9F',
+        ]),
+      ).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, unids)).to.be.rejectedWith('Execute operation error.');
+    });
+  });
+
+  describe('getDocumentsByQuery', () => {
+    let request: GetDocumentsByQueryRequest;
+    let qaction = QueryActions.EXECUTE;
+
+    beforeEach(() => {
+      operationId = 'query';
+      dcRequestStub.resolves(transformToRequestResponse(queryExecuteResponse));
+      request = {
+        query: "form = 'Customer' and name = 'Alien'",
+      };
+      expectedOptions.body = JSON.stringify(request);
+      expectedParams.set('action', QueryActions.EXECUTE);
+    });
+
+    it('should be able to execute operation when action is explain', async () => {
+      dcRequestStub.resolves(transformToRequestResponse(queryExplainResponse));
+      expectedParams.set('action', QueryActions.EXPLAIN);
+
+      const response = await DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, QueryActions.EXPLAIN);
+      expect(response).to.exist;
+    });
+
+    it('should be able to execute operation when action is parse', async () => {
+      dcRequestStub.resolves(transformToRequestResponse(queryParseResponse));
+      expectedParams.set('action', QueryActions.PARSE);
+
+      const response = await DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, QueryActions.PARSE);
+      expect(response).to.exist;
+    });
+
+    it('should be able to execute operation when action is execute', async () => {
+      dcRequestStub.resolves(transformToRequestResponse(queryExecuteResponse));
+      expectedOptions.body = JSON.stringify(request);
+
+      const response = await DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, qaction);
+      expect(response).to.exist;
+      expect(response.length).to.be.equal(3);
+      for (const doc of response) {
+        expect(doc instanceof DominoDocument).to.be.true;
+      }
+    });
+
+    it('should be able to execute operation with options', async () => {
+      expectedParams.set('count', 3);
+      expectedParams.set('start', 3);
+      expectedParams.set('richTextAs', 'html');
+
+      const options: GetDocumentsByQueryOptions = {
+        richTextAs: RichTextRepresentation.HTML,
+        count: 3,
+        start: 3,
+      };
+      const response = await DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, qaction, options);
+      expect(response).to.exist;
+      expect(response.length).to.be.equal(3);
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.getDocumentsByQuery('', fakeToken, dc, request, qaction)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'request' is empty`, async () => {
+      await expect(DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, {} as any, qaction)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it('should throw an error if `request.query` is empty', async () => {
+      request.query = '';
+      await expect(DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, qaction)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'qaction' is empty`, async () => {
+      await expect(DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, undefined as any)).to.be.rejectedWith(
+        EmptyParamError,
+      );
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+      expectedOptions.body = JSON.stringify(request);
+
+      await expect(DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, qaction)).to.be.rejectedWith(
+        'Execute operation error.',
+      );
     });
   });
 
@@ -502,22 +600,7 @@ describe('DominoDocumentOperations', async () => {
       expectedOptions.body = JSON.stringify({ documents: docs });
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.bulkCreateDocuments('', fakeToken, dc, docs)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given docs array is empty', async () => {
-      docs = [];
-      await expect(DominoDocumentOperations.bulkCreateDocuments(dataSource, fakeToken, dc, docs)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'docs' should not be empty.`,
-      );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.bulkCreateDocuments(dataSource, fakeToken, dc, docs);
       expect(response).to.exist;
       expect(response.length).to.be.equal(3);
@@ -526,7 +609,7 @@ describe('DominoDocumentOperations', async () => {
       }
     });
 
-    it('should be able to give correct response and params to request when given richTextAs', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedParams.set('richTextAs', 'html');
 
       const response = await DominoDocumentOperations.bulkCreateDocuments(dataSource, fakeToken, dc, docs, RichTextRepresentation.HTML);
@@ -535,6 +618,24 @@ describe('DominoDocumentOperations', async () => {
       for (const doc of response) {
         expect(doc instanceof DominoDocument).to.be.true;
       }
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkCreateDocuments('', fakeToken, dc, docs)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'docs' array is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkCreateDocuments(dataSource, fakeToken, dc, [])).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'docs' is not an array`, async () => {
+      await expect(DominoDocumentOperations.bulkCreateDocuments(dataSource, fakeToken, dc, 'docs' as any)).to.be.rejectedWith(NotAnArrayError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.bulkCreateDocuments(dataSource, fakeToken, dc, docs)).to.be.rejectedWith('Execute operation error.');
     });
   });
 
@@ -551,38 +652,13 @@ describe('DominoDocumentOperations', async () => {
       expectedOptions.body = JSON.stringify(request);
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.bulkUpdateDocumentsByQuery('', fakeToken, dc, request)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if request query is empty', async () => {
-      request.query = '';
-
-      await expect(DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'request.query' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if request replaceItems has no items', async () => {
-      request.replaceItems = {};
-
-      await expect(DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'request.replaceItems' should not be empty.`,
-      );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request);
       expect(response).to.exist;
       expect(response.length).to.be.equal(3);
     });
 
-    it('should be able to give correct response and params to request when given richTextAs', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedParams.set('richTextAs', 'html');
 
       const response = await DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request, RichTextRepresentation.HTML);
@@ -590,7 +666,7 @@ describe('DominoDocumentOperations', async () => {
       expect(response.length).to.be.equal(3);
     });
 
-    it('should be able to return an instance of domino documents on response if request returnUpdatedDocument is true', async () => {
+    it(`should be able to return 'DominoDocument' object if 'request.returnUpdatedDocument' is 'true'`, async () => {
       dcRequestStub.resolves(transformToRequestResponse([docResponse, docResponse]));
       request.returnUpdatedDocument = true;
       expectedOptions.body = JSON.stringify(request);
@@ -602,75 +678,31 @@ describe('DominoDocumentOperations', async () => {
         expect(doc instanceof DominoDocument).to.be.true;
       }
     });
-  });
 
-  describe('getDocumentsByQuery', () => {
-    let request: GetDocumentsByQueryRequest;
-    let qaction = QueryActions.EXECUTE;
-
-    beforeEach(() => {
-      operationId = 'query';
-      dcRequestStub.resolves(transformToRequestResponse(queryExecuteResponse));
-      request = {
-        query: "form = 'Customer' and name = 'Alien'",
-      };
-      expectedOptions.body = JSON.stringify(request);
-      expectedParams.set('action', QueryActions.EXECUTE);
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkUpdateDocumentsByQuery('', fakeToken, dc, request)).to.be.rejectedWith(EmptyParamError);
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.getDocumentsByQuery('', fakeToken, dc, request, qaction)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
+    it(`should throw an error if 'request' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, {} as any)).to.be.rejectedWith(EmptyParamError);
     });
 
-    it('should throw an error if request query is empty', async () => {
+    it(`should throw an error if 'request.query' is empty`, async () => {
       request.query = '';
-      await expect(DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, qaction)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'request.query' should not be empty.`,
+      await expect(DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'request.replaceItems' is empty`, async () => {
+      request.replaceItems = {};
+      await expect(DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request)).to.be.rejectedWith(
+        'Execute operation error.',
       );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
-      const options: GetDocumentsByQueryOptions = {
-        richTextAs: RichTextRepresentation.HTML,
-        count: 3,
-        start: 3,
-      };
-      expectedParams.set('count', 3);
-      expectedParams.set('start', 3);
-      expectedParams.set('richTextAs', 'html');
-      const response = await DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, qaction, options);
-      expect(response).to.exist;
-      expect(response.length).to.be.equal(3);
-    });
-
-    it('should be able to give correct response when action is explain', async () => {
-      dcRequestStub.resolves(transformToRequestResponse(queryExplainResponse));
-      expectedParams.set('action', QueryActions.EXPLAIN);
-      const response = await DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, QueryActions.EXPLAIN);
-      expect(response).to.exist;
-    });
-
-    it('should be able to give correct response when action is parse', async () => {
-      dcRequestStub.resolves(transformToRequestResponse(queryParseResponse));
-      expectedParams.set('action', QueryActions.PARSE);
-      const response = await DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, QueryActions.PARSE);
-      expect(response).to.exist;
-    });
-
-    it('should be able to return an instance of domino documents on response after execute', async () => {
-      dcRequestStub.resolves(transformToRequestResponse(queryExecuteResponse));
-      expectedOptions.body = JSON.stringify(request);
-
-      const response = await DominoDocumentOperations.getDocumentsByQuery(dataSource, fakeToken, dc, request, qaction);
-      expect(response).to.exist;
-      expect(response.length).to.be.equal(3);
-      for (const doc of response) {
-        expect(doc instanceof DominoDocument).to.be.true;
-      }
     });
   });
 
@@ -691,48 +723,46 @@ describe('DominoDocumentOperations', async () => {
       expectedOptions.body = JSON.stringify({ unids });
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.bulkDeleteDocuments('', fakeToken, dc, docs)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given documents array is empty', async () => {
-      await expect(DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, [])).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'docs' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if one of given documents has empty UNID', async () => {
-      docs[1].setUNID('');
-
-      await expect(DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, docs)).to.be.rejectedWith(
-        'One of given documents has empty UNID.',
-      );
-    });
-
-    it('should throw an error if one of given documents has invalid UNID', async () => {
-      docs[2].setUNID('UNID');
-
-      await expect(DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, docs)).to.be.rejectedWith(
-        'One of given documents has invalid UNID.',
-      );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, docs);
       expect(response).to.exist;
       expect(response.length).to.be.equal(3);
     });
 
-    it('should be able to give correct response and params to request when given mode', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedOptions.body = JSON.stringify({ unids, mode: 'myMode' });
 
       const response = await DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, docs, 'myMode');
       expect(response).to.exist;
       expect(response.length).to.be.equal(3);
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkDeleteDocuments('', fakeToken, dc, docs)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'docs' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, [])).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'docs' is not an array`, async () => {
+      await expect(DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, 'docs' as any)).to.be.rejectedWith(NotAnArrayError);
+    });
+
+    it(`should throw an error if one of 'docs' has empty unid`, async () => {
+      docs[1].setUNID('');
+      await expect(DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, docs)).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it(`should throw an error if one of 'docs' has invalid unid`, async () => {
+      docs[2].setUNID('UNID');
+      await expect(DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, docs)).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.bulkDeleteDocuments(dataSource, fakeToken, dc, docs)).to.be.rejectedWith('Execute operation error.');
     });
   });
 
@@ -746,46 +776,70 @@ describe('DominoDocumentOperations', async () => {
       expectedOptions.body = JSON.stringify({ unids });
     });
 
-    it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID('', fakeToken, dc, unids)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if given UNIDs array is empty', async () => {
-      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, [])).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'unids' should not be empty.`,
-      );
-    });
-
-    it('should throw an error if one of given UNIDs is empty', async () => {
-      unids[1] = '';
-
-      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, unids)).to.be.rejectedWith(
-        'One of given UNIDs is empty.',
-      );
-    });
-
-    it('should throw an error if one of given UNIDs is invalid', async () => {
-      unids[2] = 'UNID';
-
-      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, unids)).to.be.rejectedWith(
-        'One of given UNIDs is invalid.',
-      );
-    });
-
-    it('should be able to give correct response and params to request', async () => {
+    it('should be able to execute operation', async () => {
       const response = await DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, unids);
       expect(response).to.exist;
     });
 
-    it('should be able to give correct response and params to request when given mode', async () => {
+    it('should be able to execute operation with options', async () => {
       expectedOptions.body = JSON.stringify({ unids, mode: 'delete' });
 
       const response = await DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, unids, 'delete');
       expect(response).to.exist;
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID('', fakeToken, dc, unids)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unids' is empty`, async () => {
+      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, [])).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unids' is not an array`, async () => {
+      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, 'unids' as any)).to.be.rejectedWith(NotAnArrayError);
+    });
+
+    it(`should throw an error if one of 'unids' is empty`, async () => {
+      unids[1] = '';
+      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, unids)).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it(`should throw an error if one of 'unids' is invalid`, async () => {
+      unids[2] = 'UNID';
+      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, unids)).to.be.rejectedWith(InvalidParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, unids)).to.be.rejectedWith(
+        'Execute operation error.',
+      );
+    });
+  });
+
+  describe('Operation execution', () => {
+    beforeEach(() => {
+      operationId = 'getDocument';
+    });
+
+    it(`should throw 'NoResponseBody' if response has null stream`, async () => {
+      dcRequestStub.resolves(transformToRequestResponse(null));
+      expectedParams.set('unid', '28FB14A0F6BB9A3A00258A1D004C6F9C');
+
+      await expect(DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, '28FB14A0F6BB9A3A00258A1D004C6F9C')).to.be.rejectedWith(
+        NoResponseBody,
+      );
+    });
+
+    it(`should throw 'HttpResponseError' if response has error status`, async () => {
+      dcRequestStub.resolves(transformToRequestResponse({ message: 'Error' }, 400));
+      expectedParams.set('unid', '28FB14A0F6BB9A3A00258A1D004C6F9C');
+
+      await expect(DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, '28FB14A0F6BB9A3A00258A1D004C6F9C')).to.be.rejectedWith(
+        HttpResponseError,
+      );
     });
   });
 });
