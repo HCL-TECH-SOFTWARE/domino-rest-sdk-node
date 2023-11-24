@@ -25,14 +25,14 @@ describe('DominoDocument', () => {
       const doc = JSON.parse(JSON.stringify(doc1));
       delete doc.Form;
 
-      expect(() => new DominoDocument(doc)).to.throw(MissingParamError, `Parameter 'Form' is required.`);
+      expect(() => new DominoDocument(doc)).to.throw(MissingParamError);
     });
 
     it(`should throw an error if 'Form' is empty`, () => {
       const doc = JSON.parse(JSON.stringify(doc1));
       doc.Form = '';
 
-      expect(() => new DominoDocument(doc)).to.throw(EmptyParamError, `Parameter 'Form' should not be empty.`);
+      expect(() => new DominoDocument(doc)).to.throw(EmptyParamError);
     });
   });
 

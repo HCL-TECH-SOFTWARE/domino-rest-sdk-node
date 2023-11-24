@@ -3,12 +3,11 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import SdkError from './SdkError';
+import { InvalidParamError } from './InvalidParamError';
 
-export class EmptyParamError extends SdkError {
+export class EmptyParamError extends InvalidParamError {
   constructor(param: string) {
-    super(`Parameter '${param}' should not be empty.`);
-    this.name = 'EmptyParamError';
+    super(param, 'not be empty');
   }
 }
 

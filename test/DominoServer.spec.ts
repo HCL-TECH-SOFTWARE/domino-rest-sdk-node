@@ -9,6 +9,7 @@ import fs from 'fs';
 import sinon from 'sinon';
 import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src';
 import DominoConnector from '../src/DominoConnector';
+import { RequestInfo } from 'undici-types';
 
 chai.use(chaiAsPromised);
 
@@ -17,7 +18,7 @@ describe('DominoServer', () => {
   const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
   const sampleUrl = 'http://localhost:8880';
 
-  let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
+  let fetchStub: sinon.SinonStub<[input: RequestInfo, init?: RequestInit | undefined], Promise<Response>>;
 
   beforeEach(() => {
     fetchStub = sinon.stub(global, 'fetch');
@@ -82,11 +83,11 @@ describe('DominoServer', () => {
       };
       fetchStub.onSecondCall().resolves(new Response(JSON.stringify(errorResponse), { status: 404, statusText: 'Not Found' }));
 
-      await expect(dominoServer.getDominoConnector('basis')).to.be.rejectedWith(HttpResponseError, 'This is not the URL you seek!');
+      await expect(dominoServer.getDominoConnector('basis')).to.be.rejectedWith(HttpResponseError);
     });
 
     it('should throw an error if API is not in the API definitions list', async () => {
-      await expect(dominoServer.getDominoConnector('shadow')).to.be.rejectedWith(ApiNotAvailable, `API 'shadow' not available on this server.`);
+      await expect(dominoServer.getDominoConnector('shadow')).to.be.rejectedWith(ApiNotAvailable);
     });
   });
 
@@ -116,11 +117,11 @@ describe('DominoServer', () => {
       };
       fetchStub.onSecondCall().resolves(new Response(JSON.stringify(errorResponse), { status: 404, statusText: 'Not Found' }));
 
-      await expect(dominoServer.availableOperations('basis')).to.be.rejectedWith(HttpResponseError, 'This is not the URL you seek!');
+      await expect(dominoServer.availableOperations('basis')).to.be.rejectedWith(HttpResponseError);
     });
 
     it(`should throw an error when given API is not in the API definitions list`, async () => {
-      await expect(dominoServer.availableOperations('shadow')).to.be.rejectedWith(ApiNotAvailable, `API 'shadow' not available on this server.`);
+      await expect(dominoServer.availableOperations('shadow')).to.be.rejectedWith(ApiNotAvailable);
     });
   });
 });

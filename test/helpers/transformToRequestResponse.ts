@@ -1,7 +1,7 @@
 import { DominoRequestResponse } from '../../src';
 
-export const transformToRequestResponse = (incoming: string | object, status?: number): DominoRequestResponse => {
-  const stream = typeof incoming === 'string' ? incoming : JSON.stringify(incoming);
+export const transformToRequestResponse = (incoming: any, status?: number): DominoRequestResponse => {
+  const stream = incoming !== null && typeof incoming === 'object' ? JSON.stringify(incoming) : incoming;
   const responseObj = new Response(stream, { status: status ?? 200 });
 
   return {

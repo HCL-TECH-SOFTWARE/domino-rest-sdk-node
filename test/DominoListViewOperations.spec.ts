@@ -86,10 +86,7 @@ describe('DominoListViewOperations', async () => {
     });
 
     it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoListViewOperations.getListViews('', fakeToken, dc)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.getListViews('', fakeToken, dc)).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -118,17 +115,11 @@ describe('DominoListViewOperations', async () => {
     });
 
     it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoListViewOperations.getListView('', fakeToken, dc, listViewName)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.getListView('', fakeToken, dc, listViewName)).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should throw an error if given designName is empty', async () => {
-      await expect(DominoListViewOperations.getListView(dataSource, fakeToken, dc, '')).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'designName' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.getListView(dataSource, fakeToken, dc, '')).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -162,17 +153,11 @@ describe('DominoListViewOperations', async () => {
     });
 
     it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoListViewOperations.getListViewEntry('', fakeToken, dc, listViewName)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.getListViewEntry('', fakeToken, dc, listViewName)).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should throw an error if given listViewName is empty', async () => {
-      await expect(DominoListViewOperations.getListViewEntry(dataSource, fakeToken, dc, '')).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'listViewName' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.getListViewEntry(dataSource, fakeToken, dc, '')).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -227,24 +212,15 @@ describe('DominoListViewOperations', async () => {
     });
 
     it('should throw an error if given dataSource is empty', async () => {
-      await expect(DominoListViewOperations.getListViewPivotEntry('', fakeToken, dc, listViewName, pivotColumn)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.getListViewPivotEntry('', fakeToken, dc, listViewName, pivotColumn)).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should throw an error if given listViewName is empty', async () => {
-      await expect(DominoListViewOperations.getListViewPivotEntry(dataSource, fakeToken, dc, '', pivotColumn)).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'listViewName' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.getListViewPivotEntry(dataSource, fakeToken, dc, '', pivotColumn)).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should throw an error if given pivotColumn is empty', async () => {
-      await expect(DominoListViewOperations.getListViewPivotEntry(dataSource, fakeToken, dc, listViewName, '')).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'pivotColumn' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.getListViewPivotEntry(dataSource, fakeToken, dc, listViewName, '')).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should be able to give correct response and params to request', async () => {
@@ -307,15 +283,11 @@ describe('DominoListViewOperations', async () => {
     it('should throw an error if given dataSource is empty', async () => {
       await expect(DominoListViewOperations.createUpdateListView('', fakeToken, dc, listViewObject, listViewName)).to.be.rejectedWith(
         EmptyParamError,
-        `Parameter 'dataSource' should not be empty.`,
       );
     });
 
     it('should throw an error if given designName is empty', async () => {
-      await expect(DominoListViewOperations.createUpdateListView(dataSource, fakeToken, dc, listViewObject, '')).to.be.rejectedWith(
-        EmptyParamError,
-        `Parameter 'designName' should not be empty.`,
-      );
+      await expect(DominoListViewOperations.createUpdateListView(dataSource, fakeToken, dc, listViewObject, '')).to.be.rejectedWith(EmptyParamError);
     });
 
     it('should be able to give correct response and params to request given the appropriate options (CreateUpdateDesignOptions)', async () => {

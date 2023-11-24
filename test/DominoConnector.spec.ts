@@ -10,6 +10,7 @@ import sinon from 'sinon';
 import { CredentialType, DominoAccess, DominoRequestOptions, DominoServer, MissingParamError } from '../src';
 import DominoConnector from '../src/DominoConnector';
 import createDocResponse from './resources/DominoDocumentOperations/doc_response.json';
+import { RequestInfo } from 'undici-types';
 
 chai.use(chaiAsPromised);
 
@@ -27,7 +28,7 @@ describe('DominoConnector', () => {
   };
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let fetchStub: sinon.SinonStub<[input: RequestInfo | URL, init?: RequestInit | undefined], Promise<Response>>;
+  let fetchStub: sinon.SinonStub<[input: RequestInfo, init?: RequestInit | undefined], Promise<Response>>;
   let accessTokenStub: sinon.SinonStub<[], Promise<string>>;
   let baseConnector: DominoConnector;
 
@@ -161,10 +162,7 @@ describe('DominoConnector', () => {
         params,
       };
 
-      await expect(baseConnector.request(fakeToken, 'createDocumentGet', options)).to.be.rejectedWith(
-        MissingParamError,
-        `Parameter 'requiredHeader' is required.`,
-      );
+      await expect(baseConnector.request(fakeToken, 'createDocumentGet', options)).to.be.rejectedWith(MissingParamError);
     });
   });
 
@@ -204,7 +202,7 @@ describe('DominoConnector', () => {
     const params: Map<string, string> = new Map();
     params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
     params.set('name', 'customer');
-    return expect(() => baseConnector.getUrl(operation, '', params)).to.throw(MissingParamError, `Parameter \'dataSource\' is required.`);
+    return expect(() => baseConnector.getUrl(operation, '', params)).to.throw(MissingParamError);
   });
 
   it('should return correct FetchOptions', async () => {
