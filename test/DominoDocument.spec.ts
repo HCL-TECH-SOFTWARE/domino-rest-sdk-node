@@ -4,11 +4,11 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
+import { EmptyParamError, MissingParamError } from '../src';
 import DominoDocument from '../src/DominoDocument';
 import doc1 from './resources/DominoDocument/doc1.json';
 import doc2 from './resources/DominoDocument/doc2.json';
 import doc3 from './resources/DominoDocument/doc3.json';
-import { EmptyParamError, MissingParamError } from '../src';
 
 describe('DominoDocument', () => {
   describe('constructor', () => {

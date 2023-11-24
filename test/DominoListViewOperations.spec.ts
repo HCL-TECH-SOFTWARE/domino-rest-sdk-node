@@ -8,26 +8,26 @@ import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
 import {
-  DesignOptions,
   CredentialType,
+  DesignOptions,
   DominoAccess,
   DominoApiMeta,
   DominoRequestOptions,
+  EmptyParamError,
   GetListPivotViewEntryOptions,
   GetListViewEntryOptions,
   GetListViewOptions,
-  ListViewBody,
-  SortType,
-  EmptyParamError,
   HttpResponseError,
+  ListViewBody,
   NoResponseBody,
+  SortType,
 } from '../src';
 import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector';
 import DominoDocument from '../src/DominoDocument';
 import DominoListView from '../src/DominoListView';
 import DominoListViewOperations from '../src/DominoListViewOperations';
-import create_dlv1_response from './resources/DominoListView/create_dlv1_response.json';
 import docResponse from './resources/DominoDocumentOperations/doc_response.json';
+import create_dlv1_response from './resources/DominoListView/create_dlv1_response.json';
 import dlv1_response from './resources/DominoListView/dlv1_response.json';
 import lv1_response from './resources/DominoListView/lv1_response.json';
 import lve1_response from './resources/DominoListView/lve1_response.json';

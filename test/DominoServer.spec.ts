@@ -7,9 +7,9 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
 import sinon from 'sinon';
+import { RequestInfo } from 'undici-types';
 import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src';
 import DominoConnector from '../src/DominoConnector';
-import { RequestInfo } from 'undici-types';
 
 chai.use(chaiAsPromised);
 

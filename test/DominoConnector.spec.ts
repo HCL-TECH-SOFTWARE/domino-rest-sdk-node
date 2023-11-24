@@ -7,10 +7,10 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
 import sinon from 'sinon';
+import { RequestInfo } from 'undici-types';
 import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src';
 import DominoConnector, { DominoRestOperation } from '../src/DominoConnector';
 import createDocResponse from './resources/DominoDocumentOperations/doc_response.json';
-import { RequestInfo } from 'undici-types';
 
 chai.use(chaiAsPromised);
 

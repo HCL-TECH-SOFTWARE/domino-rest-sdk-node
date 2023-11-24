@@ -9,9 +9,9 @@ import sinon from 'sinon';
 import {
   CredentialType,
   DominoAccess,
-  DominoRequestResponse,
   DominoApiMeta,
   DominoRequestOptions,
+  DominoRequestResponse,
   EmptyParamError,
   HttpResponseError,
   NoResponseBody,
@@ -19,9 +19,9 @@ import {
 import DominoConnector from '../src/DominoConnector';
 import DominoScope from '../src/DominoScope';
 import DominoScopeOperations from '../src/DominoScopeOperations';
+import { transformToRequestResponse } from './helpers/transformToRequestResponse';
 import scp from './resources/DominoScope/scpJson.json';
 import scpResponse from './resources/DominoScope/scp_response.json';
-import { transformToRequestResponse } from './helpers/transformToRequestResponse';
 
 describe('DominoScopeOperations', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));

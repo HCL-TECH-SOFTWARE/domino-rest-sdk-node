@@ -30,6 +30,7 @@ import {
 } from '../src';
 import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector';
 import DominoDocument from '../src/DominoDocument';
+import { transformToRequestResponse } from './helpers/transformToRequestResponse';
 import doc from './resources/DominoDocumentOperations/doc.json';
 import docPatchReq from './resources/DominoDocumentOperations/doc_patch_request.json';
 import docPatchResponse from './resources/DominoDocumentOperations/doc_patch_response.json';
@@ -39,7 +40,6 @@ import operationStatusResponse from './resources/DominoDocumentOperations/operat
 import queryExecuteResponse from './resources/DominoDocumentOperations/query_operation_execute_response.json';
 import queryExplainResponse from './resources/DominoDocumentOperations/query_operation_explain_response.json';
 import queryParseResponse from './resources/DominoDocumentOperations/query_operation_parse_response.json';
-import { transformToRequestResponse } from './helpers/transformToRequestResponse';
 
 describe('DominoDocumentOperations', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
