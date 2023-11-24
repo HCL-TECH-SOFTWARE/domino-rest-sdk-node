@@ -6,7 +6,6 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
-import { GetDocumentsByQueryRequest } from '../dist/DominoDocumentOperations';
 import {
   BulkGetDocumentsOptions,
   BulkUpdateDocumentsByQueryRequest,
@@ -20,6 +19,7 @@ import {
   EmptyParamError,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
+  GetDocumentsByQueryRequest,
   HttpResponseError,
   InvalidParamError,
   NoResponseBody,
