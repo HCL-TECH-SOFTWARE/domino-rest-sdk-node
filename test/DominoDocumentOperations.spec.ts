@@ -718,7 +718,7 @@ describe('DominoDocumentOperations', async () => {
       for (const doc of docs) {
         const unid = doc.getUNID();
         expect(unid).to.not.be.undefined;
-        unids.push(unid ? unid : '');
+        unids.push(unid || '');
       }
       expectedOptions.body = JSON.stringify({ unids });
     });
