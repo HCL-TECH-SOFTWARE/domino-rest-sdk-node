@@ -5,14 +5,14 @@
 
 import { ListType } from '.';
 import { DominoRestListView } from './RestInterfaces';
-import { EmptyParamError, InvalidParamError, MissingParamError } from './errors';
+import { EmptyParamError, MissingParamError, NotAnArrayError } from './errors';
 import { isEmpty } from './helpers/Utilities';
 
 export type DesignColumnSimple = {
   name: string;
   title?: string;
   formula: string;
-  separateMultipleValues?: boolean;
+  separatemultiplevalues?: boolean;
   sort?: SortType;
   position?: number;
 };
@@ -96,11 +96,11 @@ export class DominoListView implements DominoRestListView {
   columns: DesignColumnSimple[];
   type?: ListType;
 
-  readonly '@alias'?: string[] = [];
-  readonly isFolder?: boolean;
+  readonly '@alias'?: string[];
   readonly '@title'?: string;
   readonly '@unid'?: string;
   readonly '@noteid'?: string;
+  readonly isFolder?: boolean;
 
   constructor(doc: ListViewBody) {
     if (!doc.hasOwnProperty('name')) {
@@ -122,7 +122,7 @@ export class DominoListView implements DominoRestListView {
       throw new EmptyParamError('columns');
     }
     if (!Array.isArray(doc.columns)) {
-      throw new InvalidParamError(`Parameter 'columns' should be an array.`);
+      throw new NotAnArrayError('columns');
     }
 
     this.name = doc.name;
@@ -133,16 +133,13 @@ export class DominoListView implements DominoRestListView {
       arr.push(column);
     });
     this.columns = arr;
+    this.type = doc.type;
+    this['@alias'] = doc.alias;
+    this['@noteid'] = doc.noteid;
+    this['@title'] = doc.title;
+    this['@unid'] = doc.unid;
+    this.isFolder = doc.isFolder;
   }
-
-  private static _validateDesignColumnSimple = (column: DesignColumnSimple) => {
-    if (!column.hasOwnProperty('name')) {
-      throw new MissingParamError('columns.name');
-    }
-    if (!column.hasOwnProperty('formula')) {
-      throw new MissingParamError('columns.formula');
-    }
-  };
 
   toListViewJson = (): ListViewBody => {
     const json: ListViewBody = {
@@ -152,6 +149,15 @@ export class DominoListView implements DominoRestListView {
     };
 
     return json;
+  };
+
+  private static _validateDesignColumnSimple = (column: DesignColumnSimple) => {
+    if (!column.hasOwnProperty('name')) {
+      throw new MissingParamError('columns.name');
+    }
+    if (!column.hasOwnProperty('formula')) {
+      throw new MissingParamError('columns.formula');
+    }
   };
 }
 
