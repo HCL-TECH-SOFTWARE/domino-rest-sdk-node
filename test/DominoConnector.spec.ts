@@ -7,14 +7,15 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoRequestOptions, DominoServer, MissingParamError } from '../src';
-import DominoConnector from '../src/DominoConnector';
+import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src';
+import DominoConnector, { DominoRestOperation } from '../src/DominoConnector';
 import createDocResponse from './resources/DominoDocumentOperations/doc_response.json';
 import { RequestInfo } from 'undici-types';
 
 chai.use(chaiAsPromised);
 
 describe('DominoConnector', () => {
+  const sampleUrl = 'http://localhost:8880';
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
   const fakeCredentials = {
@@ -36,7 +37,7 @@ describe('DominoConnector', () => {
     fetchStub = sinon.stub(global, 'fetch');
     fetchStub.onFirstCall().resolves(new Response(JSON.stringify(apiDefinitions)));
     fetchStub.onSecondCall().resolves(new Response(JSON.stringify(baseApi)));
-    const server = await DominoServer.getServer('http://localhost:8880');
+    const server = await DominoServer.getServer(sampleUrl);
     baseConnector = await server.getDominoConnector('basis');
 
     accessTokenStub = sinon.stub(fakeToken, 'accessToken');
@@ -49,15 +50,58 @@ describe('DominoConnector', () => {
   });
 
   describe('getConnector', () => {
-    it('should produce a DominoConnector class', async () => {
-      fetchStub.returns(Promise.resolve(new Response(JSON.stringify(baseApi))));
-      const connector = await DominoConnector.getConnector('http://localhost:8880', apiDefinitions.basis);
-      expect(connector instanceof DominoConnector).to.true;
+    beforeEach(() => {
+      fetchStub.restore();
+      fetchStub = sinon.stub(global, 'fetch');
+      fetchStub.resolves(new Response(JSON.stringify(baseApi)));
     });
 
-    it('should reject when error is encountered', async () => {
-      fetchStub.rejects('Error');
-      await expect(DominoConnector.getConnector('http://localhost:8880', apiDefinitions.basis)).to.be.rejected;
+    it(`should load API then return a 'DominoConnector' object`, async () => {
+      const basis = apiDefinitions.basis;
+      const dominoConnector = await DominoConnector.getConnector(sampleUrl, basis);
+      expect(fetchStub.getCall(0).args[0]).to.be.equal(`${sampleUrl}${basis.mountPath}${basis.fileName}`);
+      expect(dominoConnector).to.be.instanceOf(DominoConnector);
+      expect(dominoConnector.baseUrl).to.equal(sampleUrl);
+      expect(dominoConnector.meta).to.deep.equal(basis);
+    });
+
+    it(`should throw 'HttpResponseError' if response has error status code`, async () => {
+      const errResponse = {
+        status: 404,
+        message: 'This is not the URL you seek!',
+        errorId: 0,
+      };
+      fetchStub.resolves(new Response(JSON.stringify(errResponse), { status: 404 }));
+
+      await expect(DominoConnector.getConnector(sampleUrl, apiDefinitions.basis)).to.be.rejectedWith(HttpResponseError);
+    });
+
+    it('should throw an error if encountered fetch error', async () => {
+      fetchStub.rejects(new Error('Fetch error.'));
+
+      await expect(DominoConnector.getConnector(sampleUrl, apiDefinitions.basis)).to.be.rejectedWith('Fetch error.');
+    });
+  });
+
+  describe('getUrl', () => {
+    it('should return the correct URL for an operation', () => {
+      const operation = baseConnector.getOperation('getOdataItem');
+      const params: Map<string, string> = new Map();
+      params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
+      params.set('name', 'customer');
+      params.set('$select', 'name,age,hobbies');
+      const resultUrl = baseConnector.getUrl(operation, 'demo', params);
+      expect(resultUrl).to.be.equal(
+        'http://localhost:8880/api/v1/odata/demo/customer/ABCD1234567890BCABCD1234567890BC?%24select=name%2Cage%2Chobbies',
+      );
+    });
+
+    it('should fail on missing mandatory parameter', () => {
+      const operation = baseConnector.getOperation('getOdataItem');
+      const params: Map<string, string> = new Map();
+      params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
+      params.set('name', 'customer');
+      expect(() => baseConnector.getUrl(operation, '', params)).to.throw(MissingParamError);
     });
   });
 
@@ -65,158 +109,138 @@ describe('DominoConnector', () => {
     beforeEach(() => {
       fetchStub.restore();
       fetchStub = sinon.stub(global, 'fetch');
-      fetchStub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(createDocResponse))));
+      fetchStub.resolves(new Response(JSON.stringify(createDocResponse)));
     });
 
-    it('should be successful when all are valid', async () => {
+    it('should successfully return a response', async () => {
       const params = new Map();
       params.set('dataSource', 'scope');
-      const options: DominoRequestOptions = {
-        params,
-      };
-
-      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.not.be.rejected;
+      const options = { params };
+      const response = await baseConnector.request(fakeToken, 'createDocument', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
     });
 
-    it('should be successful even if dataSource is in options', async () => {
-      const options: DominoRequestOptions = {
+    it(`should successfully return a response with 'dataSource' in request options`, async () => {
+      const options = {
         dataSource: 'scope',
         params: new Map(),
       };
-
-      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.not.be.rejected;
+      const response = await baseConnector.request(fakeToken, 'createDocument', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
     });
 
-    it('should be successful even if schema already has value', async () => {
-      const options: DominoRequestOptions = {
-        dataSource: 'scope',
-        params: new Map(),
-      };
-
-      await baseConnector.getOperation('createDocument');
-      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.not.be.rejected;
-    });
-
-    it('should be successful when API has no parameters for query needed', async () => {
+    it('should successfully return a response on operations that only has path parameters', async () => {
       const params = new Map();
       // These are path parameters
       params.set('dataSource', 'dataSource');
       params.set('unid', 'unid');
       params.set('name', 'name');
-      const options: DominoRequestOptions = {
-        params,
-      };
-
-      await expect(baseConnector.request(fakeToken, 'getOdataItem', options)).to.not.be.rejected;
+      const options = { params };
+      const response = await baseConnector.request(fakeToken, 'getOdataItem', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
     });
 
-    it('should properly set headers when header is needed in request', async () => {
-      // fetchStub.onSecondCall().returns(Promise.resolve(new Response(JSON.stringify(createDocResponse))));
+    it('should successfully return a response on operations that has header parameters', async () => {
+      const expectedHeader = { requiredHeader: 'hello', Authorization: 'Bearer THE TOKEN' };
 
       const params = new Map();
       params.set('dataSource', 'scope');
       params.set('requiredHeader', 'hello');
-      const options: DominoRequestOptions = { params };
-
-      await expect(baseConnector.request(fakeToken, 'createDocumentGet', options)).to.not.be.rejected;
-      const expectedHeader = { requiredHeader: 'hello', Authorization: 'Bearer THE TOKEN' };
+      const options = { params };
+      const response = await baseConnector.request(fakeToken, 'createDocumentGet', options);
       expect(fetchStub.getCall(0).args[1]?.headers).to.deep.equal(expectedHeader);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
     });
 
-    it('should be resolved with nothing when response is okay and has no content', async () => {
-      const errResponse = new Response();
-      fetchStub.onFirstCall().returns(Promise.resolve(errResponse));
+    it('should throw an error when fetch fails', async () => {
+      fetchStub.rejects(new Error('Fetch error.'));
 
       const params = new Map();
       params.set('dataSource', 'scope');
-      const options: DominoRequestOptions = {
-        params,
-      };
+      const options = { params };
+      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.be.rejectedWith('Fetch error.');
+    });
+  });
 
-      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.be.fulfilled;
+  describe('getOperation', () => {
+    it('should return the operation if it exists', () => {
+      const operation = baseConnector.getOperation('createDocument');
+      expect(operation).to.exist;
     });
 
-    it('should be rejected with response body as json when response is not okay and has json content', async () => {
-      const errorJson = { message: 'Error in json' };
-      const headers = {
-        'content-type': 'application/json',
-      };
-      const errResponse = new Response(JSON.stringify(errorJson), { status: 404, statusText: 'Error encountered :(', headers });
-      fetchStub.onFirstCall().returns(Promise.resolve(errResponse));
-
-      const params = new Map();
-      params.set('dataSource', 'scope');
-      const options: DominoRequestOptions = {
-        params,
-      };
-
-      await baseConnector.request(fakeToken, 'createDocument', options).catch((err) => {
-        expect(err).to.deep.equal(errorJson);
-      });
-    });
-
-    it('should be rejected when fetch options found a required header that is not given in request option params', async () => {
-      const params = new Map();
-      params.set('dataSource', 'scope');
-      const options: DominoRequestOptions = {
-        params,
-      };
-
-      await expect(baseConnector.request(fakeToken, 'createDocumentGet', options)).to.be.rejectedWith(MissingParamError);
+    it(`should throw 'OperationNotAvailable' if operation cannot be found`, () => {
+      expect(() => baseConnector.getOperation('tangoAtMidnight')).to.throw(OperationNotAvailable);
     });
   });
 
   describe('getOperations', () => {
-    it('should return all of the operations on the connector', async () => {
-      const result = await baseConnector.getOperations();
+    it('should return all of the operations', () => {
+      const result = baseConnector.getOperations();
       expect(result).not.null;
       expect(result.size).to.equal(58);
-      const result2 = await baseConnector.getOperations();
+      const result2 = baseConnector.getOperations();
       expect(result).to.deep.equal(result2);
     });
   });
 
-  it('should return the createDocument method', async () => {
-    const operation = await baseConnector.getOperation('createDocument');
-    expect(operation).to.exist;
-    expect(fetchStub.args.length).to.equal(2);
-  });
+  describe('getFetchOptions', () => {
+    let operation: DominoRestOperation;
+    let request: any;
 
-  it('should not have a method tangoAtMidnight', () => {
-    expect(() => baseConnector.getOperation('tangoAtMidnight')).to.throw(`Operation ID 'tangoAtMidnight' is not available`);
-  });
+    beforeEach(async () => {
+      operation = await baseConnector.getOperation('createDocumentAttachment');
+      request = {
+        dataSource: 'dataSource',
+        params: new Map(),
+        body: { stuff: 'stuff' },
+      };
+      request.params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
+    });
 
-  it('should return the correct URL for the getOdataItem method', async () => {
-    const operation = await baseConnector.getOperation('getOdataItem');
-    const params: Map<string, string> = new Map();
-    params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
-    params.set('name', 'customer');
-    params.set('$select', 'name,age,hobbies');
+    it('should return correct options for fetch', async () => {
+      const result = await baseConnector.getFetchOptions(fakeToken, operation, request);
+      expect(result).to.have.property('headers');
+      expect(result.headers).to.have.property('Content-Type', 'multipart/form-data');
+      expect(result.headers).to.have.property('Authorization', 'Bearer THE TOKEN');
+      expect(result.body).to.equal(JSON.stringify(request.body));
+    });
 
-    const resultUrl = await baseConnector.getUrl(operation, 'demo', params);
-    expect(resultUrl).to.be.equal('http://localhost:8880/api/v1/odata/demo/customer/ABCD1234567890BCABCD1234567890BC?%24select=name%2Cage%2Chobbies');
-  });
+    it('should return correct options for fetch with body as string', async () => {
+      request.body = 'stuff';
+      const result = await baseConnector.getFetchOptions(fakeToken, operation, request);
+      expect(result).to.have.property('headers');
+      expect(result.headers).to.have.property('Content-Type', 'multipart/form-data');
+      expect(result.headers).to.have.property('Authorization', 'Bearer THE TOKEN');
+      expect(result.body).to.equal(request.body);
+    });
 
-  it('should fail on missing dataSource', async () => {
-    const operation = await baseConnector.getOperation('getOdataItem');
-    const params: Map<string, string> = new Map();
-    params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
-    params.set('name', 'customer');
-    return expect(() => baseConnector.getUrl(operation, '', params)).to.throw(MissingParamError);
-  });
+    it('should return correct options for fetch with additional headers', async () => {
+      operation = await baseConnector.getOperation('createDocumentGet');
+      request.params.set('requiredHeader', 'this should show');
+      const result = await baseConnector.getFetchOptions(fakeToken, operation, request);
+      expect(result).to.have.property('headers');
+      expect(result.headers).to.have.property('Authorization', 'Bearer THE TOKEN');
+      expect(result.headers).to.have.property('requiredHeader', 'this should show');
+      expect(result.body).to.equal(JSON.stringify(request.body));
+    });
 
-  it('should return correct FetchOptions', async () => {
-    const operation = await baseConnector.getOperation('createDocumentAttachment');
-    const params: Map<string, string> = new Map();
-    const request: DominoRequestOptions = {
-      dataSource: 'dataSource',
-      params: params,
-      body: 'Stuff in the body',
-    };
-    params.set('unid', 'ABCD1234567890BCABCD1234567890BC');
-    const result = await baseConnector.getFetchOptions(fakeToken, operation, request);
-    expect(result).to.have.property('headers');
-    expect(result.headers).to.have.property('Content-Type', 'multipart/form-data');
-    expect(result.headers).to.have.property('Authorization', 'Bearer THE TOKEN');
+    it('should return an error if a required header is missing', async () => {
+      operation = await baseConnector.getOperation('createDocumentGet');
+      await expect(baseConnector.getFetchOptions(fakeToken, operation, request)).to.be.rejectedWith(MissingParamError);
+    });
+
+    it('should return an error if a required header is missing', async () => {
+      accessTokenStub.rejects(new Error('Access token error.'));
+
+      await expect(baseConnector.getFetchOptions(fakeToken, operation, request)).to.be.rejectedWith('Access token error.');
+    });
   });
 });

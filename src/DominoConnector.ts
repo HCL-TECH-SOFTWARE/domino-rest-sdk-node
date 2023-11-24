@@ -64,12 +64,6 @@ export class DominoConnector implements DominoRestConnector {
   readonly baseUrl: string;
   readonly meta: DominoApiMeta;
 
-  private constructor(baseUrl: string, meta: DominoApiMeta, schema: Map<string, any>) {
-    this.schema = schema;
-    this.baseUrl = baseUrl;
-    this.meta = meta;
-  }
-
   static getConnector = (baseUrl: string, meta: DominoApiMeta) =>
     new Promise<DominoConnector>((resolve, reject) => {
       DominoConnector._apiLoader(baseUrl, meta.mountPath, meta.fileName)
@@ -78,6 +72,99 @@ export class DominoConnector implements DominoRestConnector {
           return resolve(new DominoConnector(baseUrl, meta, schema));
         })
         .catch((error) => reject(error));
+    });
+
+  private constructor(baseUrl: string, meta: DominoApiMeta, schema: Map<string, any>) {
+    this.schema = schema;
+    this.baseUrl = baseUrl;
+    this.meta = meta;
+  }
+
+  getUrl = (operation: DominoRestOperation, scope: string, params: Map<string, string>) => {
+    let rawURL = operation.url;
+    const workingURL: URL = new URL(rawURL, this.baseUrl);
+    const queryParams: URLSearchParams = workingURL.searchParams;
+    operation.params.forEach((ops: any, pname: string) => {
+      if (ops.in === 'header' || ops.in === 'cookie') {
+        return;
+      }
+      // Check for mandatory parameters missing
+      DominoConnector._checkForMandatory(ops.required, params, pname, scope);
+      if (pname === 'dataSource' || params.has(pname)) {
+        const newValue: string = pname === 'dataSource' ? scope : params.get(pname)!;
+        if (ops.in === 'path') {
+          const searchFor = `{${pname}}`;
+          rawURL = rawURL.replace(searchFor, newValue);
+        } else {
+          queryParams.set(pname, newValue);
+        }
+      }
+    });
+    rawURL = this.meta.mountPath + rawURL;
+    workingURL.pathname = rawURL;
+    return workingURL.toString();
+  };
+
+  request = (dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions) =>
+    new Promise<DominoRequestResponse>((resolve, reject) => {
+      const scopeVal = options.dataSource ? options.dataSource : '';
+      const operation = this.getOperation(operationId);
+      const url = this.getUrl(operation, scopeVal, options.params);
+
+      this.getFetchOptions(dominoAccess, operation, options)
+        .then((params) => fetch(url, params))
+        .then((response) => {
+          const result: DominoRequestResponse = {
+            status: response.status,
+            headers: response.headers,
+            dataStream: response.body,
+          };
+
+          return resolve(result);
+        })
+        .catch((error) => reject(error));
+    });
+
+  getOperation = (operationId: string) => {
+    if (this.schema.has(operationId)) {
+      return this.schema.get(operationId);
+    }
+    throw new OperationNotAvailable(operationId);
+  };
+
+  getOperations = () => this.schema;
+
+  getFetchOptions = (dominoAccess: DominoAccess, operation: DominoRestOperation, request: DominoRequestOptions) =>
+    new Promise<any>((resolve, reject) => {
+      const params: Map<string, string> = request.params;
+      const headers: any = {};
+      const result: any = {
+        method: operation.method,
+      };
+      if (request.body) {
+        result.body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body);
+      }
+      operation.params.forEach((ops: any, pname: string) => {
+        // Check for mandatory parameters missing
+        if (ops.required && ops.in === 'header' && !params.has(pname)) {
+          return reject(new MissingParamError(pname));
+        }
+        if (params.has(pname) && ops.in === 'header') {
+          headers[pname] = params.get(pname);
+        }
+      });
+      if (operation.mimeType) {
+        headers['Content-Type'] = operation.mimeType;
+      }
+
+      dominoAccess
+        .accessToken()
+        .then((token) => {
+          headers.Authorization = 'Bearer ' + token;
+          result.headers = headers;
+          resolve(result);
+        })
+        .catch((err) => reject(err));
     });
 
   private static _apiLoader = (baseUrl: string, mountPath: string, fileName: string) =>
@@ -166,93 +253,6 @@ export class DominoConnector implements DominoRestConnector {
       }
     }
   };
-
-  getUrl = (operation: DominoRestOperation, scope: string, params: Map<string, string>) => {
-    let rawURL = operation.url;
-    const workingURL: URL = new URL(rawURL, this.baseUrl);
-    const queryParams: URLSearchParams = workingURL.searchParams;
-    operation.params.forEach((ops: any, pname: string) => {
-      if (ops.in === 'header' || ops.in === 'cookie') {
-        return;
-      }
-      // Check for mandatory parameters missing
-      DominoConnector._checkForMandatory(ops.required, params, pname, scope);
-      if (pname === 'dataSource' || params.has(pname)) {
-        const newValue: string = pname === 'dataSource' ? scope : params.get(pname)!;
-        if (ops.in === 'path') {
-          const searchFor = `{${pname}}`;
-          rawURL = rawURL.replace(searchFor, newValue);
-        } else {
-          queryParams.set(pname, newValue);
-        }
-      }
-    });
-    rawURL = this.meta.mountPath + rawURL;
-    workingURL.pathname = rawURL;
-    return workingURL.toString();
-  };
-
-  request = (dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions) =>
-    new Promise<DominoRequestResponse>((resolve, reject) => {
-      const scopeVal = options.dataSource ? options.dataSource : '';
-      const operation = this.getOperation(operationId);
-      const url = this.getUrl(operation, scopeVal, options.params);
-
-      this.getFetchOptions(dominoAccess, operation, options)
-        .then((params) => fetch(url, params))
-        .then((response) => {
-          const result: DominoRequestResponse = {
-            status: response.status,
-            headers: response.headers,
-            dataStream: response.body,
-          };
-
-          return resolve(result);
-        })
-        .catch((error) => reject(error));
-    });
-
-  getOperation = (operationId: string) => {
-    if (this.schema.has(operationId)) {
-      return this.schema.get(operationId);
-    }
-    throw new OperationNotAvailable(operationId);
-  };
-
-  getOperations = () => this.schema;
-
-  getFetchOptions = (dominoAccess: DominoAccess, operation: DominoRestOperation, request: DominoRequestOptions) =>
-    new Promise<any>((resolve, reject) => {
-      const params: Map<string, string> = request.params;
-      const headers: any = {};
-      const result: any = {
-        method: operation.method,
-      };
-      if (request.body) {
-        result.body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body)
-      }
-      operation.params.forEach((ops: any, pname: string) => {
-        // Check for mandatory parameters missing
-        if (ops.required && ops.in === 'header' && !params.has(pname)) {
-          return reject(new MissingParamError(pname));
-        }
-        if (params.has(pname) && ops.in === 'header') {
-          headers[pname] = params.get(pname);
-        }
-      });
-      if (operation.mimeType) {
-        headers['Content-Type'] = operation.mimeType;
-      }
-
-      dominoAccess
-        .accessToken()
-        .then((token) => {
-          headers.Authorization = 'Bearer ' + token;
-          result.headers = headers;
-          resolve(result);
-        })
-        .catch((err) => reject(err));
-    });
 }
 
 export default DominoConnector;
