@@ -203,30 +203,6 @@ export enum ViewEntryScopes {
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoListViewOperations {
-  private static _executeOperation = <T = any>(
-    dominoConnector: DominoConnector,
-    dominoAccess: DominoAccess,
-    operationId: string,
-    options: DominoRequestOptions,
-    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
-  ): Promise<T> =>
-    new Promise<T>((resolve, reject) => {
-      dominoConnector
-        .request(dominoAccess, operationId, options)
-        .then(async (result) => {
-          if (result.dataStream === null) {
-            throw new NoResponseBody(operationId);
-          }
-          const decodedStream = await streamDecoder(result.dataStream);
-          if (result.status >= 400) {
-            throw new HttpResponseError(decodedStream as any);
-          }
-
-          return resolve(decodedStream);
-        })
-        .catch((error) => reject(error));
-    });
-
   static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoAccess,
@@ -305,10 +281,7 @@ export class DominoListViewOperations {
         params.set(key, options[key as keyof GetListPivotViewEntryOptions]);
       }
 
-      const reqOptions: DominoRequestOptions = {
-        dataSource,
-        params,
-      };
+      const reqOptions: DominoRequestOptions = { dataSource, params };
 
       this._executeOperation<PivotListViewResponse>(dominoConnector, dominoAccess, 'pivotViewEntries', reqOptions, streamToJson)
         .then((pivotListViews) => resolve(pivotListViews))
@@ -397,6 +370,30 @@ export class DominoListViewOperations {
 
       this._executeOperation<GetListViewDesignJSON>(dominoConnector, dominoAccess, 'getDesign', reqOptions, streamToJson)
         .then((listView) => resolve(listView))
+        .catch((error) => reject(error));
+    });
+
+  private static _executeOperation = <T = any>(
+    dominoConnector: DominoConnector,
+    dominoAccess: DominoAccess,
+    operationId: string,
+    options: DominoRequestOptions,
+    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
+  ): Promise<T> =>
+    new Promise<T>((resolve, reject) => {
+      dominoConnector
+        .request(dominoAccess, operationId, options)
+        .then(async (result) => {
+          if (result.dataStream === null) {
+            throw new NoResponseBody(operationId);
+          }
+          const decodedStream = await streamDecoder(result.dataStream);
+          if (result.status >= 400) {
+            throw new HttpResponseError(decodedStream as any);
+          }
+
+          return resolve(decodedStream);
+        })
         .catch((error) => reject(error));
     });
 }

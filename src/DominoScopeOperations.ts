@@ -18,30 +18,6 @@ import { isEmpty } from './helpers/Utilities';
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoScopeOperations {
-  private static _executeOperation = <T = any>(
-    dominoConnector: DominoConnector,
-    dominoAccess: DominoAccess,
-    operationId: string,
-    options: DominoRequestOptions,
-    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
-  ) =>
-    new Promise<T>((resolve, reject) => {
-      dominoConnector
-        .request(dominoAccess, operationId, options)
-        .then(async (result) => {
-          if (result.dataStream === null) {
-            throw new NoResponseBody(operationId);
-          }
-          const decodedStream = await streamDecoder(result.dataStream);
-          if (result.status >= 400) {
-            throw new HttpResponseError(decodedStream as any);
-          }
-
-          return resolve(decodedStream);
-        })
-        .catch((error) => reject(error));
-    });
-
   static getScope = (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
       if (isEmpty(scopeName)) {
@@ -106,6 +82,30 @@ export class DominoScopeOperations {
 
       this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'createUpdateScopeMapping', reqOptions, streamToJson)
         .then((scope) => resolve(new DominoScope(scope)))
+        .catch((error) => reject(error));
+    });
+
+  private static _executeOperation = <T = any>(
+    dominoConnector: DominoConnector,
+    dominoAccess: DominoAccess,
+    operationId: string,
+    options: DominoRequestOptions,
+    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
+  ) =>
+    new Promise<T>((resolve, reject) => {
+      dominoConnector
+        .request(dominoAccess, operationId, options)
+        .then(async (result) => {
+          if (result.dataStream === null) {
+            throw new NoResponseBody(operationId);
+          }
+          const decodedStream = await streamDecoder(result.dataStream);
+          if (result.status >= 400) {
+            throw new HttpResponseError(decodedStream as any);
+          }
+
+          return resolve(decodedStream);
+        })
         .catch((error) => reject(error));
     });
 }

@@ -4,12 +4,12 @@
  * ========================================================================== */
 
 import chai, { expect } from 'chai';
-import jwt from 'jsonwebtoken';
 import chaiAsPromised from 'chai-as-promised';
+import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
+import { RequestInfo } from 'undici-types';
 import { CredentialType, DominoAccess, DominoRestAccessJSON, EmptyParamError, HttpResponseError, MissingParamError, RestCredentials } from '../src';
 import { getSampleJWT } from '../src/JwtHelper';
-import { RequestInfo } from 'undici-types';
 
 chai.use(chaiAsPromised);
 

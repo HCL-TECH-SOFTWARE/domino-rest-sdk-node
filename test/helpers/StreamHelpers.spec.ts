@@ -7,7 +7,6 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { streamSplit, streamToJson, streamToText, streamTransformToJson } from '../../src';
-import { isEmpty } from '../../src/helpers/Utilities';
 
 chai.use(chaiAsPromised);
 
@@ -28,7 +27,7 @@ describe('Stream conversion test', () => {
     });
   };
 
-  const isExpeced = (expected: any) => {
+  const isExpected = (expected: any) => {
     return new WritableStream({
       write(actual: any) {
         expect(actual).to.equal(expected);
@@ -44,7 +43,7 @@ describe('Stream conversion test', () => {
   });
 
   it('should return the JSON from the Stream with await', async () => {
-    const readable = await new Response(JSON.stringify(jsonObj)).body;
+    const readable = new Response(JSON.stringify(jsonObj)).body;
     const result = await streamToJson(readable as ReadableStream<any>);
     expect(result).to.haveOwnProperty('color', 'red');
   });
@@ -72,29 +71,29 @@ describe('Stream conversion test', () => {
     destination.close();
   });
 
-  it('should product JSON from chunk', () => {
+  it('should have nothing left in buffer if there is nothing', async () => {
+    const source = '';
+    const readable = new Response(source).body;
+    const destination = countCalls(0);
+    await readable?.pipeThrough(new TextDecoderStream()).pipeThrough(streamSplit()).pipeTo(destination);
+    destination.close();
+  });
+
+  it('should produce JSON from chunk', () => {
     const source = JSON.stringify(jsonObj);
     const readable = new Response(source).body;
-    readable?.pipeThrough(new TextDecoderStream()).pipeThrough(streamTransformToJson()).pipeTo(isExpeced(jsonObj));
+    readable?.pipeThrough(new TextDecoderStream()).pipeThrough(streamTransformToJson()).pipeTo(isExpected(jsonObj));
   });
 
-  it('should product JSON from chunk with comma', () => {
+  it('should produce JSON from chunk with comma', () => {
     const source = JSON.stringify(jsonObj) + ',';
     const readable = new Response(source).body;
-    readable?.pipeThrough(new TextDecoderStream()).pipeThrough(streamTransformToJson()).pipeTo(isExpeced(jsonObj));
-  });
-});
-
-describe('Many ways to be empty', () => {
-  it('should have empty arrays', () => {
-    expect(isEmpty([])).to.be.true;
+    readable?.pipeThrough(new TextDecoderStream()).pipeThrough(streamTransformToJson()).pipeTo(isExpected(jsonObj));
   });
 
-  it('should have null arrays as empty', () => {
-    expect(isEmpty([null, null])).to.be.true;
-  });
-
-  it('should report null as empty', () => {
-    expect(isEmpty(null)).to.be.true;
+  it(`should skip chunk that does not end with '}' or ','`, () => {
+    const source = '123';
+    const readable = new Response(source).body;
+    readable?.pipeThrough(new TextDecoderStream()).pipeThrough(streamTransformToJson()).pipeTo(isExpected(jsonObj));
   });
 });
