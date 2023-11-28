@@ -8,5 +8,6 @@ export const transformToRequestResponse = (incoming: any, status?: number): Domi
     status: responseObj.status,
     headers: responseObj.headers,
     dataStream: responseObj.body,
+    expect: 'json'
   };
 };

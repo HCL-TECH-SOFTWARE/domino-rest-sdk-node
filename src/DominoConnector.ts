@@ -36,6 +36,8 @@ export type DominoRequestOptions = {
   body?: any;
 };
 
+type ExpectType = "json" | "chunked" | "binary" | "text"
+
 /**
  * Response to the request
  */
@@ -47,6 +49,7 @@ export type DominoRequestResponse = {
   // TODO: Add expect
   headers: Headers;
   dataStream: ReadableStream<any> | null;
+  expect: ExpectType
 };
 
 /**
@@ -114,12 +117,23 @@ export class DominoConnector implements DominoRestConnector {
       this.getFetchOptions(dominoAccess, operation, options)
         .then((params) => fetch(url, params))
         .then((response) => {
+          let expectVal: ExpectType = "json";
+          if (response.status <= 299 ){
+            if(response.headers.get("Content-Type")?.includes("multipart/form-data")){
+              expectVal = "binary";
+            }else if(response.headers.get("Content-Type")?.includes("text/plain")){
+              expectVal = "text";
+            }
+            else if(response.headers.get("Content-Type")?.includes("application/json") && response.headers.get("transfer-encoding") == "chunked" ){
+              expectVal = "chunked";
+            }
+          }
           const result: DominoRequestResponse = {
             status: response.status,
             headers: response.headers,
             dataStream: response.body,
+            expect: expectVal
           };
-
           return resolve(result);
         })
         .catch((error) => reject(error));
