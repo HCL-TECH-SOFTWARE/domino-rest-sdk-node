@@ -3,6 +3,8 @@ import EmptyParamError from './EmptyParamError';
 import HttpResponseError from './HttpResponseError';
 import InvalidParamError from './InvalidParamError';
 import MissingParamError from './MissingParamError';
+import MissingBearerError from './MissingBearerError'
+import CallbackError from './CallbackError'
 import NoResponseBody from './NoResponseBody';
 import NotAnArrayError from './NotAnArrayError';
 import OperationNotAvailable from './OperationNotAvailable';
@@ -15,6 +17,8 @@ export {
   HttpResponseError,
   InvalidParamError,
   MissingParamError,
+  MissingBearerError,
+  CallbackError,
   NoResponseBody,
   NotAnArrayError,
   OperationNotAvailable,

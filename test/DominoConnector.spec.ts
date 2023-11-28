@@ -30,7 +30,7 @@ describe('DominoConnector', () => {
   const fakeToken = new DominoAccess(fakeCredentials);
 
   let fetchStub: sinon.SinonStub<[input: RequestInfo, init?: RequestInit | undefined], Promise<Response>>;
-  let accessTokenStub: sinon.SinonStub<[], Promise<string>>;
+  let accessTokenStub: sinon.SinonStub<[callback?: (() => Promise<any>) | undefined], Promise<string>>;
   let baseConnector: DominoConnector;
 
   beforeEach(async () => {

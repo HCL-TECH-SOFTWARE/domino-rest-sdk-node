@@ -8,7 +8,17 @@ import chaiAsPromised from 'chai-as-promised';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
 import { RequestInfo } from 'undici-types';
-import { CredentialType, DominoAccess, DominoRestAccessJSON, EmptyParamError, HttpResponseError, MissingParamError, RestCredentials } from '../src';
+import {
+  CredentialType,
+  DominoAccess,
+  DominoRestAccessJSON,
+  EmptyParamError,
+  HttpResponseError,
+  MissingParamError,
+  CallbackError,
+  MissingBearerError,
+  RestCredentials,
+} from '../src';
 import { getSampleJWT } from '../src/JwtHelper';
 
 chai.use(chaiAsPromised);
@@ -209,6 +219,32 @@ describe('DominoAccess', () => {
         expect(fetchStub.getCall(0).args[0]).to.equal(`${dominoAccess.baseUrl}/api/v1/auth`);
         expect(fetchStub.getCall(0).args[1]).to.deep.equal(expectedOptions);
         expect(accessToken).to.be.equal(sampleJWT.bearer);
+      });
+
+      it('should call the callback function if given in the parameter then return the access token', async () => {
+        // Mock callback function
+        const mockCallback = sinon.stub();
+        mockCallback.resolves(sampleJWT);
+
+        const result = await dominoAccess.accessToken(mockCallback);
+        expect(result).to.equal(sampleJWT.bearer);
+        expect(mockCallback.calledOnce).to.be.true;
+      });
+
+      it(`should throw 'MissingBearerError'`, async () => {
+        const mockCallback = sinon.stub();
+        const testFail = getSampleJWT('John Doe');
+        mockCallback.resolves(testFail);
+        testFail.bearer = '';
+
+        await expect(dominoAccess.accessToken(mockCallback)).to.be.rejectedWith(MissingBearerError);
+      });
+
+      it('should be rejected if callback fails', async () => {
+        // Mock callback function
+        const mockCallback = sinon.stub();
+        mockCallback.rejects(new CallbackError('sample error thrown in catch'));
+        await expect(dominoAccess.accessToken(mockCallback)).to.be.rejectedWith('Callback Error: sample error thrown in catch');
       });
 
       it(`should not have 'scope' in fetch options body if 'scope' is empty`, async () => {

@@ -5,7 +5,7 @@
 
 import { getExpiry, isJwtExpired } from './JwtHelper';
 import { DominoRestAccess } from './RestInterfaces';
-import { EmptyParamError, HttpResponseError, MissingParamError } from './errors';
+import { EmptyParamError, HttpResponseError, MissingParamError, MissingBearerError, CallbackError } from './errors';
 import { isEmpty } from './helpers/Utilities';
 
 /**
@@ -42,6 +42,10 @@ export type RestCredentials = {
    * Required for oauth credentials. The application secret.
    */
   appSecret?: string;
+};
+
+type AccessTokenReturn = {
+  bearer: string;
 };
 
 /**
@@ -116,30 +120,43 @@ export class DominoAccess implements DominoRestAccess {
     return this.credentials;
   };
 
-  accessToken = () =>
+  accessToken = (callback?: () => Promise<AccessTokenReturn>) =>
     new Promise<string>((resolve, reject) => {
       // Check for a valid token and return that one instead of asking again
       if (this.token && !isJwtExpired(this.token)) {
         return resolve(this.token);
       }
+      if (!isEmpty(callback)) {
+        (callback as () => Promise<AccessTokenReturn>)()
+          .then((access: AccessTokenReturn) => {
+            if (isEmpty(access.bearer)) {
+              throw new MissingBearerError();
+            }
+            const bearer = String(access.bearer);
+            this.token = bearer;
+            this.expiryTime = getExpiry(bearer);
+            return resolve(bearer);
+          })
+          .catch((error: string) => reject(new CallbackError(error)));
+      } else {
+        const url = new URL(this.baseUrl);
+        const options = DominoAccess._buildAccessTokenOptions(url, this.credentials);
 
-      const url = new URL(this.baseUrl);
-      const options = DominoAccess._buildAccessTokenOptions(url, this.credentials);
-
-      fetch(url.toString(), options)
-        .then(async (response) => {
-          const json = await response.json();
-          if (!response.ok) {
-            throw new HttpResponseError(json);
-          }
-          return json;
-        })
-        .then((access) => {
-          this.token = access.bearer;
-          this.expiryTime = getExpiry(access.bearer);
-          return resolve(access.bearer);
-        })
-        .catch((error) => reject(error));
+        fetch(url.toString(), options)
+          .then(async (response) => {
+            const json = await response.json();
+            if (!response.ok) {
+              throw new HttpResponseError(json);
+            }
+            return json;
+          })
+          .then((access) => {
+            this.token = access.bearer;
+            this.expiryTime = getExpiry(access.bearer);
+            return resolve(access.bearer);
+          })
+          .catch((error) => reject(error));
+      }
     });
 
   scope = (): string | null => {
