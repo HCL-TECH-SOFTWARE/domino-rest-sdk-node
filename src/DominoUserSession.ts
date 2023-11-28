@@ -19,11 +19,16 @@ import {
   GetListPivotViewEntryOptions,
   GetListViewEntryOptions,
   GetListViewOptions,
+  HttpResponseError,
   ListViewBody,
+  NoResponseBody,
   QueryActions,
   RichTextRepresentation,
   ScopeBody,
   UpdateDocumentOptions,
+  streamSplit,
+  streamToJson,
+  streamTransformToJson,
 } from '.';
 import DominoConnector from './DominoConnector';
 import DominoDocument from './DominoDocument';
@@ -50,6 +55,19 @@ export class DominoUserSession implements DominoUserRestSession {
   }
 
   request = (operationId: string, options: DominoRequestOptions) => this.dominoConnector.request(this.dominoAccess, operationId, options);
+
+  requestJsonStream = (operationId: string, options: DominoRequestOptions, subscriber: () => WritableStream<any>) =>
+    this.dominoConnector.request(this.dominoAccess, operationId, options).then(async (response) => {
+      if (response.dataStream === null) {
+        throw new NoResponseBody(operationId);
+      }
+      if (response.status >= 400) {
+        const errorResponse = await streamToJson(response.dataStream);
+        throw new HttpResponseError(errorResponse);
+      }
+
+      response.dataStream.pipeThrough(new TextDecoderStream()).pipeThrough(streamSplit()).pipeThrough(streamTransformToJson()).pipeTo(subscriber());
+    });
 
   // TODO: requestJsonStream = (operationId, options, subscriber) => throw if HTTP error
 

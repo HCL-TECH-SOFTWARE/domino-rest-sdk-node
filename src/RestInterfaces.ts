@@ -42,6 +42,7 @@ import {
   ScopeJSON,
   UpdateDocumentOptions,
 } from '.';
+import { streamSplit, streamTransformToJson } from './helpers/StreamHelpers';
 import DominoConnector, { DominoRequestResponse } from './DominoConnector';
 import DominoDocument from './DominoDocument';
 import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry';
@@ -264,6 +265,20 @@ export interface DominoUserRestSession {
    * @returns a promise that resolves to the request's response.
    */
   request: (operationId: string, options: DominoRequestOptions) => Promise<DominoRequestResponse>;
+  /**
+   * An extension of the {@link request} method. It automatically pipes the response data stream
+   * through TextDecoderStream, {@link streamSplit} and {@link streamTransformToJson} respectively
+   * before piping it to the given subscriber.
+   *
+   * @param operationId the operation ID according to OpenAPI specification
+   * @param options all data that needs to be provided to the Domino Rest connector
+   * @param subscriber a function that receives each JSON from the pipe stream
+   * @returns void, the given subscriber will handle how the response is managed.
+   *
+   * @throws {NoResponseBody} received response data stream is null.
+   * @throws {HttpResponseError} received response has error status code.
+   */
+  requestJsonStream: (operationId: string, options: DominoRequestOptions, subscriber: () => WritableStream<any>) => Promise<void>;
   /**
    * Get a document via its UNID. Additional request options can be provided.
    *

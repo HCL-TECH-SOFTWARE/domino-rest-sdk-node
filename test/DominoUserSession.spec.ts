@@ -418,7 +418,7 @@ describe('DominoUserSession', async () => {
       name: 'newentries',
       selectionFormula: 'Form = "NewEntry"',
     };
-    // const listView = new DominoListView(listViewJsonData);
+
     beforeEach(() => {
       baseParameters = [dataSource, fakeToken, dc];
     });
