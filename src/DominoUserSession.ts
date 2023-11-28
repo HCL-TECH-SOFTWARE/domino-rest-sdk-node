@@ -66,10 +66,8 @@ export class DominoUserSession implements DominoUserRestSession {
         throw new HttpResponseError(errorResponse);
       }
 
-      response.dataStream.pipeThrough(new TextDecoderStream()).pipeThrough(streamSplit()).pipeThrough(streamTransformToJson()).pipeTo(subscriber());
+      await response.dataStream.pipeThrough(new TextDecoderStream()).pipeThrough(streamSplit()).pipeThrough(streamTransformToJson()).pipeTo(subscriber());
     });
-
-  // TODO: requestJsonStream = (operationId, options, subscriber) => throw if HTTP error
 
   getDocument = (dataSource: string, unid: string, options?: GetDocumentOptions) =>
     DominoDocumentOperations.getDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, options);
