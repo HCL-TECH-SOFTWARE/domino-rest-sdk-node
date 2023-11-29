@@ -36,7 +36,7 @@ const getOperation = async () => {
 };
 
 // Uncomment this to print all available APIs on the Domino REST API server.
-showAvailableApis();
+// showAvailableApis();
 
 // Uncomment this to print all available operations on the Domino REST API server in basis.
 // showOperations();
