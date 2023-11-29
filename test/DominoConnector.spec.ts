@@ -174,6 +174,40 @@ describe('DominoConnector', () => {
       expect(response.expect).to.equal('binary');
     });
 
+    it('should successfully return a response with expect value to be binary if content-type is null', async () => {
+      const options = {
+        dataSource: 'scope',
+        params: new Map(),
+      };
+      options.params.set("name","customers");
+      const responseRes = new Response(JSON.stringify(createDocResponse));
+      responseRes.headers.delete("content-type");
+      fetchStub.resolves(responseRes);
+      const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+      expect(response.expect).to.equal('binary');
+    });
+
+    it('should successfully return a response with expect value to be binary if content-type is text/plain', async () => {
+      const options = {
+        dataSource: 'scope',
+        params: new Map(),
+      };
+      options.params.set("name","customers");
+      const responseRes = new Response(JSON.stringify(createDocResponse));
+      responseRes.headers.set("content-type","text/plain");
+      fetchStub.resolves(responseRes);
+      const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+      expect(response.expect).to.equal('text');
+    });
+
     it('should successfully return a response with expect value to be json if status is not in 200 - 300', async () => {
       const options = {
         dataSource: 'scope',

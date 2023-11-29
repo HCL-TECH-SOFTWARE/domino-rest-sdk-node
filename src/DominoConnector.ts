@@ -259,18 +259,19 @@ export class DominoConnector implements DominoRestConnector {
   };
 
   private static _getExpectVal = (response: Response): ExpectType => {
-    let expectVal: ExpectType = "json";
-    if (response.status >= 200 && response.status <= 299){
-      if(response.headers.get("Content-Type".toLowerCase())?.includes("multipart/form-data")){
-        expectVal = "binary";
-      }else if(response.headers.get("Content-Type".toLowerCase())?.includes("text/plain")){
-        expectVal = "text";
-      }
-      else if(response.headers.get("Content-Type".toLowerCase())?.includes("application/json") && response.headers.get("transfer-encoding".toLowerCase()) == "chunked" ){
-        expectVal = "chunked";
-      }
+    if(!response.ok){
+      return "json"
     }
-    return expectVal;
+    let transferencoding = response.headers.get("transfer-encoding");
+    if (transferencoding?.includes('chunked')) {
+      return "chunked";
+    }
+    
+    let contenttype: string = response.headers.get("content-type") ?? ""; 
+    let expectVal: ExpectType = contenttype?.includes("application/json") ? "json"
+    : contenttype?.includes("text/plain") ? "text" : "binary";
+  
+      return expectVal;
   }
 }
 
