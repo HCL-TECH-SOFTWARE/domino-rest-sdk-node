@@ -129,7 +129,7 @@ describe('DominoConnector', () => {
         params: new Map(),
       };
       const responseRes = new Response(JSON.stringify(createDocResponse));
-      responseRes.headers.set("content-type","application/json");
+      responseRes.headers.set('content-type', 'application/json');
       fetchStub.resolves(responseRes);
       const response = await baseConnector.request(fakeToken, 'createDocument', options);
       expect(response).to.haveOwnProperty('status');
@@ -144,10 +144,10 @@ describe('DominoConnector', () => {
         dataSource: 'scope',
         params: new Map(),
       };
-      options.params.set("name","customers");
+      options.params.set('name', 'customers');
       const responseRes = new Response(JSON.stringify(createDocResponse));
-      responseRes.headers.set("content-type","application/json");
-      responseRes.headers.set("transfer-encoding","chunked");
+      responseRes.headers.set('content-type', 'application/json');
+      responseRes.headers.set('transfer-encoding', 'chunked');
       fetchStub.resolves(responseRes);
       const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
       expect(response).to.haveOwnProperty('status');
@@ -162,9 +162,9 @@ describe('DominoConnector', () => {
         dataSource: 'scope',
         params: new Map(),
       };
-      options.params.set("name","customers");
+      options.params.set('name', 'customers');
       const responseRes = new Response(JSON.stringify(createDocResponse));
-      responseRes.headers.set("content-type","multipart/form-data");
+      responseRes.headers.set('content-type', 'multipart/form-data');
       fetchStub.resolves(responseRes);
       const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
       expect(response).to.haveOwnProperty('status');
@@ -179,9 +179,9 @@ describe('DominoConnector', () => {
         dataSource: 'scope',
         params: new Map(),
       };
-      options.params.set("name","customers");
+      options.params.set('name', 'customers');
       const responseRes = new Response(JSON.stringify(createDocResponse));
-      responseRes.headers.delete("content-type");
+      responseRes.headers.delete('content-type');
       fetchStub.resolves(responseRes);
       const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
       expect(response).to.haveOwnProperty('status');
@@ -196,9 +196,9 @@ describe('DominoConnector', () => {
         dataSource: 'scope',
         params: new Map(),
       };
-      options.params.set("name","customers");
+      options.params.set('name', 'customers');
       const responseRes = new Response(JSON.stringify(createDocResponse));
-      responseRes.headers.set("content-type","text/plain");
+      responseRes.headers.set('content-type', 'text/plain');
       fetchStub.resolves(responseRes);
       const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
       expect(response).to.haveOwnProperty('status');
@@ -218,11 +218,14 @@ describe('DominoConnector', () => {
         message: 'This is not the URL you seek!',
         errorId: 0,
       };
-      fetchStub.resolves(new Response(JSON.stringify(errResponse), { status: 404 }));
+      options.params.set('name', 'customers');
+      const responseRes = new Response(JSON.stringify(errResponse), { status: 404 });
+      responseRes.headers.set('content-type', 'application/json');
+      fetchStub.resolves(responseRes);
       const response = await baseConnector.request(fakeToken, 'createDocument', options);
       expect(response.expect).to.equal('json');
     });
-    
+
     it(`should successfully return a response with 'dataSource' in request options`, async () => {
       const options = {
         dataSource: 'scope',

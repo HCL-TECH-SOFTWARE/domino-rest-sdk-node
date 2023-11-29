@@ -36,7 +36,7 @@ export type DominoRequestOptions = {
   body?: any;
 };
 
-type ExpectType = "json" | "chunked" | "binary" | "text"
+type ExpectType = 'json' | 'chunked' | 'binary' | 'text';
 
 /**
  * Response to the request
@@ -49,7 +49,7 @@ export type DominoRequestResponse = {
   // TODO: Add expect
   headers: Headers;
   dataStream: ReadableStream<any> | null;
-  expect: ExpectType
+  expect: ExpectType;
 };
 
 /**
@@ -122,7 +122,7 @@ export class DominoConnector implements DominoRestConnector {
             status: response.status,
             headers: response.headers,
             dataStream: response.body,
-            expect: expectVal
+            expect: expectVal,
           };
           return resolve(result);
         })
@@ -259,20 +259,16 @@ export class DominoConnector implements DominoRestConnector {
   };
 
   private static _getExpectVal = (response: Response): ExpectType => {
-    if(!response.ok){
-      return "json"
-    }
-    let transferencoding = response.headers.get("transfer-encoding");
+    let transferencoding = response.headers.get('transfer-encoding');
     if (transferencoding?.includes('chunked')) {
-      return "chunked";
+      return 'chunked';
     }
-    
-    let contenttype: string = response.headers.get("content-type") ?? ""; 
-    let expectVal: ExpectType = contenttype?.includes("application/json") ? "json"
-    : contenttype?.includes("text/plain") ? "text" : "binary";
-  
-      return expectVal;
-  }
+
+    let contenttype: string = response.headers.get('content-type') ?? '';
+    let expectVal: ExpectType = contenttype?.includes('application/json') ? 'json' : contenttype?.includes('text/plain') ? 'text' : 'binary';
+
+    return expectVal;
+  };
 }
 
 export default DominoConnector;
