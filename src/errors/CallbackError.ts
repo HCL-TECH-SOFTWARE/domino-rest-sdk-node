@@ -7,7 +7,7 @@ import SdkError from './SdkError';
 
 export class CallbackError extends SdkError {
   constructor(message: string) {
-    super(`Callback Error: ${message}`);
+    super(`${message}`);
     this.name = 'CallbackError';
   }
 }

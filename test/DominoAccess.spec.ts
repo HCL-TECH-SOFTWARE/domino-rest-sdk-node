@@ -16,7 +16,6 @@ import {
   HttpResponseError,
   MissingParamError,
   CallbackError,
-  MissingBearerError,
   RestCredentials,
 } from '../src';
 import { getSampleJWT } from '../src/JwtHelper';
@@ -237,14 +236,14 @@ describe('DominoAccess', () => {
         mockCallback.resolves(testFail);
         testFail.bearer = '';
 
-        await expect(dominoAccess.accessToken(mockCallback)).to.be.rejectedWith(MissingBearerError);
+        await expect(dominoAccess.accessToken(mockCallback)).to.be.rejectedWith(CallbackError);
       });
 
       it('should be rejected if callback fails', async () => {
         // Mock callback function
         const mockCallback = sinon.stub();
         mockCallback.rejects(new CallbackError('sample error thrown in catch'));
-        await expect(dominoAccess.accessToken(mockCallback)).to.be.rejectedWith('Callback Error: sample error thrown in catch');
+        await expect(dominoAccess.accessToken(mockCallback)).to.be.rejectedWith('CallbackError: sample error thrown in catch');
       });
 
       it(`should not have 'scope' in fetch options body if 'scope' is empty`, async () => {
