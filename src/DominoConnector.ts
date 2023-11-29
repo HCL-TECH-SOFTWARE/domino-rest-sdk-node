@@ -36,6 +36,8 @@ export type DominoRequestOptions = {
   body?: any;
 };
 
+type ExpectType = 'json' | 'chunked' | 'binary' | 'text';
+
 /**
  * Response to the request
  */
@@ -47,6 +49,7 @@ export type DominoRequestResponse = {
   // TODO: Add expect
   headers: Headers;
   dataStream: ReadableStream<any> | null;
+  expect: ExpectType;
 };
 
 /**
@@ -114,12 +117,13 @@ export class DominoConnector implements DominoRestConnector {
       this.getFetchOptions(dominoAccess, operation, options)
         .then((params) => fetch(url, params))
         .then((response) => {
+          const expectVal = DominoConnector._getExpectVal(response);
           const result: DominoRequestResponse = {
             status: response.status,
             headers: response.headers,
             dataStream: response.body,
+            expect: expectVal,
           };
-
           return resolve(result);
         })
         .catch((error) => reject(error));
@@ -252,6 +256,18 @@ export class DominoConnector implements DominoRestConnector {
         throw new MissingParamError(pname);
       }
     }
+  };
+
+  private static _getExpectVal = (response: Response): ExpectType => {
+    let transferencoding = response.headers.get('transfer-encoding');
+    if (transferencoding?.includes('chunked')) {
+      return 'chunked';
+    }
+
+    let contenttype: string = response.headers.get('content-type') ?? '';
+    let expectVal: ExpectType = contenttype?.includes('application/json') ? 'json' : contenttype?.includes('text/plain') ? 'text' : 'binary';
+
+    return expectVal;
   };
 }
 

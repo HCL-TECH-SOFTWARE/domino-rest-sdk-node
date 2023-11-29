@@ -120,6 +120,110 @@ describe('DominoConnector', () => {
       expect(response).to.haveOwnProperty('status');
       expect(response).to.haveOwnProperty('headers');
       expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+    });
+
+    it('should successfully return a response with expect value to be json', async () => {
+      const options = {
+        dataSource: 'scope',
+        params: new Map(),
+      };
+      const responseRes = new Response(JSON.stringify(createDocResponse));
+      responseRes.headers.set('content-type', 'application/json');
+      fetchStub.resolves(responseRes);
+      const response = await baseConnector.request(fakeToken, 'createDocument', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+      expect(response.expect).to.equal('json');
+    });
+
+    it('should successfully return a response with expect value to be chunked', async () => {
+      const options = {
+        dataSource: 'scope',
+        params: new Map(),
+      };
+      options.params.set('name', 'customers');
+      const responseRes = new Response(JSON.stringify(createDocResponse));
+      responseRes.headers.set('content-type', 'application/json');
+      responseRes.headers.set('transfer-encoding', 'chunked');
+      fetchStub.resolves(responseRes);
+      const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+      expect(response.expect).to.equal('chunked');
+    });
+
+    it('should successfully return a response with expect value to be binary', async () => {
+      const options = {
+        dataSource: 'scope',
+        params: new Map(),
+      };
+      options.params.set('name', 'customers');
+      const responseRes = new Response(JSON.stringify(createDocResponse));
+      responseRes.headers.set('content-type', 'multipart/form-data');
+      fetchStub.resolves(responseRes);
+      const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+      expect(response.expect).to.equal('binary');
+    });
+
+    it('should successfully return a response with expect value to be binary if content-type is null', async () => {
+      const options = {
+        dataSource: 'scope',
+        params: new Map(),
+      };
+      options.params.set('name', 'customers');
+      const responseRes = new Response(JSON.stringify(createDocResponse));
+      responseRes.headers.delete('content-type');
+      fetchStub.resolves(responseRes);
+      const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+      expect(response.expect).to.equal('binary');
+    });
+
+    it('should successfully return a response with expect value to be binary if content-type is text/plain', async () => {
+      const options = {
+        dataSource: 'scope',
+        params: new Map(),
+      };
+      options.params.set('name', 'customers');
+      const responseRes = new Response(JSON.stringify(createDocResponse));
+      responseRes.headers.set('content-type', 'text/plain');
+      fetchStub.resolves(responseRes);
+      const response = await baseConnector.request(fakeToken, 'fetchViewEntries', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+      expect(response.expect).to.equal('text');
+    });
+
+    it('should successfully return a response with expect value to be json if status is not in 200 - 300', async () => {
+      const options = {
+        dataSource: 'scope',
+        params: new Map(),
+      };
+      const errResponse = {
+        status: 404,
+        message: 'This is not the URL you seek!',
+        errorId: 0,
+      };
+      options.params.set('name', 'customers');
+      const responseRes = new Response(JSON.stringify(errResponse), { status: 404 });
+      responseRes.headers.set('content-type', 'application/json');
+      fetchStub.resolves(responseRes);
+      const response = await baseConnector.request(fakeToken, 'createDocument', options);
+      expect(response.expect).to.equal('json');
     });
 
     it(`should successfully return a response with 'dataSource' in request options`, async () => {
@@ -131,6 +235,7 @@ describe('DominoConnector', () => {
       expect(response).to.haveOwnProperty('status');
       expect(response).to.haveOwnProperty('headers');
       expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
     });
 
     it('should successfully return a response on operations that only has path parameters', async () => {
@@ -144,6 +249,7 @@ describe('DominoConnector', () => {
       expect(response).to.haveOwnProperty('status');
       expect(response).to.haveOwnProperty('headers');
       expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
     });
 
     it('should successfully return a response on operations that has header parameters', async () => {
@@ -158,6 +264,16 @@ describe('DominoConnector', () => {
       expect(response).to.haveOwnProperty('status');
       expect(response).to.haveOwnProperty('headers');
       expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+    });
+
+    it('should throw an error when fetch fails', async () => {
+      fetchStub.rejects(new Error('Fetch error.'));
+
+      const params = new Map();
+      params.set('dataSource', 'scope');
+      const options = { params };
+      await expect(baseConnector.request(fakeToken, 'createDocument', options)).to.be.rejectedWith('Fetch error.');
     });
 
     it('should throw an error when fetch fails', async () => {
