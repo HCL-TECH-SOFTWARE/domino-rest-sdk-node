@@ -11,7 +11,11 @@ import {
   DominoAccess,
   DominoApiMeta,
   DominoDocumentOperations,
+  DominoRequestOptions,
+  DominoRequestResponse,
   DominoUserSession,
+  HttpResponseError,
+  NoResponseBody,
   QueryActions,
   RichTextRepresentation,
   SortType,
@@ -41,26 +45,16 @@ describe('DominoUserSession', async () => {
   let additionalParameters: Array<any> = [];
   let stub: sinon.SinonStub<any, Promise<any>>;
 
-  it('should call DominoConnector request', async () => {
+  beforeEach(async () => {
     const fetchStub = sinon.stub(global, 'fetch');
     fetchStub.onFirstCall().returns(Promise.resolve(new Response(JSON.stringify(baseApi))));
 
     dc = await DominoConnector.getConnector('http://localhost:8880', {} as DominoApiMeta);
-    const dcRequestStub = sinon.stub(dc, 'request');
-    dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream: new ReadableStream(), expect: "json" });
     dus = new DominoUserSession(fakeToken, dc);
-
-    const response = await dus.request('operation', { params: new Map() });
-    expect(dcRequestStub.callCount).equal(1);
-    expect(response).to.exist;
-    expect(dcRequestStub.getCall(0).args).to.deep.equal([dus.dominoAccess, 'operation', { params: new Map() }]);
-
-    fetchStub.restore();
-  });
-
-  beforeEach(() => {
     baseParameters = [];
     additionalParameters = [];
+
+    fetchStub.restore();
   });
 
   afterEach(() => {
@@ -69,6 +63,79 @@ describe('DominoUserSession', async () => {
       expect(stub.getCall(0).args).to.deep.equal([...baseParameters, ...additionalParameters]);
       stub.restore();
     }
+  });
+
+  describe('request', () => {
+    it('should get called', async () => {
+      const dcRequestStub = sinon.stub(dc, 'request');
+      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream: new ReadableStream(),expect: "json" });
+
+      const response = await dus.request('operation', { params: new Map() });
+      expect(dcRequestStub.calledOnce).to.be.true;
+      expect(response).to.exist;
+      expect(dcRequestStub.getCall(0).args).to.deep.equal([dus.dominoAccess, 'operation', { params: new Map() }]);
+
+      dcRequestStub.restore();
+    });
+  });
+
+  describe('requestJsonStream', () => {
+    let expected: number;
+    const subscriber = () => {
+      let actual = 0;
+
+      return new WritableStream({
+        write(_chonk) {
+          // WE ignore chonk
+          actual++;
+        },
+        close() {
+          expect(actual).to.equal(expected);
+        },
+      });
+    };
+
+    let dcRequestStub: sinon.SinonStub<
+      [dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions],
+      Promise<DominoRequestResponse>
+    >;
+
+    beforeEach(async () => {
+      dcRequestStub = sinon.stub(dc, 'request');
+    });
+
+    afterEach(() => {
+      dcRequestStub.restore();
+    });
+
+    it('should pass handling of response to the subscriber', async () => {
+      const jsonString = `[\n{ "color": "red" },\n{ "color": "yellow" },\n{ "color": "green" }\n]`;
+      const dataStream = new Response(jsonString).body;
+      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream, expect: "json" });
+      expected = 3;
+
+      await dus.requestJsonStream('operation', { params: new Map() }, subscriber);
+      expect(dcRequestStub.calledOnce).to.be.true;
+      expect(dcRequestStub.getCall(0).args).to.deep.equal([dus.dominoAccess, 'operation', { params: new Map() }]);
+    });
+
+    it(`should throw 'NoResponseBody' if response data stream is 'null'`, async () => {
+      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream: null , expect: "json"});
+
+      await expect(dus.requestJsonStream('operation', { params: new Map() }, subscriber)).to.be.rejectedWith(NoResponseBody);
+    });
+
+    it(`should throw 'HttpResponseError' if response has error status code`, async () => {
+      const errorResponse = {
+        status: 404,
+        message: 'The list Customers is not configured for this database',
+        errorId: 0,
+      };
+      const dataStream = new Response(JSON.stringify(errorResponse), { status: 404, statusText: 'Not Found' }).body;
+      dcRequestStub.resolves({ status: 404, headers: new Headers(), dataStream, expect: "json" });
+
+      await expect(dus.requestJsonStream('operation', { params: new Map() }, subscriber)).to.be.rejectedWith(HttpResponseError);
+    });
   });
 
   describe('Calls DominoDocumentOperations methods', () => {
@@ -418,7 +485,7 @@ describe('DominoUserSession', async () => {
       name: 'newentries',
       selectionFormula: 'Form = "NewEntry"',
     };
-    // const listView = new DominoListView(listViewJsonData);
+
     beforeEach(() => {
       baseParameters = [dataSource, fakeToken, dc];
     });
