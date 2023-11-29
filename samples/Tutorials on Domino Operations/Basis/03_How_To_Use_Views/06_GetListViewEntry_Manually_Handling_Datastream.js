@@ -3,13 +3,18 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-/* Getting list view entries and manually handling the response datastream. */
+/* Getting list view entries and manually handling the response datastream. 
+ * This is manually doing what DominoUserSession.requestJsonStream can do. */
 
-const drapi = require('@hcl-software/domino-rest-sdk-node');
+const drapiSdk = require('@hcl-software/domino-rest-sdk-node');
 const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
 
-// TODO: Document more with JSDoc.
-// The callback we provide. This will log each entry to console prettily.
+/**
+ * Our subscriber method. It logs each entries from view prettily. This gets each
+ * JSON entry from the stream pipe.
+ *
+ * @returns a writable stream.
+ */
 const logEntry = () => {
   let count = 1;
   console.log(`${'COUNT'.padEnd(20)} ${'UNID'.padEnd(25)} ${'NAME'.padEnd(20)} ${'CATEGORIES'}`);
@@ -43,8 +48,8 @@ const start = async () => {
       // logs each view entry in the console.
       response.dataStream
         .pipeThrough(new TextDecoderStream())
-        .pipeThrough(drapi.streamSplit())
-        .pipeThrough(drapi.streamTransformToJson())
+        .pipeThrough(drapiSdk.streamSplit())
+        .pipeThrough(drapiSdk.streamTransformToJson())
         .pipeTo(logEntry());
     })
     .catch((error) => console.log(error));
