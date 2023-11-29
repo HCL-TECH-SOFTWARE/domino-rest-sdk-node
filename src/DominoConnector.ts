@@ -117,17 +117,7 @@ export class DominoConnector implements DominoRestConnector {
       this.getFetchOptions(dominoAccess, operation, options)
         .then((params) => fetch(url, params))
         .then((response) => {
-          let expectVal: ExpectType = "json";
-          if (response.status <= 299 ){
-            if(response.headers.get("Content-Type")?.includes("multipart/form-data")){
-              expectVal = "binary";
-            }else if(response.headers.get("Content-Type")?.includes("text/plain")){
-              expectVal = "text";
-            }
-            else if(response.headers.get("Content-Type")?.includes("application/json") && response.headers.get("transfer-encoding") == "chunked" ){
-              expectVal = "chunked";
-            }
-          }
+          const expectVal = DominoConnector._getExpectVal(response);
           const result: DominoRequestResponse = {
             status: response.status,
             headers: response.headers,
@@ -267,6 +257,21 @@ export class DominoConnector implements DominoRestConnector {
       }
     }
   };
+
+  private static _getExpectVal = (response: Response): ExpectType => {
+    let expectVal: ExpectType = "json";
+    if (response.status >= 200 && response.status <= 299){
+      if(response.headers.get("Content-Type".toLowerCase())?.includes("multipart/form-data")){
+        expectVal = "binary";
+      }else if(response.headers.get("Content-Type".toLowerCase())?.includes("text/plain")){
+        expectVal = "text";
+      }
+      else if(response.headers.get("Content-Type".toLowerCase())?.includes("application/json") && response.headers.get("transfer-encoding".toLowerCase()) == "chunked" ){
+        expectVal = "chunked";
+      }
+    }
+    return expectVal;
+  }
 }
 
 export default DominoConnector;
