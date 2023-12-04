@@ -46,7 +46,6 @@ export type DominoRequestResponse = {
    * HTTP status code of response
    */
   status: number;
-  // TODO: Add expect
   headers: Headers;
   dataStream: ReadableStream<any> | null;
   expect: ExpectType;
@@ -93,7 +92,7 @@ export class DominoConnector implements DominoRestConnector {
       }
       // Check for mandatory parameters missing
       DominoConnector._checkForMandatory(ops.required, params, pname, scope);
-      if (pname === 'dataSource' || params.has(pname)) {
+      if (pname === 'dataSource' || params?.has(pname)) {
         const newValue: string = pname === 'dataSource' ? scope : params.get(pname)!;
         if (ops.in === 'path') {
           const searchFor = `{${pname}}`;
@@ -150,10 +149,10 @@ export class DominoConnector implements DominoRestConnector {
       }
       operation.params.forEach((ops: any, pname: string) => {
         // Check for mandatory parameters missing
-        if (ops.required && ops.in === 'header' && !params.has(pname)) {
+        if (ops.required && ops.in === 'header' && !params?.has(pname)) {
           return reject(new MissingParamError(pname));
         }
-        if (params.has(pname) && ops.in === 'header') {
+        if (params?.has(pname) && ops.in === 'header') {
           headers[pname] = params.get(pname);
         }
       });
