@@ -45,10 +45,10 @@ You can import the whole SDK via:
 
 ```javascript
 // Using Node.js `require()`
-const sdk = require('@hcl-software/domino-rest-sdk-node');
+const drapiSdk = require('@hcl-software/domino-rest-sdk-node');
 
 // Using ES6 imports
-import sdk from '@hcl-software/domino-rest-sdk-node';
+import drapiSdk from '@hcl-software/domino-rest-sdk-node';
 ```
 
 Or, you can import only the modules that you need, like:
@@ -63,82 +63,64 @@ import { DominoAccess } from '@hcl-software/domino-rest-sdk-node';
 
 ## 🔬 Overview
 
-In order to run a Domino REST API operations using the SDK, we should first setup two classes, namely `DominoAccess` and `DominoServer`.
+![Domino REST API Node SDK Model](/docs/sdk-model.png)
 
-### 👤 Creating DominoAccess
+Domino REST API Node SDK has four moving parts:
 
-`DominoAccess` is a class that facilitates your access to the Domino REST API server.
+- `DominoAccess`
+- `DominoServer`
+- `DominoConnector`
+- `DominoUserSession`
 
-In order to instantiate a `DominoAccess`, we need to create a `credentials` variable with a JSON value with the following format:
+### ℹ️ DominoAccess
 
-```javascript
-const credentials = {
-  "baseUrl": "Domino REST API server URL or other Idp's URL",
-  "credentials": {
-    "scope": "$DATA",
-    "type": "basic",
-    "username": "username",
-    "password": "password"
-  }
-}
-```
+`DominoAccess` is a class that facilitates your access to the Domino REST API server. It takes in a `baseUrl`, which is your Idp provider, as well as your credentials, such as your `username`, `password`, `scope` and `type` (the authentication type: `basic` or `oauth`).
 
-You can also change the credentials `type` to `oauth`, but that requires a different format.
+### ℹ️ DominoServer
 
-With our `credentials` ready, we can now declare a `DominoAccess`, like:
+`DominoServer` is a class that gets information on what APIs are available on your current server. It takes in a url to your Domino REST API server as a parameter. This class produces a `DominoConnector` class base on your chosen API.
 
-```javascript
-const dominoAccess = new DominoAccess(credentials);
-dominoAccess
-  .accessToken()
-  .then((response) => console.log(response))
-  .catch((error) => console.log(error));
-```
+### ℹ️ DominoConnector
 
-Running the code above should print the access token if nothing went wrong.
+`DominoConnector` is the class that does the actual communication between the Domino REST API Node SDK and your Domino REST API server.
 
-### ℹ️ Creating DominoServer
+### ℹ️ DominoUserSession
 
-`DominoServer` is a class that is aware of the available APIs of the Domino REST API server and maps each of it to its own `DominoConnector`.
-
-To create a `DominoServer`, you need to use the static factory method `DominoServer.getServer` and provide it with the URL of the Domino REST API server.
-
-```javascript
-const dominoServer = await DominoServer.getServer('<Domino REST API server URL>');
-```
+`DominoUserSession` is a class that contains all the operation you can perform on your Domino REST API server. It includes built-in methods, and a generic request method if you want to execute an operation on your own.
 
 ### 🎮 Running a Domino REST API operation using the SDK
 
-Finally, in order to call Domino REST API operations using the SDK, we use both `DominoAccess` and `DominoServer` we created earlier to form a `DominoUserSession`, which is a class that provides the operations that we want to call.
-
-First, we extract a `DominoConnector` from `DominoServer`. `DominoConnector` is a class that forms and executes the request via `fetch` to the Domino REST API server. To extract it, you need to do:
+Here is an example of how to use the four moving parts mentioned above in order to execute one Domino REST API Node SDK.
 
 ```javascript
-const dominoConnectorForBasis = await dominoServer.getDominoConnector('basis');
+import drapiSdk from '@hcl-software/domino-rest-sdk-node';
+
+const start = async () => {
+  const credentials = {
+    baseUrl: 'http://localhost:8880',
+    credentials: {
+      scope: '$DATA',
+      type: 'basic',
+      username: 'username',
+      password: 'password',
+    },
+  };
+  // Create DominoAccess
+  const dominoAccess = new drapiSdk.DominoAccess(credentials);
+  // Create DominoServer
+  const dominoServer = await drapiSdk.DominoServer.getServer('http://localhost:8880');
+  // Get DominoConnector for basis operations from DominoServer
+  const dominoConnectorForBasis = await dominoServer.getDominoConnector('basis');
+  // Create DominoUserSession
+  const dominoUserSession = new drapiSdk.DominoUserSession(dominoAccess, dominoConnectorForBasis);
+
+  // Create a Domino document
+  await dominoUserSession.createDocument(...)
+    .then((document) => console.log(document))
+    .catch((error) => console.log(error));
+}
+
+start();
 ```
 
-The code above extracts a `DominoConnector` for the `basis` APIs. `basis` here tells `DominoServer` to map all the operations under `basis` to the `DominoConnector`. This means that only the operations under `basis` will be available.
-
-With that set up, we can now create the `DominoUserSession`, like:
-
-```javascript
-const dominoUserSession = new DominoUserSession(dominoAccess, dominoConnectorForBasis);
-```
-
-We can now call `dominoUserSession` every time we want to execute an operation. Please take note that only operations available on `basis` will be callable with this `DominoUserSession`. If you want to perform operations on different APIs, let's say `setup`, you need to do the following:
-
-```javascript
-const dominoConnectorForSetup = await dominoServer.getDominoConnector('setup');
-const dominoUserSessionForSetup = new DominoUserSession(dominoAccess, dominoConnectorForSetup);
-```
-
-Since our `DominoUserSession` is now ready, we are now able to perform a Domino REST API operation via:
-
-```javascript
-// Create a Domino document
-dominoUserSession.createDocument(...)
-  .then((document) => console.log(document))
-  .catch((error) => console.log(error));
-```
-
-For specifics, please go to our [tutorial section for the different operations](/samples/Tutorials%20on%20Domino%20Operations/).
+For other examples, please go to our [examples](/samples/Tutorials%20on%20Domino%20Operations/).
