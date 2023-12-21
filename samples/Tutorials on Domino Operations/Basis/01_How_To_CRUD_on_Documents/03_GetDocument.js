@@ -5,7 +5,7 @@
 
 /* Getting a document example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   // you have the option to use the options variable which contains all of the parameters or the GET /document API (example: meta), refer to the swagger of Domino REST API for more info.
@@ -13,11 +13,11 @@ const start = async () => {
     // meta: false,
   };
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
-  await dus
+  await dbs
     .getDocument('customersdb', '3431740DA895807B00258A3E004C1755', options)
-    .then((response) => console.log(response))
+    .then((response) => console.log(JSON.stringify(response.toJson(), null, 2)))
     .catch((err) => console.log(err.message));
 };
 

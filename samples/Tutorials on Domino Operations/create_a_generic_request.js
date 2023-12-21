@@ -30,27 +30,14 @@ const start = async () => {
   const dominoConnector = await dominoServer.getDominoConnector('basis');
   const dominoUserSession = new DominoUserSession(dominoAccess, dominoConnector);
 
-  // The document data we want to save.
-  const docData = {
-    category: ['Genius', 'Billionaire', 'Playboy', 'Philanthropist'],
-    name: 'Tony Stark',
-    Form: 'Customer',
-  };
-
-  const doc = await dominoUserSession.createDocument('customers', docData).catch((error) => console.log(error));
-  if (doc === undefined) {
-    console.log('Failed to create document.');
-    return;
-  }
-
   // The parameters that the operation we want to execute needs.
   const requestOptions = {
     dataSource: 'customersdb',
     params: new Map(),
   };
-  // getDocumentMetadata needs a UNID parameter so we set it here with the UNID of the
-  // document we created earlier.
-  requestOptions.params.set('unid', doc.getUNID());
+  // getDocumentMetadata needs a UNID parameter so we set it here with the UNID of an
+  // existing document that we know.
+  requestOptions.params.set('unid', 'B4793D15C323F61D85258A8C005F3A09');
 
   // Uncomment to also print information about the operation we want to execute. This includes
   // details about the operation parameters. Alternatively, you can also go to Domino REST API
@@ -67,7 +54,7 @@ const start = async () => {
       }
       // We parse the received datastream to JSON using SDK's built in streamToJson
       const metadata = await streamToJson(response.dataStream);
-      console.log(metadata);
+      console.log(JSON.stringify(metadata, null, 2));
     })
     .catch((err) => console.log(err));
 };

@@ -3,11 +3,11 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-/* Getting list view entries and manually handling the response datastream. 
+/* Getting list view entries and manually handling the response datastream.
  * This is manually doing what DominoUserSession.requestJsonStream can do. */
 
 const drapiSdk = require('@hcl-software/domino-rest-sdk-node');
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getCredentials } = require('../../../resources/credentials');
 
 /**
  * Our subscriber method. It logs each entries from view prettily. This gets each
@@ -28,7 +28,10 @@ const logEntry = () => {
 };
 
 const start = async () => {
-  const dus = await getDominoUserSessionBasis();
+  const dominoAccess = new drapiSdk.DominoAccess(getCredentials());
+  const dominoServer = await drapiSdk.DominoServer.getServer(dominoAccess.baseUrl);
+  const dominoConnector = await dominoServer.getDominoConnector('basis');
+  const dus = new drapiSdk.DominoUserSession(dominoAccess, dominoConnector);
 
   // We manually formulate the request instead of using the built-in getListViewEntry method.
   const params = new Map();

@@ -5,20 +5,19 @@
 
 /* Creates a document using Domino REST API SDK from scratch. This example will
  * include initializing DominoAccess and DominoServer, and using both of it to
- * create a DominoUserSession to call the createDocument method.
+ * create a DominoBasisSession to call the createDocument method.
  *
- * This example uses createDocument method, but all other operations can also
+ * This example uses createDocument method, but all other BASIS operations can also
  * apply to this example, as long as the correct parameters are given. */
 
-const { DominoAccess, DominoServer, DominoUserSession } = require('@hcl-software/domino-rest-sdk-node');
+const { DominoAccess, DominoServer, DominoBasisSession } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('../resources/credentials');
 
 const start = async () => {
   const dominoAccess = new DominoAccess(getCredentials());
   const dominoServer = await DominoServer.getServer(dominoAccess.baseUrl);
-  // Get basis domino connector because create document is only available on basis API.
-  const dominoConnector = await dominoServer.getDominoConnector('basis');
-  const dominoUserSession = new DominoUserSession(dominoAccess, dominoConnector);
+  // Get basis domino session.
+  const dominoBasisSession = await DominoBasisSession.getBasisSession(dominoAccess, dominoServer);
 
   // The document data we want to save.
   const docData = {
@@ -27,9 +26,9 @@ const start = async () => {
     Form: 'Customer',
   };
 
-  await dominoUserSession
+  await dominoBasisSession
     .createDocument('customers', docData)
-    .then((doc) => console.log(doc))
+    .then((doc) => console.log(JSON.stringify(doc.toJson(), null, 2)))
     .catch((error) => console.log(error));
 };
 

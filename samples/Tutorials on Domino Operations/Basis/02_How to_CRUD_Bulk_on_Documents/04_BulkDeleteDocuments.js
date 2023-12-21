@@ -5,7 +5,7 @@
 
 /* Deleting bulk documents example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   const docs = [
@@ -26,23 +26,35 @@ const start = async () => {
     },
   ];
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
-  const bulkDocs = await dus.bulkCreateDocuments('customersdb', docs).catch((err) => console.log(err.message));
+  const bulkDocs = await dbs.bulkCreateDocuments('customersdb', docs).catch((err) => console.log(err.message));
   if (bulkDocs === undefined) {
     console.log('Failed to create documents to delete.');
     return;
   }
 
-  await dus
+  await dbs
     .bulkDeleteDocuments('customersdb', bulkDocs, 'delete')
-    .then((response) => console.log(response))
+    .then((response) => {
+      const output = [];
+      for (const res of response) {
+        output.push(res);
+      }
+      console.log(JSON.stringify(output, null, 2));
+    })
     .catch((err) => console.log(err.message));
 
   // Using default mode will not find any documents because of delete @formula on default mode.
-  // await dus
+  // await dbs
   //   .bulkDeleteDocuments('customersdb', bulkDocs)
-  //   .then((response) => console.log(response))
+  //   .then((response) => {
+  //     const output = [];
+  //     for (const res of response) {
+  //       output.push(res);
+  //     }
+  //     console.log(JSON.stringify(output, null, 2));
+  //   })
   //   .catch((err) => console.log(err.message));
 };
 

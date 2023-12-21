@@ -6,7 +6,7 @@
 /* Getting documents by query. */
 
 const { QueryActions } = require('../../../../dist');
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   const request = {
@@ -16,21 +16,27 @@ const start = async () => {
     },
   };
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
   // await dus
-  //   .getDocumentsByQuery('demoron', request, QueryActions.EXPLAIN)
-  //   .then((response) => console.log(response))
+  //   .getDocumentsByQuery('customersdb', request, QueryActions.EXPLAIN)
+  //   .then((response) => console.log(JSON.stringify(response, null, 2)))
   //   .catch((err) => console.log(err.message));
 
-  await dus
+  await dbs
     .getDocumentsByQuery('customersdb', request, QueryActions.EXECUTE)
-    .then((response) => console.log(response))
+    .then((response) => {
+      const docs = [];
+      for (const doc of response) {
+        docs.push(doc.toJson());
+      }
+      console.log(JSON.stringify(docs, null, 2));
+    })
     .catch((err) => console.log(err.message));
 
-  // await dus
-  // .getDocumentsByQuery('demoron', request, QueryActions.PARSE)
-  // .then((response) => console.log(response))
+  // await dbs
+  // .getDocumentsByQuery('customersdb', request, QueryActions.PARSE)
+  // .then((response) => console.log(JSON.stringify(response, null, 2)))
   // .catch((err) => console.log(err.message));
 };
 

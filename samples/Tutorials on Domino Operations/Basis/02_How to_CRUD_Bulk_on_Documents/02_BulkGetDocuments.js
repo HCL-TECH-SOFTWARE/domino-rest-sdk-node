@@ -5,7 +5,8 @@
 
 /* Getting bulk documents example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { default: DominoDocument } = require('@hcl-software/domino-rest-sdk-node/DominoDocument');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   const unids = ['3431740DA895807B00258A3E004C1755', 'E1B85FB45E5F110F00258A0D006018A4', '7687D8449289E55F00258A3E0050EB3E'];
@@ -18,11 +19,21 @@ const start = async () => {
     // meta: false,
   };
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
-  await dus
+  await dbs
     .bulkGetDocuments('customersdb', unids, options)
-    .then((response) => console.log(response))
+    .then((response) => {
+      const output = [];
+      for (const res of response) {
+        if (res instanceof DominoDocument) {
+          output.push(res.toJson());
+        } else {
+          output.push(res);
+        }
+      }
+      console.log(JSON.stringify(output, null, 2));
+    })
     .catch((err) => console.log(err.message));
 };
 
