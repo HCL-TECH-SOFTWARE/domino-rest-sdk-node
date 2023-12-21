@@ -245,7 +245,7 @@ export interface DominoRestListView extends DominoBaseListView {
 export interface DominoRestListViewEntry extends DominoBaseListViewEntry {}
 
 /**
- * Interface to perform different Rest API operations.
+ * Interface to perform generic Rest API operations.
  */
 export interface DominoUserRestSession {
   /**
@@ -279,6 +279,20 @@ export interface DominoUserRestSession {
    * @throws {HttpResponseError} received response has error status code.
    */
   requestJsonStream: (operationId: string, options: DominoRequestOptions, subscriber: () => WritableStream<any>) => Promise<void>;
+}
+
+/**
+ * Interface to perform BASIS Rest API operations.
+ */
+export interface DominoBasisRestSession {
+  /**
+   * Provides access to Domino REST API server.
+   */
+  dominoAccess: DominoAccess;
+  /**
+   * Provides accessible operations and its required parameters.
+   */
+  dominoConnector: DominoConnector;
   /**
    * Get a document via its UNID. Additional request options can be provided.
    *
@@ -443,37 +457,6 @@ export interface DominoUserRestSession {
     options?: GetDocumentsByQueryOptions,
   ) => Promise<DominoDocument[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>;
   /**
-   * Retrieves rest configuration from the server.
-   *
-   * @param scopeName the name of scope to be retrieved
-   * @returns a promise that resolves to the fetched scope.
-   *
-   * @throws an error if given scope name is empty.
-   */
-  getScope: (scopeName: string) => Promise<DominoScope>;
-  /**
-   * Get all of the scopes on the server.
-   *
-   * @returns a promise that resolves to an array of domino scopes.
-   */
-  getScopes: () => Promise<DominoScope[]>;
-  /**
-   * Delete a scope on the server.
-   *
-   * @param scopeName the name of scope to be deleted
-   * @returns A promise that resolves to the deleted scope.
-   *
-   * @throws an error if given scope name is empty.
-   */
-  deleteScope: (scopeName: string) => Promise<DominoScope>;
-  /**
-   * Create a scope on the server, otherwise, update it if it already exists.
-   *
-   * @param scope accepts a {@link DominoScope} or a JSON format containing all of the fields needed when creating a Domino REST scope
-   * @returns a promise that resolves to the created scope.
-   */
-  createUpdateScope: (scope: DominoScope | ScopeJSON) => Promise<DominoScope>;
-  /**
    * Pulls in view data. Will return view entries unless `options.documents` is `true`, which will return {@link DominoDocument} instead. `options.subscriber` can also be provided, if instead of a response, you want the subscriber function to be called for each array item in the response.
    *
    * @param dataSource the scope name
@@ -548,6 +531,51 @@ export interface DominoUserRestSession {
    * @throws an error if given design name is empty.
    */
   getListView: (dataSource: string, designName: string, options?: DesignOptions) => Promise<GetListViewDesignJSON>;
+}
+
+/**
+ * Interface to perform SETUP Rest API operations.
+ */
+export interface DominoSetupRestSession {
+  /**
+   * Provides access to Domino REST API server.
+   */
+  dominoAccess: DominoAccess;
+  /**
+   * Provides accessible operations and its required parameters.
+   */
+  dominoConnector: DominoConnector;
+  /**
+   * Retrieves rest configuration from the server.
+   *
+   * @param scopeName the name of scope to be retrieved
+   * @returns a promise that resolves to the fetched scope.
+   *
+   * @throws an error if given scope name is empty.
+   */
+  getScope: (scopeName: string) => Promise<DominoScope>;
+  /**
+   * Get all of the scopes on the server.
+   *
+   * @returns a promise that resolves to an array of domino scopes.
+   */
+  getScopes: () => Promise<DominoScope[]>;
+  /**
+   * Delete a scope on the server.
+   *
+   * @param scopeName the name of scope to be deleted
+   * @returns A promise that resolves to the deleted scope.
+   *
+   * @throws an error if given scope name is empty.
+   */
+  deleteScope: (scopeName: string) => Promise<DominoScope>;
+  /**
+   * Create a scope on the server, otherwise, update it if it already exists.
+   *
+   * @param scope accepts a {@link DominoScope} or a JSON format containing all of the fields needed when creating a Domino REST scope
+   * @returns a promise that resolves to the created scope.
+   */
+  createUpdateScope: (scope: DominoScope | ScopeJSON) => Promise<DominoScope>;
 }
 
 /**
