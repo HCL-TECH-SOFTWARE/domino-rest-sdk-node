@@ -6,8 +6,9 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoApiMeta, DominoServer, DominoSetupSession } from '../src';
+import { CredentialType, DominoAccess, DominoApiMeta, DominoServer, DominoSetupSession, SortType } from '../src';
 import DominoConnector from '../src/DominoConnector';
+import DominoListViewOperations from '../src/DominoListViewOperations';
 import DominoScopeOperations from '../src/DominoScopeOperations';
 
 const fakeCredentials = {
@@ -138,6 +139,58 @@ describe('DominoUserSession', async () => {
         additionalParameters = [scopeName];
 
         await dss.deleteScope(scopeName);
+      });
+    });
+  });
+
+  describe('Calls DominoListViewOperations methods', () => {
+    const dataSource = 'myScope';
+    const listViewName = 'NewEntryView';
+    const listViewJsonData = {
+      columns: [
+        {
+          formula: 'email',
+          name: 'email',
+          separatemultiplevalues: false,
+          sort: SortType.Ascending,
+          title: 'email',
+        },
+        {
+          formula: 'name',
+          name: 'name',
+          separatemultiplevalues: false,
+          sort: SortType.Ascending,
+          title: 'name',
+        },
+      ],
+      name: 'newentries',
+      selectionFormula: 'Form = "NewEntry"',
+    };
+
+    beforeEach(() => {
+      baseParameters = [dataSource, fakeToken, dc];
+    });
+
+    describe('createUpdateListView', () => {
+      beforeEach(() => {
+        stub = sinon.stub(DominoListViewOperations, 'createUpdateListView');
+      });
+
+      it('should get called', async () => {
+        additionalParameters = [listViewJsonData, listViewName, undefined];
+
+        await dss.createUpdateListView(dataSource, listViewJsonData, listViewName);
+      });
+    });
+
+    describe('getListView', () => {
+      beforeEach(() => {
+        stub = sinon.stub(DominoListViewOperations, 'getListView');
+      });
+
+      it('should get called', async () => {
+        additionalParameters = [listViewName, undefined];
+        await dss.getListView(dataSource, listViewName);
       });
     });
   });

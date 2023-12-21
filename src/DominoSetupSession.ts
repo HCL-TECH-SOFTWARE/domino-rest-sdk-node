@@ -3,8 +3,9 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoAccess, DominoServer, ScopeBody } from '.';
+import { DesignOptions, DominoAccess, DominoServer, ListViewBody, ScopeBody } from '.';
 import DominoConnector from './DominoConnector';
+import DominoListViewOperations from './DominoListViewOperations';
 import DominoScope from './DominoScope';
 import DominoScopeOperations from './DominoScopeOperations';
 import { DominoSetupRestSession } from './RestInterfaces';
@@ -48,6 +49,12 @@ export class DominoSetupSession implements DominoSetupRestSession {
   getScopes = () => DominoScopeOperations.getScopes(this.dominoAccess, this.dominoConnector);
 
   deleteScope = (scopeName: string) => DominoScopeOperations.deleteScope(scopeName, this.dominoAccess, this.dominoConnector);
+
+  createUpdateListView = (dataSource: string, listView: ListViewBody, designName: string, options?: DesignOptions) =>
+    DominoListViewOperations.createUpdateListView(dataSource, this.dominoAccess, this.dominoConnector, listView, designName, options);
+
+  getListView = (dataSource: string, designName: string, options?: DesignOptions) =>
+    DominoListViewOperations.getListView(dataSource, this.dominoAccess, this.dominoConnector, designName, options);
 }
 
 export default DominoSetupSession;

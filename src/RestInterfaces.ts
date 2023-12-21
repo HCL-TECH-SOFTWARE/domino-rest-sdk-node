@@ -501,36 +501,6 @@ export interface DominoBasisRestSession {
    * @throws an error if given scope name is empty.
    */
   getListViews: (dataSource: string, options?: GetListViewOptions) => Promise<GetListViewJSON[]>;
-  /**
-   * Create or update Domino design view based on simplified JSON.
-   *
-   * @param dataSource the scope name
-   * @param listView a type {@link ListViewBody} JSON that is the format when creating a design element view.
-   * @param designName name of design element
-   * @param options parameters that we want to use for the endpoint PUT `/design/views/{designName}` in a specific format
-   * @returns A promise that resolves to a type of {@link CreateListResponse}.
-   *
-   * @throws an error if given scope name is empty.
-   * @throws an error if given design name is empty.
-   */
-  createUpdateListView: (
-    dataSource: string,
-    listView: ListViewBody,
-    designName: string,
-    options?: DesignOptions,
-  ) => Promise<CreateUpdateListResponse>;
-  /**
-   * Retrieve individual design element (view) for a database.
-   *
-   * @param dataSource the scope name
-   * @param designName name of design element
-   * @param options parameters that we want to use for the endpoint GET `/design/views/{designName}` in a specific format
-   * @returns A promise that resolves to a type {@link GetListViewDesignJSON}.
-   *
-   * @throws an error if given scope name is empty.
-   * @throws an error if given design name is empty.
-   */
-  getListView: (dataSource: string, designName: string, options?: DesignOptions) => Promise<GetListViewDesignJSON>;
 }
 
 /**
@@ -576,6 +546,36 @@ export interface DominoSetupRestSession {
    * @returns a promise that resolves to the created scope.
    */
   createUpdateScope: (scope: DominoScope | ScopeJSON) => Promise<DominoScope>;
+  /**
+   * Create or update Domino design view based on simplified JSON.
+   *
+   * @param dataSource the scope name
+   * @param listView a type {@link ListViewBody} JSON that is the format when creating a design element view.
+   * @param designName name of design element
+   * @param options parameters that we want to use for the endpoint PUT `/design/views/{designName}` in a specific format
+   * @returns A promise that resolves to a type of {@link CreateListResponse}.
+   *
+   * @throws an error if given scope name is empty.
+   * @throws an error if given design name is empty.
+   */
+  createUpdateListView: (
+    dataSource: string,
+    listView: ListViewBody,
+    designName: string,
+    options?: DesignOptions,
+  ) => Promise<CreateUpdateListResponse>;
+  /**
+   * Retrieve individual design element (view) for a database.
+   *
+   * @param dataSource the scope name
+   * @param designName name of design element
+   * @param options parameters that we want to use for the endpoint GET `/design/views/{designName}` in a specific format
+   * @returns A promise that resolves to a type {@link GetListViewDesignJSON}.
+   *
+   * @throws an error if given scope name is empty.
+   * @throws an error if given design name is empty.
+   */
+  getListView: (dataSource: string, designName: string, options?: DesignOptions) => Promise<GetListViewDesignJSON>;
 }
 
 /**

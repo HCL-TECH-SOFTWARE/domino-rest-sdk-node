@@ -7,7 +7,6 @@ import {
   BulkGetDocumentsOptions,
   BulkUpdateDocumentsByQueryRequest,
   CreateDocumentOptions,
-  DesignOptions,
   DocumentBody,
   DocumentJSON,
   DocumentStatusResponse,
@@ -20,7 +19,6 @@ import {
   GetListPivotViewEntryOptions,
   GetListViewEntryOptions,
   GetListViewOptions,
-  ListViewBody,
   QueryActions,
   RichTextRepresentation,
   UpdateDocumentOptions,
@@ -106,12 +104,6 @@ export class DominoBasisSession implements DominoBasisRestSession {
 
   getListViewPivotEntry = (dataSource: string, listViewName: string, pivotColumn: string, options?: GetListPivotViewEntryOptions) =>
     DominoListViewOperations.getListViewPivotEntry(dataSource, this.dominoAccess, this.dominoConnector, listViewName, pivotColumn, options);
-
-  createUpdateListView = (dataSource: string, listView: ListViewBody, designName: string, options?: DesignOptions) =>
-    DominoListViewOperations.createUpdateListView(dataSource, this.dominoAccess, this.dominoConnector, listView, designName, options);
-
-  getListView = (dataSource: string, designName: string, options?: DesignOptions) =>
-    DominoListViewOperations.getListView(dataSource, this.dominoAccess, this.dominoConnector, designName, options);
 }
 
 export default DominoBasisSession;

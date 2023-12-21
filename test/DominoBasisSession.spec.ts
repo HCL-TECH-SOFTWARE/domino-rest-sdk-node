@@ -15,7 +15,6 @@ import {
   DominoServer,
   QueryActions,
   RichTextRepresentation,
-  SortType,
 } from '../src';
 import DominoConnector from '../src/DominoConnector';
 import DominoDocument from '../src/DominoDocument';
@@ -348,40 +347,9 @@ describe('DominoBasisSession', async () => {
   describe('Calls DominoListViewOperations methods', () => {
     const dataSource = 'myScope';
     const listViewName = 'NewEntryView';
-    const listViewJsonData = {
-      columns: [
-        {
-          formula: 'email',
-          name: 'email',
-          separatemultiplevalues: false,
-          sort: SortType.Ascending,
-          title: 'email',
-        },
-        {
-          formula: 'name',
-          name: 'name',
-          separatemultiplevalues: false,
-          sort: SortType.Ascending,
-          title: 'name',
-        },
-      ],
-      name: 'newentries',
-      selectionFormula: 'Form = "NewEntry"',
-    };
 
     beforeEach(() => {
       baseParameters = [dataSource, fakeToken, dc];
-    });
-    describe('createUpdateListView', () => {
-      beforeEach(() => {
-        stub = sinon.stub(DominoListViewOperations, 'createUpdateListView');
-      });
-
-      it('should get called', async () => {
-        additionalParameters = [listViewJsonData, listViewName, undefined];
-
-        await dbs.createUpdateListView(dataSource, listViewJsonData, listViewName);
-      });
     });
 
     describe('getListViews', () => {
@@ -415,17 +383,6 @@ describe('DominoBasisSession', async () => {
       it('should get called', async () => {
         additionalParameters = [listViewName, pivotColumn, undefined];
         await dbs.getListViewPivotEntry(dataSource, listViewName, pivotColumn);
-      });
-    });
-
-    describe('getListView', () => {
-      beforeEach(() => {
-        stub = sinon.stub(DominoListViewOperations, 'getListView');
-      });
-
-      it('should get called', async () => {
-        additionalParameters = [listViewName, undefined];
-        await dbs.getListView(dataSource, listViewName);
       });
     });
   });
