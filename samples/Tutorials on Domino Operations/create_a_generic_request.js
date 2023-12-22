@@ -3,20 +3,15 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-/* Execute a generic request using SDK. Domino user session has a number of
+/* Execute a generic request using SDK. Domino REST API Node SDK has a number of
  * built-in methods to play around with (for example createDocument, updateDocument,
  * getListViewEntry), but there are still more APIs from Domino REST API that are
  * yet to be implemented. Thus, if one needs to perform a specific operation and
  * it is not yet available on the SDK, then performing generic request is needed.
  *
- * The Domino user session has a method called 'request', that we can use. All the
- * built-in operations that the SDK has, uses it under the hood. But, for this
- * example, we will be calling the request method directly as the operation we
- * want is not yet built on the Domino user session.
- *
- * In this example, we will be creating a document using createDocument method,
- * and then perform the 'getDocumentMetadata' operation to it using the generic
- * request method. */
+ * The DominoUserSession has a method called 'request'. For this example,
+ * we will be calling the request method directly to show how to perform
+ * an operation from scratch. */
 
 const { DominoAccess, DominoServer, DominoUserSession, streamToJson } = require('@hcl-software/domino-rest-sdk-node');
 const { getCredentials } = require('../resources/credentials');
@@ -24,10 +19,11 @@ const { getCredentials } = require('../resources/credentials');
 const start = async () => {
   const dominoAccess = new DominoAccess(getCredentials());
   const dominoServer = await DominoServer.getServer(dominoAccess.baseUrl);
-  // Both operations that we want to call (createDocument and getDocumentMetadata)
-  // are conveniently available under basis API. So there's no need to create another
-  // Domino user session with a different connector.
+  // The operation we want to execute belongs to BASIS API, so we get a
+  // BASIS DominoConnector.
   const dominoConnector = await dominoServer.getDominoConnector('basis');
+  // We use the DominoUserSession as it contains the 'request' method
+  // we need to perform a generic request.
   const dominoUserSession = new DominoUserSession(dominoAccess, dominoConnector);
 
   // The parameters that the operation we want to execute needs.
@@ -42,7 +38,7 @@ const start = async () => {
   // Uncomment to also print information about the operation we want to execute. This includes
   // details about the operation parameters. Alternatively, you can also go to Domino REST API
   // swagger UI to see all information on different operations.
-  // await dominoConnector.getOperation('getDocumentMetadata').then((operation) => console.log(operation));
+  // await dominoConnector.getOperation('getDocumentMetadata').then((operation) => console.log(JSON.stringify(operation, null, 2)));
 
   // Calling the generic request method with the operation ID and request options.
   await dominoUserSession
