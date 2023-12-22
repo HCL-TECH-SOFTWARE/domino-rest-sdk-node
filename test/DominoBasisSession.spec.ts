@@ -61,13 +61,18 @@ describe('DominoBasisSession', async () => {
   });
 
   describe('getBasisSession', () => {
+    const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
+
     let dominoServer: DominoServer;
     let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoConnector>>;
 
     beforeEach(async () => {
+      const fetchStub = sinon.stub(global, 'fetch');
+      fetchStub.onFirstCall().resolves(new Response(JSON.stringify(apiDefinitions)));
       dominoServer = await DominoServer.getServer('http://localhost:8880');
       dominoServerStub = sinon.stub(dominoServer, 'getDominoConnector');
       dominoServerStub.resolves(dc);
+      fetchStub.restore();
     });
 
     afterEach(() => {
