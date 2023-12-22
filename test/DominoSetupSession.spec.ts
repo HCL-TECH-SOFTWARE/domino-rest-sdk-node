@@ -21,7 +21,7 @@ const fakeCredentials = {
   },
 };
 
-describe('DominoUserSession', async () => {
+describe('DominoSetupSession', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeToken = new DominoAccess(fakeCredentials);
 
