@@ -5,55 +5,60 @@
 @startuml SDK Components
 header // Domino REST API NodeJS/TypeScript SDK //
 
-package "Authentication" {
-() "DominoRestAccess" as dra
-() "RestCredentials" as rc
-[DominoAccess] as dac
-}
-
-
-() "DominoRestSession" as drs
-[DominoServer] as server
-[DominoSession] as dsc
-[DominoRestConnector] as drc
-
-package "Scope" {
-() "DominoScope" as ds
-() "QueryParams" as qp
-() "DominoList" as dl
-() "DominoDocumentMode" as ddm
-[ScopeInstance] as sic
-[DominoListInstance] as dli
-[DominoDocument] as doc
-}
-
 cloud {
-    [KEEP]
-    () "Node Fetch" as nf
+  (Domino REST API) as drapi
 }
 
-[KEEP] <.. nf
-[KEEP] <.. nf
-server <.. nf
-nf <.. drc
-nf <.. dra
-drc <..> dsc : abstract fetch
-dra -> dac
-dac <-- rc
-dac . drc
-dac .> dsc: initialize
-dsc <- drs
-ds -> sic
-dsc --> sic : acess to scope
-drc <..> sic
-dli <..> drc
-doc <..> drc
-sic --> dli
-dl --> dli
-qp --> dli
-sic --> ddm
-dli .. ddm
-ddm .. doc
-sic --> doc
+package Authentication {
+  [DominoAccess] as da
+  () "access parameters" as ap
+  () "access token" as at
+}
+
+package Server {
+  [DominoServer] as ds
+  [DominoConnector] as dc
+  () "server parameters" as sp
+  () "server APIs" as sa
+  () "API details" as ad
+}
+
+package Session {
+  [DominoUserSession] as dus
+  [DominoBasisSession] as dbs
+  [DominoSetupSession] as dss
+  () "generic request methods" as grm
+  () "document operation methods" as dom
+  () "list view operation methods" as dvom
+  () "scope operation methods" as som
+}
+
+() "node-fetch" as nf
+
+drapi <--> nf
+
+da ..> ap
+at - da
+nf <.. da
+
+ds ..> sp
+ds -- sa
+dc <-- ds: creates
+dc -- ad
+nf ..> ds
+nf ..> dc
+
+dus -- grm
+dbs -- dom
+dbs -- dvom
+dss -- dvom
+dss -- som
+da <.. dus
+dc <.. dus
+da <.. dbs
+ds <.. dbs
+da <.. dss
+ds <.. dss
+
 footer //Domino REST SDK //
 @enduml

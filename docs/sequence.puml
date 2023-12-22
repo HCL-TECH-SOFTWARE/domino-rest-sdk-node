@@ -4,25 +4,36 @@
  * ========================================================================== '/
 @startuml SDK sequence
 
-participant DominoDocument as doc
-participant DominoListInstance as dli
-participant ScopeInstance as sic
-participant DominoSession as ds
-participant DominoAccess as dac
-queue DominoRestConnector as drc
+actor user
+participant "DominoBasisSession\nDominoSetupSession" as dss
+participant DominoAccess as da
+participant DominoServer as ds
+queue DominoConnector as dc
 boundary "node-fetch" as nf
-database KEEP as keep
+database "Domino REST API" as drapi
 
-dac -> nf
-ds -> dac
-ds -> drc
-drc -> nf
-nf <-> keep
-sic -> ds
-sic --> drc
-dli -> sic
-dli --> drc : fetch list entries
-doc -> sic
-doc -> dli
-doc <--> drc : CRUD on doc
+user -> da: provide credentials
+da -> user: return DominoAccess
+user -> ds: provide Domino REST API URL
+ds -> user: return DominoServer
+user -> dss: provide DominoAccess and DominoServer
+dss -> ds: get a DominoConnector
+ds -> nf: request API details
+nf <--> drapi: fetch
+nf -> ds: API details
+ds -> dc: give API details
+dc -> dss: return DominoConnector
+user -> dss: perform an operation
+dss -> dc: give request parameters
+dc -> da: get an access token
+da -> nf: request for an access token
+nf <--> drapi: fetch
+nf -> da: access token
+da -> dc: give access token
+dc -> nf: perform request
+nf <--> drapi: fetch
+nf -> dc: response
+dc -> dss: give response
+dss -> user: return response
+
 @enduml
