@@ -70,7 +70,10 @@ Domino REST API Node SDK has four moving parts:
 - `DominoAccess`
 - `DominoServer`
 - `DominoConnector`
-- `DominoUserSession`
+- Sessions
+  - `DominoUserSession`
+  - `DominoBasisSession`
+  - `DominoSetupSession`
 
 ### ℹ️ DominoAccess
 
@@ -84,9 +87,19 @@ Domino REST API Node SDK has four moving parts:
 
 `DominoConnector` is the class that does the actual communication between the Domino REST API Node SDK and your Domino REST API server.
 
-### ℹ️ DominoUserSession
+### ℹ️ Sessions
 
-`DominoUserSession` is a class that contains all the operation you can perform on your Domino REST API server. It includes built-in methods, and a generic request method if you want to execute an operation on your own.
+Sessions are classes that contains all the operations you can perform on your Domino REST API server. There are three classes under this, namely:
+
+- `DominoUserSession`
+- `DominoBasisSession`
+- `DominoSetupSession`
+
+`DominoUserSession` has generic request methods, which allows you to perform an operation from scratch.
+
+`DominoBasisSession` contains all built-in methods for BASIS API operations.
+
+`DominoSetupSession` contains all built-in methods for SETUP API operations.
 
 ### 🎮 Running a Domino REST API operation using the SDK
 
@@ -109,14 +122,13 @@ const start = async () => {
   const dominoAccess = new drapiSdk.DominoAccess(credentials);
   // Create DominoServer
   const dominoServer = await drapiSdk.DominoServer.getServer('http://localhost:8880');
-  // Get DominoConnector for basis operations from DominoServer
-  const dominoConnectorForBasis = await dominoServer.getDominoConnector('basis');
-  // Create DominoUserSession
-  const dominoUserSession = new drapiSdk.DominoUserSession(dominoAccess, dominoConnectorForBasis);
+  // Since in this example we will be performing a BASIS API operation (createDocument),
+  // we will use the DominoBasisSession class in order to use the built-in createDocument method.
+  const dominoBasisSession = new drapiSdk.DominoBasisSession(dominoAccess, dominoServer);
 
   // Create a Domino document
-  await dominoUserSession.createDocument(...)
-    .then((document) => console.log(document))
+  await dominoBasisSession.createDocument(...)
+    .then((document) => console.log(JSON.stringify(document.toJson(), null, 2)))
     .catch((error) => console.log(error));
 }
 

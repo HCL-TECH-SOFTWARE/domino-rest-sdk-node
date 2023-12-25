@@ -9,13 +9,13 @@ import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
 import { RequestInfo } from 'undici-types';
 import {
+  CallbackError,
   CredentialType,
   DominoAccess,
   DominoRestAccessJSON,
   EmptyParamError,
   HttpResponseError,
   MissingParamError,
-  CallbackError,
   RestCredentials,
 } from '../src';
 import { getSampleJWT } from '../src/JwtHelper';

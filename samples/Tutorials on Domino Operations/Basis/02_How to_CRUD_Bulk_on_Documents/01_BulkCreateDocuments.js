@@ -5,7 +5,7 @@
 
 /* Creating bulk documents example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   const docs = [
@@ -26,11 +26,17 @@ const start = async () => {
     },
   ];
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
-  await dus
+  await dbs
     .bulkCreateDocuments('customersdb', docs)
-    .then((response) => console.log(response))
+    .then((response) => {
+      const docs = [];
+      for (const doc of response) {
+        docs.push(doc.toJson());
+      }
+      console.log(JSON.stringify(docs, null, 2));
+    })
     .catch((err) => console.log(err.message));
 };
 

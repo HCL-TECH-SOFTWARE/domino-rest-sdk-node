@@ -20,4 +20,4 @@ const newCredentials = {
 
 dominoAccess.updateCredentials(newCredentials);
 // Should print the new credentials.
-console.log(dominoAccess.credentials);
+console.log(JSON.stringify(dominoAccess.credentials, null, 2));

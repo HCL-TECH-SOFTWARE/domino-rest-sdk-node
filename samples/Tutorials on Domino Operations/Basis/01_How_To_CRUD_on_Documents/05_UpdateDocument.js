@@ -5,7 +5,7 @@
 
 /* Updating a document example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   const formData = {
@@ -14,10 +14,10 @@ const start = async () => {
     Form: 'Customer',
   };
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
   // create a document to be updated
-  const responseDominoDoc = await dus.createDocument('customersdb', formData).catch((err) => console.log(err.message));
+  const responseDominoDoc = await dbs.createDocument('customersdb', formData).catch((err) => console.log(err.message));
   if (responseDominoDoc === undefined) {
     console.log('Failed to create document to update.');
     return;
@@ -37,9 +37,9 @@ const start = async () => {
     revision: responseDominoDoc.getRevision(),
   };
 
-  await dus
+  await dbs
     .updateDocument('customersdb', responseDominoDoc, options)
-    .then((response) => console.log(response))
+    .then((response) => console.log(JSON.stringify(response.toJson(), null, 2)))
     .catch((err) => console.log(err.message));
 };
 

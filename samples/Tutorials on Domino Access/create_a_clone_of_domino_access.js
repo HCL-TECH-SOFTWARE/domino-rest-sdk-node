@@ -13,4 +13,4 @@ const dominoAccess = new DominoAccess(getCredentials());
 const newDominoAccess = dominoAccess.clone('my_new_scope');
 
 // Should contain a scope value with the specified new scope.
-console.log(newDominoAccess.credentials);
+console.log(JSON.stringify(newDominoAccess.credentials, null, 2));
