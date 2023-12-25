@@ -5,14 +5,14 @@
 
 /* Getting a scope example */
 
-const { getDominoUserSessionSetup } = require('../../../_DominoUserSession');
+const { getDominoSetupSession } = require('../../../_DominoSession');
 
 const start = async () => {
-  const dus = await getDominoUserSessionSetup();
+  const dss = await getDominoSetupSession();
 
-  await dus
-    .getScope('customersdb2')
-    .then((response) => console.log(response))
+  await dss
+    .getScope('customersdb')
+    .then((response) => console.log(JSON.stringify(response.toJson(), null, 2)))
     .catch((err) => console.log(err.message));
 };
 

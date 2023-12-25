@@ -16,7 +16,7 @@ const start = async () => {
   // Let's try to get one operation under setup API.
   const dominoConnector = await dominoServer.getDominoConnector('setup');
 
-  console.log(dominoConnector.getOperation('fetchDesignAll'));
+  console.log(JSON.stringify(dominoConnector.getOperation('fetchDesignAll'), null, 2));
 };
 
 start();

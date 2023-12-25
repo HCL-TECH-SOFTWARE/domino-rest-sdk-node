@@ -5,7 +5,7 @@
 
 /* Creating a document example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   // We declare the form data we want to save.
@@ -16,13 +16,13 @@ const start = async () => {
   };
 
   // We retrieve the Domino user session.
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
   // We now call our Domino user session and use its createDocument method.
   // We always provide the scope name as the first parameter.
-  await dus
+  await dbs
     .createDocument('customersdb', formData)
-    .then((response) => console.log(response))
+    .then((response) => console.log(JSON.stringify(response.toJson(), null, 2)))
     .catch((err) => console.log(err.message));
 };
 

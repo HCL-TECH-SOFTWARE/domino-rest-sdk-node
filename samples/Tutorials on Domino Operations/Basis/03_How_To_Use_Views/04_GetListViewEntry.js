@@ -5,19 +5,19 @@
 
 /* Getting list view entries example */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
   // you have the option to use the options variable which contains all of the parameters or the GET /lists/{name} API (example: meta), refer to the swagger of Domino REST API for more info.
   const options = {
     // meta: false,
   };
 
-  await dus
+  await dbs
     .getListViewEntry('customersdb', 'Customers', options)
-    .then((response) => console.log(response))
+    .then((response) => console.log(JSON.stringify(response, null, 2)))
     .catch((err) => console.log(err.message));
 };
 

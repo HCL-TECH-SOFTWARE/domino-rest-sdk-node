@@ -5,7 +5,7 @@
 
 /* Deleting bulk documents by UNID example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   const docs = [
@@ -26,30 +26,42 @@ const start = async () => {
     },
   ];
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
-  const bulkDocs = await dus.bulkCreateDocuments('customersdb', docs).catch((err) => console.log(err.message));
+  const bulkDocs = await dbs.bulkCreateDocuments('customersdb', docs).catch((err) => console.log(err.message));
   if (bulkDocs === undefined) {
     console.log('Failed to create documents to delete.');
     return;
   }
 
-  const moritori = [];
+  const morituri = [];
   for (const doc of bulkDocs) {
-    moritori.push(doc.getUNID());
+    morituri.push(doc.getUNID());
   }
   // Add a non-existing document to UNID array.
-  // moritori.push('99C7389EE042656200258A0D00698811');
+  // morituri.push('99C7389EE042656200258A0D00698811');
 
-  await dus
-    .bulkDeleteDocumentsByUNID('customersdb', moritori, 'delete')
-    .then((response) => console.log(response))
+  await dbs
+    .bulkDeleteDocumentsByUNID('customersdb', morituri, 'delete')
+    .then((response) => {
+      const output = [];
+      for (const res of response) {
+        output.push(res);
+      }
+      console.log(JSON.stringify(output, null, 2));
+    })
     .catch((err) => console.log(err.message));
 
   // Using default mode will not find any documents because of delete @formula on default mode.
-  // await dus
+  // await dbs
   //   .bulkDeleteDocumentsByUNID('customersdb', moritori)
-  //   .then((response) => console.log(response))
+  //   .then((response) => {
+  //     const output = [];
+  //     for (const res of response) {
+  //       output.push(res);
+  //     }
+  //     console.log(JSON.stringify(output, null, 2));
+  //   })
   //   .catch((err) => console.log(err.message));
 };
 

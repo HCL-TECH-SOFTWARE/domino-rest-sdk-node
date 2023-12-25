@@ -17,7 +17,7 @@ if (credentials.baseUrl === undefined) {
 const start = async () => {
   const dominoServer = await DominoServer.getServer(credentials.baseUrl);
 
-  console.log(dominoServer.availableApis());
+  console.log(JSON.stringify(dominoServer.availableApis(), null, 2));
 };
 
 start();

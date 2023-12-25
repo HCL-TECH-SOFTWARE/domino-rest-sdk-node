@@ -5,11 +5,12 @@
 
 /* Using requestJsonStream method. It automatically pipes the request to your
  * given subscriber method.
- * 
+ *
  * TextDecoderStream -> drapiSdk.streamSplit -> drapiSdk.streamTransformToJson
  * -> subscriber */
 
-const { getDominoUserSessionBasis } = require('../_DominoUserSession');
+const { DominoAccess, DominoServer, DominoUserSession } = require('@hcl-software/domino-rest-sdk-node');
+const { getCredentials } = require('../resources/credentials');
 
 /**
  * Our subscriber method. It logs each entries from view prettily. This gets each
@@ -30,7 +31,10 @@ const logEntry = () => {
 };
 
 const start = async () => {
-  const dus = await getDominoUserSessionBasis();
+  const dominoAccess = new DominoAccess(getCredentials());
+  const dominoServer = await DominoServer.getServer(dominoAccess.baseUrl);
+  const dominoConnector = await dominoServer.getDominoConnector('basis');
+  const dus = new DominoUserSession(dominoAccess, dominoConnector);
 
   // We manually formulate the request instead of using the built-in getListViewEntry method.
   const params = new Map();

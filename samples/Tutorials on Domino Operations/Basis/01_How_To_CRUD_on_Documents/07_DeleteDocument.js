@@ -5,7 +5,7 @@
 
 /* Deleting a document example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   const formData = {
@@ -14,9 +14,9 @@ const start = async () => {
     Form: 'Customer',
   };
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
-  const myDoc = await dus.createDocument('customersdb', formData).catch((err) => console.log(err.message));
+  const myDoc = await dbs.createDocument('customersdb', formData).catch((err) => console.log(err.message));
   if (myDoc === undefined) {
     console.log('Failed to create document to delete.');
     return;
@@ -27,15 +27,15 @@ const start = async () => {
     // meta: false,
   };
 
-  await dus
+  await dbs
     .deleteDocument('customersdb', myDoc, 'delete', options)
-    .then((response) => console.log(response))
+    .then((response) => console.log(JSON.stringify(response, null, 2)))
     .catch((err) => console.log(err.message));
 
   // Using default mode will not find any documents because of delete @formula on default mode.
-  // await dus
+  // await dbs
   //   .deleteDocument('customersdb', myDoc)
-  //   .then((response) => console.log(response))
+  //   .then((response) => console.log(JSON.stringify(response, null, 2)))
   //   .catch((err) => console.log(err.message));
 };
 

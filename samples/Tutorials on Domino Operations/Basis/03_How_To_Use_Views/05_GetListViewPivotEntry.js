@@ -5,19 +5,19 @@
 
 /* Getting list pivot entry example */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
   // you have the option to use the options variable which contains all of the parameters or the GET /listspivot/{name} API (example: count), refer to the swagger of Domino REST API for more info.
   const options = {
     // count: 50,
   };
 
-  await dus
+  await dbs
     .getListViewPivotEntry('customersdb', 'Customers', 'name', options)
-    .then((response) => console.log(response))
+    .then((response) => console.log(JSON.stringify(response, null, 2)))
     .catch((err) => console.log(err.message));
 };
 

@@ -5,14 +5,20 @@
 
 /* Getting scopes example */
 
-const { getDominoUserSessionSetup } = require('../../../_DominoUserSession');
+const { getDominoSetupSession } = require('../../../_DominoSession');
 
 const start = async () => {
-  const dus = await getDominoUserSessionSetup();
+  const dss = await getDominoSetupSession();
 
-  await dus
+  await dss
     .getScopes()
-    .then((response) => console.log(response))
+    .then((response) => {
+      const scps = [];
+      for (const res of response) {
+        scps.push(res.toJson());
+      }
+      console.log(JSON.stringify(scps, null, 2));
+    })
     .catch((err) => console.log(err.message));
 };
 

@@ -5,12 +5,12 @@
 
 /* Updating a scope example */
 
-const { getDominoUserSessionSetup } = require('../../../_DominoUserSession');
+const { getDominoSetupSession } = require('../../../_DominoSession');
 
 const start = async () => {
-  const dus = await getDominoUserSessionSetup();
+  const dss = await getDominoSetupSession();
 
-  const scpResponse = await dus.getScope('customersdb2').catch((err) => console.log(err.message));
+  const scpResponse = await dss.getScope('customersdb2').catch((err) => console.log(err.message));
   if (scpResponse === undefined) {
     console.log('Failed to get scope to update.');
     return;
@@ -18,9 +18,9 @@ const start = async () => {
 
   scpResponse.description = 'Updated description!';
 
-  await dus
+  await dss
     .createUpdateScope(scpResponse)
-    .then((response) => console.log(response))
+    .then((response) => console.log(JSON.stringify(response.toJson(), null, 2)))
     .catch((err) => console.log(err.message));
 };
 

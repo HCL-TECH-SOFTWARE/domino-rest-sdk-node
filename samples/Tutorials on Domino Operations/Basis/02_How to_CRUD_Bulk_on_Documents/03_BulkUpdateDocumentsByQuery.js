@@ -5,7 +5,8 @@
 
 /* Updating bulk documents by query example. */
 
-const { getDominoUserSessionBasis } = require('../../../_DominoUserSession');
+const { default: DominoDocument } = require('@hcl-software/domino-rest-sdk-node/DominoDocument');
+const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {
   const request = {
@@ -17,11 +18,21 @@ const start = async () => {
     // returnUpdatedDocument: true
   };
 
-  const dus = await getDominoUserSessionBasis();
+  const dbs = await getDominoBasisSession();
 
-  await dus
+  await dbs
     .bulkUpdateDocumentsByQuery('customersdb', request)
-    .then((response) => console.log(response))
+    .then((response) => {
+      const output = [];
+      for (const res of response) {
+        if (res instanceof DominoDocument) {
+          output.push(res.toJson());
+        } else {
+          output.push(res);
+        }
+      }
+      console.log(JSON.stringify(output, null, 2));
+    })
     .catch((err) => console.log(err.message));
 };
 

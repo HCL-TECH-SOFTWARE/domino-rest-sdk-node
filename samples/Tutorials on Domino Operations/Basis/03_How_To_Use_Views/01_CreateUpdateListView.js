@@ -5,17 +5,17 @@
 
 /* Creating list view example */
 
-const { getDominoUserSessionSetup } = require('../../../_DominoUserSession');
+const { getDominoSetupSession } = require('../../../_DominoSession');
 const start = async () => {
-  const dus = await getDominoUserSessionSetup();
+  const dss = await getDominoSetupSession();
   const listViewData = {
     columns: [
       {
-        formula: 'email',
-        name: 'email',
-        separatemultiplevalues: false,
+        formula: 'category',
+        name: 'category',
+        separatemultiplevalues: true,
         sort: 'ascending',
-        title: 'email',
+        title: 'category',
       },
       {
         formula: 'name',
@@ -25,17 +25,18 @@ const start = async () => {
         title: 'name',
       },
     ],
-    name: 'newentries',
-    selectionFormula: 'Form = "NewEntry"',
+    name: 'Customers',
+    selectionFormula: 'Form = "Customer"',
   };
 
   // you have the option to use the options variable which contains all of the parameters or the PUT /design/{designType}/{designName} API (example: raw), refer to the swagger of Domino REST API for more info.
   const options = {
     // raw: false,
   };
-  await dus
+
+  await dss
     .createUpdateListView('customersdb', listViewData, 'designName', options)
-    .then((response) => console.log(response))
+    .then((response) => console.log(JSON.stringify(response, null, 2)))
     .catch((err) => console.log(err.message));
 };
 
