@@ -7,7 +7,6 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { RequestInfo } from 'undici-types';
 import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src';
 import DominoConnector, { DominoRestOperation } from '../src/DominoConnector';
 import createDocResponse from './resources/DominoDocumentOperations/doc_response.json';
@@ -29,7 +28,7 @@ describe('DominoConnector', () => {
   };
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let fetchStub: sinon.SinonStub<[input: RequestInfo, init?: RequestInit | undefined], Promise<Response>>;
+  let fetchStub: sinon.SinonStub<[input: string | URL | Request, init?: RequestInit | undefined], Promise<Response>>;
   let accessTokenStub: sinon.SinonStub<[callback?: (() => Promise<any>) | undefined], Promise<string>>;
   let baseConnector: DominoConnector;
 
