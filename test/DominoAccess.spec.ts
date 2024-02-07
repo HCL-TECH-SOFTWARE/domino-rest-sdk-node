@@ -7,7 +7,6 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
-import { RequestInfo } from 'undici-types';
 import {
   CallbackError,
   CredentialType,
@@ -26,7 +25,7 @@ describe('DominoAccess', () => {
   const sampleJWT = getSampleJWT('John Doe');
 
   let simpleAccess: DominoRestAccessJSON;
-  let fetchStub: sinon.SinonStub<[input: RequestInfo, init?: RequestInit | undefined], Promise<Response>>;
+  let fetchStub: sinon.SinonStub<[input: string | URL | Request, init?: RequestInit | undefined], Promise<Response>>;
 
   beforeEach(() => {
     simpleAccess = {

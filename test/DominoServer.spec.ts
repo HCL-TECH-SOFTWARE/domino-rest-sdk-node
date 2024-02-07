@@ -7,7 +7,6 @@ import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { RequestInfo } from 'undici-types';
 import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src';
 import DominoConnector from '../src/DominoConnector';
 
@@ -18,7 +17,7 @@ describe('DominoServer', () => {
   const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
   const sampleUrl = 'http://localhost:8880';
 
-  let fetchStub: sinon.SinonStub<[input: RequestInfo, init?: RequestInit | undefined], Promise<Response>>;
+  let fetchStub: sinon.SinonStub<[input: string | URL | Request, init?: RequestInit | undefined], Promise<Response>>;
 
   beforeEach(() => {
     fetchStub = sinon.stub(global, 'fetch');
