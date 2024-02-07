@@ -142,3 +142,6 @@ credentials.json
 .vscode
 
 .DS_Store
+
+# JSDoc output
+/_site

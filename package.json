@@ -16,7 +16,8 @@
     "build": "tsc",
     "prepublish": "npm run build && npm run test",
     "start": "node .",
-    "test": "nyc --reporter=html --reporter=text mocha"
+    "test": "nyc --reporter=html --reporter=text mocha",
+    "doc": "typedoc"
   },
   "repository": {
     "type": "git",
@@ -51,6 +52,7 @@
     "sinon": "^17.0.1",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
+    "typedoc": "^0.25.7",
     "typescript": "^5.3.2"
   },
   "dependencies": {

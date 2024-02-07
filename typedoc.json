@@ -1,0 +1,14 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": [
+        "src/index.ts",
+        "src/RestInterfaces.ts",
+        "src/DominoDocumentOperations.ts",
+        "src/DominoConnector.ts",
+        "src/DominoDocument.ts",
+        "src/DominoScope.ts",
+        "src/errors/HttpResponseError.ts",
+        "src/DominoAccess.ts"
+    ],
+    "out": "_site"
+}
