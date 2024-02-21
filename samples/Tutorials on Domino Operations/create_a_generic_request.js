@@ -33,7 +33,7 @@ const start = async () => {
   };
   // getDocumentMetadata needs a UNID parameter so we set it here with the UNID of an
   // existing document that we know.
-  requestOptions.params.set('unid', 'B4793D15C323F61D85258A8C005F3A09');
+  requestOptions.params.set('unid', '3431740DA895807B00258A3E004C1755');
 
   // Uncomment to also print information about the operation we want to execute. This includes
   // details about the operation parameters. Alternatively, you can also go to Domino REST API
