@@ -126,7 +126,7 @@ const start = async () => {
   const dominoServer = await drapiSdk.DominoServer.getServer('http://localhost:8880');
   // Since in this example we will be performing a BASIS API operation (createDocument),
   // we will use the DominoBasisSession class in order to use the built-in createDocument method.
-  const dominoBasisSession = new drapiSdk.DominoBasisSession(dominoAccess, dominoServer);
+  const dominoBasisSession = await drapiSdk.DominoBasisSession.getBasisSession(dominoAccess, dominoServer);
 
   // Create a Domino document
   await dominoBasisSession.createDocument(...)

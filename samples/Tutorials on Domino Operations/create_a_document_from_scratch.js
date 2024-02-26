@@ -27,7 +27,7 @@ const start = async () => {
   };
 
   await dominoBasisSession
-    .createDocument('customers', docData)
+    .createDocument('customersdb', docData)
     .then((doc) => console.log(JSON.stringify(doc.toJson(), null, 2)))
     .catch((error) => console.log(error));
 };
