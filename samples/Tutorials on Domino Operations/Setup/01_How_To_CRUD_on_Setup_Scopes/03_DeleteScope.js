@@ -5,7 +5,6 @@
 
 /* Deleting a scope example */
 
-const { DominoScope } = require('../../../../dist');
 const { getDominoSetupSession } = require('../../../_DominoSession');
 
 const start = async () => {
@@ -21,11 +20,10 @@ const start = async () => {
     schemaName: 'demoapi',
     server: '*',
   };
-  const scp = new DominoScope(scopeData);
 
   const dss = await getDominoSetupSession();
 
-  const scopeResponse = await dss.createUpdateScope(scp).catch((err) => console.log(err.message));
+  const scopeResponse = await dss.createUpdateScope(scopeData).catch((err) => console.log(err.message));
   if (scopeResponse === undefined) {
     console.log('Failed to create scope to delete.');
     return;

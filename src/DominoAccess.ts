@@ -44,6 +44,9 @@ export type RestCredentials = {
   appSecret?: string;
 };
 
+/**
+ * Access Token for API Access
+ */
 type AccessTokenReturn = {
   bearer: string;
 };

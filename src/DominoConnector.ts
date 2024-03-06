@@ -36,6 +36,9 @@ export type DominoRequestOptions = {
   body?: any;
 };
 
+/**
+ * enumeration of expected API data types
+ */
 type ExpectType = 'json' | 'chunked' | 'binary' | 'text';
 
 /**

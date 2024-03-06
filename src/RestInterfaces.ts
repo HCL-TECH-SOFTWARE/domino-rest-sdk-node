@@ -553,7 +553,7 @@ export interface DominoSetupRestSession {
    * @param listView a type {@link ListViewBody} JSON that is the format when creating a design element view.
    * @param designName name of design element
    * @param options parameters that we want to use for the endpoint PUT `/design/views/{designName}` in a specific format
-   * @returns A promise that resolves to a type of {@link CreateListResponse}.
+   * @returns A promise that resolves to a type of {@link CreateUpdateListResponse}.
    *
    * @throws an error if given scope name is empty.
    * @throws an error if given design name is empty.
