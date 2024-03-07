@@ -5,7 +5,7 @@
 
 import { getExpiry, isJwtExpired } from './JwtHelper';
 import { DominoRestAccess } from './RestInterfaces';
-import { EmptyParamError, HttpResponseError, MissingParamError, MissingBearerError, CallbackError } from './errors';
+import { CallbackError, EmptyParamError, HttpResponseError, MissingBearerError, MissingParamError } from './errors';
 import { isEmpty } from './helpers/Utilities';
 
 /**
@@ -154,9 +154,17 @@ export class DominoAccess implements DominoRestAccess {
             return json;
           })
           .then((access) => {
-            this.token = access.bearer;
-            this.expiryTime = getExpiry(access.bearer);
-            return resolve(access.bearer);
+            if (this.credentials.type === CredentialType.BASIC) {
+              this.token = access.bearer;
+            } else {
+              this.token = access.access_token;
+            }
+            if (isEmpty(this.token)) {
+              throw new MissingBearerError();
+            }
+
+            this.expiryTime = getExpiry(this.token as string);
+            return resolve(this.token as string);
           })
           .catch((error) => reject(error));
       }
@@ -237,7 +245,7 @@ export class DominoAccess implements DominoRestAccess {
       data.append('scope', credentials.scope as string);
       data.append('client_id', credentials.appId as string);
       data.append('client_secret', credentials.appSecret as string);
-      options.body = data;
+      options.body = data.toString();
     }
 
     return options;

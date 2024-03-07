@@ -6,7 +6,7 @@
 import { expect } from 'chai';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
-import { getExpiry, getSampleJWT, isJwtExpired } from '../src/JwtHelper';
+import { getExpiry, getOauthSampleJWT, getSampleJWT, isJwtExpired } from '../src/JwtHelper';
 import template from '../src/resources/jwtTemplate.json';
 
 describe('JwtHelper', () => {
@@ -41,6 +41,21 @@ describe('JwtHelper', () => {
       expect(actual).to.have.property('expSeconds');
       expect(actual).to.have.property('iat');
       expect(actual).to.have.property('exp');
+    });
+  });
+
+  describe('getOauthSampleJWT', () => {
+    it('should be able to generate local JWT in OAuth response format', () => {
+      const name = 'John Doe';
+      const expected = {
+        token_type: 'bearer',
+        expires_in: 3000
+      };
+      const actual = getOauthSampleJWT(name);
+
+      expect(actual.token_type).to.equal(expected.token_type);
+      expect(actual.expires_in).to.equal(expected.expires_in);
+      expect(actual).to.have.property('access_token');
     });
   });
 

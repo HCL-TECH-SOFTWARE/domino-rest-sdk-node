@@ -14,15 +14,17 @@ import {
   DominoRestAccessJSON,
   EmptyParamError,
   HttpResponseError,
+  MissingBearerError,
   MissingParamError,
   RestCredentials,
 } from '../src';
-import { getSampleJWT } from '../src/JwtHelper';
+import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper';
 
 chai.use(chaiAsPromised);
 
 describe('DominoAccess', () => {
   const sampleJWT = getSampleJWT('John Doe');
+  const sampleOauthJWT = getOauthSampleJWT('John Doe');
 
   let simpleAccess: DominoRestAccessJSON;
   let fetchStub: sinon.SinonStub<[input: string | URL | Request, init?: RequestInit | undefined], Promise<Response>>;
@@ -287,6 +289,12 @@ describe('DominoAccess', () => {
         decodeStub.restore();
       });
 
+      it('should throw an error if token is empty after request', async () => {
+        fetchStub.resolves(new Response(JSON.stringify({ ...sampleJWT, ...{ bearer: null } })));
+
+        await expect(dominoAccess.accessToken()).to.be.rejectedWith(MissingBearerError, 'No Bearer Found');
+      });
+
       it('should throw an error if fetch response has an error status code', async () => {
         const errorResponse = {
           status: 401,
@@ -316,7 +324,7 @@ describe('DominoAccess', () => {
         };
         dominoAccess = new DominoAccess(simpleAccess);
         fetchStub = sinon.stub(global, 'fetch');
-        fetchStub.resolves(new Response(JSON.stringify(sampleJWT)));
+        fetchStub.resolves(new Response(JSON.stringify(sampleOauthJWT)));
       });
 
       afterEach(() => {
@@ -336,12 +344,12 @@ describe('DominoAccess', () => {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
-          body: data,
+          body: data.toString(),
         };
 
         expect(fetchStub.getCall(0).args[0]).to.equal(`${dominoAccess.baseUrl}/oauth/token`);
         expect(fetchStub.getCall(0).args[1]).to.deep.equal(expectedOptions);
-        expect(accessToken).to.be.equal(sampleJWT.bearer);
+        expect(accessToken).to.be.equal(sampleOauthJWT.access_token);
       });
 
       it('should reuse access token if it exists and not yet expired', async () => {
@@ -357,7 +365,7 @@ describe('DominoAccess', () => {
       it('should fetch again for an access token if access token is expired', async () => {
         const decodeStub = sinon.stub(jwt, 'decode');
         decodeStub.returns({ exp: 1694529248 });
-        fetchStub.onSecondCall().resolves(new Response(JSON.stringify(sampleJWT)));
+        fetchStub.onSecondCall().resolves(new Response(JSON.stringify(sampleOauthJWT)));
 
         // Initialize access token
         await dominoAccess.accessToken();
@@ -367,6 +375,12 @@ describe('DominoAccess', () => {
         // fetch should only be called once
         expect(fetchStub.getCalls().length).to.equal(2);
         decodeStub.restore();
+      });
+
+      it('should throw an error if token is empty after request', async () => {
+        fetchStub.resolves(new Response(JSON.stringify({ ...sampleOauthJWT, ...{ access_token: null } })));
+
+        await expect(dominoAccess.accessToken()).to.be.rejectedWith(MissingBearerError, 'No Bearer Found');
       });
 
       it('should throw an error if fetch response has an error status code', async () => {
