@@ -1,11 +1,11 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2024 HCL America Inc.                                        *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
 import { getExpiry, isJwtExpired } from './JwtHelper';
 import { DominoRestAccess } from './RestInterfaces';
-import { CallbackError, EmptyParamError, HttpResponseError, MissingBearerError, MissingParamError } from './errors';
+import { CallbackError, EmptyParamError, HttpResponseError, MissingBearerError, MissingParamError, TokenError } from './errors';
 import { isEmpty } from './helpers/Utilities';
 
 /**
@@ -42,6 +42,10 @@ export type RestCredentials = {
    * Required for oauth credentials. The application secret.
    */
   appSecret?: string;
+  /**
+   * Required for token credentials. Access token for Domino REST API.
+   */
+  token?: string;
 };
 
 /**
@@ -77,6 +81,10 @@ export enum CredentialType {
    * OAuth credentials. Needs application ID, application secret and refresh token.
    */
   OAUTH = 'oauth',
+  /**
+   * Token credentials. Needs token.
+   */
+  TOKEN = 'token',
 }
 
 /**
@@ -110,6 +118,9 @@ export class DominoAccess implements DominoRestAccess {
 
     this.baseUrl = params.baseUrl;
     this.credentials = params.credentials;
+    if (this.credentials.type === CredentialType.TOKEN) {
+      this.token = this.credentials.token;
+    }
   }
 
   updateCredentials = (incomingCredentials: RestCredentials): RestCredentials => {
@@ -120,6 +131,9 @@ export class DominoAccess implements DominoRestAccess {
 
     // Username/password or IdP information
     this.credentials = incomingCredentials;
+    if (this.credentials.type === CredentialType.TOKEN) {
+      this.token = this.credentials.token;
+    }
     return this.credentials;
   };
 
@@ -142,6 +156,10 @@ export class DominoAccess implements DominoRestAccess {
           })
           .catch((error: string) => reject(new CallbackError(error)));
       } else {
+        if (this.credentials.type === CredentialType.TOKEN) {
+          return reject(new TokenError());
+        }
+
         const url = new URL(this.baseUrl);
         const options = DominoAccess._buildAccessTokenOptions(url, this.credentials);
 
@@ -202,6 +220,11 @@ export class DominoAccess implements DominoRestAccess {
       }
       if (!credentials.hasOwnProperty('refreshToken')) {
         throw new MissingParamError(`${prependParamError}refreshToken`);
+      }
+    } else if (credentials.type === CredentialType.TOKEN) {
+      // Credentials type is Token
+      if (!credentials.hasOwnProperty('token')) {
+        throw new MissingParamError(`${prependParamError}token`);
       }
     } else {
       // Default is basic credentials

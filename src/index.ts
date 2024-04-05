@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2024 HCL America Inc.                                        *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -63,6 +63,7 @@ import {
   OperationNotAvailable,
   SdkError,
   TokenDecodeError,
+  TokenError,
 } from './errors';
 import { streamSplit, streamToJson, streamToText, streamTransformToJson } from './helpers/StreamHelpers';
 
@@ -135,6 +136,7 @@ export {
   SortShort,
   SortType,
   TokenDecodeError,
+  TokenError,
   UpdateDocumentOptions,
   ViewEntryScopes,
   streamSplit,
