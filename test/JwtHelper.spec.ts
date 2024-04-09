@@ -1,11 +1,12 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2024 HCL America Inc.                                        *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
 import { expect } from 'chai';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
+import { TokenDecodeError } from '../src';
 import { getExpiry, getOauthSampleJWT, getSampleJWT, isJwtExpired } from '../src/JwtHelper';
 import template from '../src/resources/jwtTemplate.json';
 
@@ -49,7 +50,7 @@ describe('JwtHelper', () => {
       const name = 'John Doe';
       const expected = {
         token_type: 'bearer',
-        expires_in: 3000
+        expires_in: 3000,
       };
       const actual = getOauthSampleJWT(name);
 
@@ -79,6 +80,10 @@ describe('JwtHelper', () => {
       );
       expect(typeof actual).to.be.equal('number');
       expect(actual).to.be.greaterThan(0);
+    });
+
+    it('should throw an error if token cannot be decoded', () => {
+      expect(() => getExpiry('asdacascsa')).to.throw(TokenDecodeError, `Can't decode token 'asdacascsa'.`);
     });
   });
 
@@ -122,6 +127,10 @@ describe('JwtHelper', () => {
       const actual = isJwtExpired('');
       expect(typeof actual).to.be.equal('boolean');
       expect(actual).to.be.equal(true);
+    });
+
+    it('should throw an error if token cannot be decoded', () => {
+      expect(() => isJwtExpired('asdacascsa')).to.throw(TokenDecodeError, `Can't decode token 'asdacascsa'.`);
     });
   });
 });
