@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2024 HCL America Inc.                                        *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -17,6 +17,7 @@ import {
   MissingBearerError,
   MissingParamError,
   RestCredentials,
+  TokenError,
 } from '../src';
 import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper';
 
@@ -114,6 +115,29 @@ describe('DominoAccess', () => {
         expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.password' is required.`);
       });
     });
+
+    describe(`credentials are 'token' type`, () => {
+      beforeEach(() => {
+        simpleAccess.credentials = {
+          scope: '$DATA',
+          type: CredentialType.TOKEN,
+          token: sampleJWT.bearer,
+        };
+      });
+
+      it(`should create a 'DominoAccess' object`, () => {
+        const dominoAccess = new DominoAccess(simpleAccess);
+        expect(dominoAccess).to.instanceOf(DominoAccess);
+        expect(dominoAccess.baseUrl).to.equal(simpleAccess.baseUrl);
+        expect(dominoAccess.credentials).to.deep.equal(simpleAccess.credentials);
+        expect(dominoAccess.token).to.deep.equal(simpleAccess.credentials.token);
+      });
+
+      it(`should throw an error if 'credentials.token' is missing`, () => {
+        delete simpleAccess.credentials.token;
+        expect(() => new DominoAccess(simpleAccess)).to.throw(MissingParamError, `Parameter 'credentials.token' is required.`);
+      });
+    });
   });
 
   describe('updateCredentials', () => {
@@ -135,7 +159,7 @@ describe('DominoAccess', () => {
       expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(MissingParamError, `Parameter 'type' is required.`);
     });
 
-    describe(`incoming credentials are 'oauth' type`, () => {
+    describe(`credentials are 'oauth' type`, () => {
       beforeEach(() => {
         incomingCredentials = {
           scope: '$DATA,$SETUP',
@@ -184,6 +208,27 @@ describe('DominoAccess', () => {
       it(`should throw an error if incoming 'password' is missing`, () => {
         delete incomingCredentials.password;
         expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(MissingParamError, `Parameter 'password' is required.`);
+      });
+    });
+
+    describe(`credentials are 'token' type`, () => {
+      beforeEach(() => {
+        incomingCredentials = {
+          scope: '$DATA,$SETUP',
+          type: CredentialType.TOKEN,
+          token: sampleJWT.bearer,
+        };
+      });
+
+      it(`should successfully update the credentials`, () => {
+        dominoAccessToUpdate.updateCredentials(incomingCredentials);
+        expect(dominoAccessToUpdate.credentials).to.deep.equal(incomingCredentials);
+        expect(dominoAccessToUpdate.token).to.deep.equal(incomingCredentials.token);
+      });
+
+      it(`should throw an error if incoming 'token' is missing`, () => {
+        delete incomingCredentials.token;
+        expect(() => dominoAccessToUpdate.updateCredentials(incomingCredentials)).to.throw(MissingParamError, `Parameter 'token' is required.`);
       });
     });
   });
@@ -398,6 +443,37 @@ describe('DominoAccess', () => {
         fetchStub.rejects(new Error('Fetch error.'));
 
         await expect(dominoAccess.accessToken()).to.be.rejectedWith('Fetch error.');
+      });
+    });
+
+    describe(`credentials type is 'token'`, () => {
+      beforeEach(() => {
+        simpleAccess.credentials = {
+          scope: '$DATA',
+          type: CredentialType.TOKEN,
+          token: sampleJWT.bearer,
+        };
+        dominoAccess = new DominoAccess(simpleAccess);
+      });
+
+      it('should return the given access token', async () => {
+        const accessToken = await dominoAccess.accessToken();
+        expect(accessToken).to.be.equal(sampleJWT.bearer);
+      });
+
+      it('should throw an error if given access token is expired', async () => {
+        const decodeStub = sinon.stub(jwt, 'decode');
+        decodeStub.returns({ exp: 1694529248 });
+
+        await expect(dominoAccess.accessToken()).to.be.rejectedWith(TokenError, 'Access token empty or expired.');
+        decodeStub.restore();
+      });
+
+      it('should throw an error if given access token is empty', async () => {
+        simpleAccess.credentials.token = '';
+        dominoAccess = new DominoAccess(simpleAccess);
+
+        await expect(dominoAccess.accessToken()).to.be.rejectedWith(TokenError, 'Access token empty or expired.');
       });
     });
   });
