@@ -32,7 +32,7 @@ describe('DominoAccess', () => {
 
   beforeEach(() => {
     simpleAccess = {
-      baseUrl: 'somewhere',
+      baseUrl: 'http://somewhere',
       credentials: {
         scope: '$DATA',
         type: CredentialType.BASIC,
