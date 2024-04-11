@@ -28,7 +28,7 @@ describe('DominoAccess', () => {
   const sampleOauthJWT = getOauthSampleJWT('John Doe');
 
   let simpleAccess: DominoRestAccessJSON;
-  let fetchStub: sinon.SinonStub<[input: string | URL | Request, init?: RequestInit | undefined], Promise<Response>>;
+  let fetchStub: sinon.SinonStub<any, Promise<any>>;
 
   beforeEach(() => {
     simpleAccess = {
