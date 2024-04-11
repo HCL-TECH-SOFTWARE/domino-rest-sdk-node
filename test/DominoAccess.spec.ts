@@ -32,7 +32,7 @@ describe('DominoAccess', () => {
 
   beforeEach(() => {
     simpleAccess = {
-      baseUrl: 'https://frascati.projectkeep.local:8880',
+      baseUrl: 'somewhere',
       credentials: {
         scope: '$DATA',
         type: CredentialType.BASIC,
