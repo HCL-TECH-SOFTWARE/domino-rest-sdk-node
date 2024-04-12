@@ -9,6 +9,10 @@ import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
+// https://github.com/sinonjs/sinon/issues/2590
+// Since this test always runs first, we add this here.
+fetch;
+
 describe('These tests', () => {
   it('should always pass', () => {
     expect(1).to.equal(1);
