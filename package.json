@@ -3,8 +3,15 @@
   "version": "0.1.7",
   "type": "module",
   "description": "NodeJS library to interact with a HCL Domino compatible REST API",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
   "private": false,
   "engines": {
     "node": ">20.0.0"
@@ -14,7 +21,7 @@
   ],
   "scripts": {
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
-    "build": "tsc",
+    "build": "tsc --project tsconfig.esm.json & tsc --project tsconfig.cjs.json & ./fixup.sh",
     "prepublish": "npm run build && npm run test",
     "start": "node .",
     "test": "NODE_OPTIONS='--experimental-loader=@istanbuljs/esm-loader-hook --no-warnings=ExperimentalWarning' nyc --reporter=html --reporter=text mocha",

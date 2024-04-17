@@ -1,12 +1,7 @@
-/* Configuration for running tests */
+/* Base configuration for CommonJS and ESM */
 {
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "declarationDir": "./out",
-    "outDir": "./out",
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
@@ -21,10 +16,5 @@
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "skipLibCheck": true
-  },
-  "include": ["src/**/*ts", "src/**/*.json"],
-  "exclude": ["node_modules", "**/*spec.ts"],
-  "ts-node": {
-    "files": true
   }
 }
