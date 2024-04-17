@@ -3,7 +3,7 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { InvalidParamError } from './InvalidParamError';
+import { InvalidParamError } from './InvalidParamError.ts';
 
 export class EmptyParamError extends InvalidParamError {
   constructor(param: string) {

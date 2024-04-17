@@ -3,10 +3,10 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { getExpiry, isJwtExpired } from './JwtHelper';
-import { DominoRestAccess } from './RestInterfaces';
-import { CallbackError, EmptyParamError, HttpResponseError, MissingBearerError, MissingParamError, TokenError } from './errors';
-import { isEmpty } from './helpers/Utilities';
+import { getExpiry, isJwtExpired } from './JwtHelper.ts';
+import { DominoRestAccess } from './RestInterfaces.ts';
+import { CallbackError, EmptyParamError, HttpResponseError, MissingBearerError, MissingParamError, TokenError } from './errors/index.ts';
+import { isEmpty } from './helpers/Utilities.ts';
 
 /**
  * Credentials needed to access Domino REST API server. Required properties changes depending

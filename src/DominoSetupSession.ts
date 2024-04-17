@@ -3,12 +3,12 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DesignOptions, DominoAccess, DominoServer, ListViewBody, ScopeBody } from '.';
-import DominoConnector from './DominoConnector';
-import DominoListViewOperations from './DominoListViewOperations';
-import DominoScope from './DominoScope';
-import DominoScopeOperations from './DominoScopeOperations';
-import { DominoSetupRestSession } from './RestInterfaces';
+import { DesignOptions, DominoAccess, DominoServer, ListViewBody, ScopeBody } from './index.ts';
+import DominoConnector from './DominoConnector.ts';
+import DominoListViewOperations from './DominoListViewOperations.ts';
+import DominoScope from './DominoScope.ts';
+import DominoScopeOperations from './DominoScopeOperations.ts';
+import { DominoSetupRestSession } from './RestInterfaces.ts';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user

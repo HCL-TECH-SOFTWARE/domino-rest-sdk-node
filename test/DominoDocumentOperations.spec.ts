@@ -27,21 +27,21 @@ import {
   QueryActions,
   RichTextRepresentation,
   UpdateDocumentOptions,
-} from '../src';
-import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector';
-import DominoDocument from '../src/DominoDocument';
-import { transformToRequestResponse } from './helpers/transformToRequestResponse';
-import doc from './resources/DominoDocumentOperations/doc.json';
-import docPatchReq from './resources/DominoDocumentOperations/doc_patch_request.json';
-import docPatchResponse from './resources/DominoDocumentOperations/doc_patch_response.json';
-import docResponse from './resources/DominoDocumentOperations/doc_response.json';
-import docUpdateResponse from './resources/DominoDocumentOperations/doc_update_response.json';
-import operationStatusResponse from './resources/DominoDocumentOperations/operation_status_response.json';
-import queryExecuteResponse from './resources/DominoDocumentOperations/query_operation_execute_response.json';
-import queryExplainResponse from './resources/DominoDocumentOperations/query_operation_explain_response.json';
-import queryParseResponse from './resources/DominoDocumentOperations/query_operation_parse_response.json';
+} from '../src/index.ts';
+import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector.ts';
+import DominoDocument from '../src/DominoDocument.ts';
+import { transformToRequestResponse } from './helpers/transformToRequestResponse.ts';
 
 describe('DominoDocumentOperations', async () => {
+  const doc = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc.json', 'utf-8'));
+  const docPatchReq = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc_patch_request.json', 'utf-8'));
+  const docPatchResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc_patch_response.json', 'utf-8'));
+  const docResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc_response.json', 'utf-8'));
+  const docUpdateResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc_update_response.json', 'utf-8'));
+  const operationStatusResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/operation_status_response.json', 'utf-8'));
+  const queryExecuteResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/query_operation_execute_response.json', 'utf-8'));
+  const queryExplainResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/query_operation_explain_response.json', 'utf-8'));
+  const queryParseResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/query_operation_parse_response.json', 'utf-8'));
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const dataSource = 'dataSource';
   const fakeCredentials = {

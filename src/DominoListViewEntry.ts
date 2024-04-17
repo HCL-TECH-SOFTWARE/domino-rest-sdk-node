@@ -3,7 +3,7 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoRestListViewEntry } from './RestInterfaces';
+import { DominoRestListViewEntry } from './RestInterfaces.ts';
 
 export type DominoBaseListViewEntry = {
   '@unid': string;

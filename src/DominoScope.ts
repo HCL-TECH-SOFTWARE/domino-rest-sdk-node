@@ -3,10 +3,10 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoBaseDocument, DominoDocumentMeta } from '.';
-import { DominoRestScope } from './RestInterfaces';
-import { EmptyParamError, MissingParamError } from './errors';
-import { isEmpty } from './helpers/Utilities';
+import { DominoBaseDocument, DominoDocumentMeta } from './index.ts';
+import { DominoRestScope } from './RestInterfaces.ts';
+import { EmptyParamError, MissingParamError } from './errors/index.ts';
+import { isEmpty } from './helpers/Utilities.ts';
 
 /**
  * Domino REST API scope base properties.

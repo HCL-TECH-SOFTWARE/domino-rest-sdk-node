@@ -3,9 +3,9 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoAccess, DominoRequestOptions, HttpResponseError, NoResponseBody, streamSplit, streamToJson, streamTransformToJson } from '.';
-import DominoConnector from './DominoConnector';
-import { DominoUserRestSession } from './RestInterfaces';
+import { DominoAccess, DominoRequestOptions, HttpResponseError, NoResponseBody, streamSplit, streamToJson, streamTransformToJson } from './index.ts';
+import DominoConnector from './DominoConnector.ts';
+import { DominoUserRestSession } from './RestInterfaces.ts';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user

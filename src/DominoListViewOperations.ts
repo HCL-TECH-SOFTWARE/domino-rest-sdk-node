@@ -3,14 +3,14 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DesignColumnSimple, DocumentBody, DominoAccess, DominoRequestOptions, ListViewBody, ListViewEntryJSON, RichTextRepresentation } from '.';
-import DominoConnector from './DominoConnector';
-import DominoDocument from './DominoDocument';
-import DominoListView from './DominoListView';
-import DominoListViewEntry from './DominoListViewEntry';
-import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors';
-import { streamToJson } from './helpers/StreamHelpers';
-import { isEmpty } from './helpers/Utilities';
+import { DesignColumnSimple, DocumentBody, DominoAccess, DominoRequestOptions, ListViewBody, ListViewEntryJSON, RichTextRepresentation } from './index.ts';
+import DominoConnector from './DominoConnector.ts';
+import DominoDocument from './DominoDocument.ts';
+import DominoListView from './DominoListView.ts';
+import DominoListViewEntry from './DominoListViewEntry.ts';
+import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.ts';
+import { streamToJson } from './helpers/StreamHelpers.ts';
+import { isEmpty } from './helpers/Utilities.ts';
 
 export type GetListViewDesignJSON = {
   '@name': string;

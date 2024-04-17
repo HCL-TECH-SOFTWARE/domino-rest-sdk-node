@@ -3,7 +3,7 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import SdkError from './SdkError';
+import SdkError from './SdkError.ts';
 
 export class NoResponseBody extends SdkError {
   constructor(operation: string) {

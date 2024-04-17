@@ -15,15 +15,15 @@ import {
   EmptyParamError,
   HttpResponseError,
   NoResponseBody,
-} from '../src';
-import DominoConnector from '../src/DominoConnector';
-import DominoScope from '../src/DominoScope';
-import DominoScopeOperations from '../src/DominoScopeOperations';
-import { transformToRequestResponse } from './helpers/transformToRequestResponse';
-import scp from './resources/DominoScope/scpJson.json';
-import scpResponse from './resources/DominoScope/scp_response.json';
+} from '../src/index.ts';
+import DominoConnector from '../src/DominoConnector.ts';
+import DominoScope from '../src/DominoScope.ts';
+import DominoScopeOperations from '../src/DominoScopeOperations.ts';
+import { transformToRequestResponse } from './helpers/transformToRequestResponse.ts';
 
 describe('DominoScopeOperations', async () => {
+  const scp = JSON.parse(fs.readFileSync('./test/resources/DominoScope/scpJson.json', 'utf-8'));
+  const scpResponse = JSON.parse(fs.readFileSync('./test/resources/DominoScope/scp_response.json', 'utf-8'));
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeCredentials = {
     baseUrl: 'somewhere',

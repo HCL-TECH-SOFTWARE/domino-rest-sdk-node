@@ -5,8 +5,8 @@
 
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
-import { TokenDecodeError } from './errors';
-import template from './resources/jwtTemplate.json';
+import { TokenDecodeError } from './errors/index.ts';
+// import template from './resources/jwtTemplate.json' assert { type: 'json' };
 
 type SampleJWT = {
   bearer: string;
@@ -26,6 +26,7 @@ type SampleOauthJWT = {
   expires_in: number;
 };
 
+const template = JSON.parse(fs.readFileSync('./src/resources/jwtTemplate.json', 'utf-8'));
 const signOptions: jwt.SignOptions = {
   algorithm: 'RS256',
   expiresIn: `${template.expSeconds}s`,

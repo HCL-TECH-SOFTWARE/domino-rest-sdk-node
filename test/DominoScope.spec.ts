@@ -4,13 +4,15 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
-import { AccessLevel, EmptyParamError, MissingParamError } from '../src';
-import DominoScope from '../src/DominoScope';
-import scp1 from './resources/DominoScope/scp1.json';
-import scp2 from './resources/DominoScope/scp2.json';
-import scp3 from './resources/DominoScope/scp3.json';
+import fs from 'fs';
+import { AccessLevel, EmptyParamError, MissingParamError } from '../src/index.ts';
+import DominoScope from '../src/DominoScope.ts';
 
 describe('DominoScope', () => {
+  const scp1 = JSON.parse(fs.readFileSync('./test/resources/DominoScope/scp1.json', 'utf-8'));
+  const scp2 = JSON.parse(fs.readFileSync('./test/resources/DominoScope/scp2.json', 'utf-8'));
+  const scp3 = JSON.parse(fs.readFileSync('./test/resources/DominoScope/scp3.json', 'utf-8'));
+
   describe('constructor', () => {
     let scope: any;
 

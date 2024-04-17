@@ -3,11 +3,10 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import * as chai from 'chai';
-import { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect, use } from 'chai';
+import { chaiAsPromised } from 'chai-promised';
 
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
 // https://github.com/sinonjs/sinon/issues/2590
 // Since this test always runs first, we add this here.

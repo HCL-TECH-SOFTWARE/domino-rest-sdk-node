@@ -3,12 +3,11 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import * as chai from 'chai';
-import { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-import { isEmpty } from '../../src/helpers/Utilities';
+import { expect, use } from 'chai';
+import { chaiAsPromised } from 'chai-promised';
+import { isEmpty } from '../../src/helpers/Utilities.ts';
 
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
 describe('Many ways to be empty', () => {
   it('should have empty arrays', () => {

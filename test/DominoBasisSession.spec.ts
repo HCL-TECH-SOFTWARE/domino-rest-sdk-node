@@ -15,10 +15,10 @@ import {
   DominoServer,
   QueryActions,
   RichTextRepresentation,
-} from '../src';
-import DominoConnector from '../src/DominoConnector';
-import DominoDocument from '../src/DominoDocument';
-import DominoListViewOperations from '../src/DominoListViewOperations';
+} from '../src/index.ts';
+import DominoConnector from '../src/DominoConnector.ts';
+import DominoDocument from '../src/DominoDocument.ts';
+import DominoListViewOperations from '../src/DominoListViewOperations.ts';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',

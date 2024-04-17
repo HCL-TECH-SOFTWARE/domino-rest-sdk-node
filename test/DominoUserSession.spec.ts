@@ -15,8 +15,8 @@ import {
   DominoUserSession,
   HttpResponseError,
   NoResponseBody
-} from '../src';
-import DominoConnector from '../src/DominoConnector';
+} from '../src/index.ts';
+import DominoConnector from '../src/DominoConnector.ts';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',

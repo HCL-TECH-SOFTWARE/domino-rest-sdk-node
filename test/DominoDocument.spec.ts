@@ -4,13 +4,15 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
-import { EmptyParamError, MissingParamError } from '../src';
-import DominoDocument from '../src/DominoDocument';
-import doc1 from './resources/DominoDocument/doc1.json';
-import doc2 from './resources/DominoDocument/doc2.json';
-import doc3 from './resources/DominoDocument/doc3.json';
+import fs from 'fs';
+import { EmptyParamError, MissingParamError } from '../src/index.ts';
+import DominoDocument from '../src/DominoDocument.ts';
 
 describe('DominoDocument', () => {
+  const doc1 = JSON.parse(fs.readFileSync('./test/resources/DominoDocument/doc1.json', 'utf-8'));
+  const doc2 = JSON.parse(fs.readFileSync('./test/resources/DominoDocument/doc2.json', 'utf-8'));
+  const doc3 = JSON.parse(fs.readFileSync('./test/resources/DominoDocument/doc3.json', 'utf-8'));
+
   describe('constructor', () => {
     it(`should create a 'DominoDocument' object`, () => {
       const dominoDocument = new DominoDocument(doc1);

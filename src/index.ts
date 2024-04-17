@@ -6,10 +6,10 @@
 /* istanbul ignore file */
 /* index have no testable code - no point including them in coverage reports */
 
-import { CredentialType, DominoAccess, DominoRestAccessJSON, RestCredentials } from './DominoAccess';
-import DominoBasisSession from './DominoBasisSession';
-import { DominoRequestOptions, DominoRequestResponse, DominoRestOperation } from './DominoConnector';
-import { DocumentBody, DocumentJSON, DominoBaseDocument, DominoDocumentMeta } from './DominoDocument';
+import { CredentialType, DominoAccess, DominoRestAccessJSON, RestCredentials } from './DominoAccess.ts';
+import DominoBasisSession from './DominoBasisSession.ts';
+import { DominoRequestOptions, DominoRequestResponse, DominoRestOperation } from './DominoConnector.ts';
+import { DocumentBody, DocumentJSON, DominoBaseDocument, DominoDocumentMeta } from './DominoDocument.ts';
 import {
   BulkCreateDocumentsOptions,
   BulkGetDocumentsOptions,
@@ -28,9 +28,9 @@ import {
   QueryDocumentParseResponse,
   RichTextRepresentation,
   UpdateDocumentOptions,
-} from './DominoDocumentOperations';
-import { DesignColumnSimple, DominoBaseListView, ListViewBody, SortType } from './DominoListView';
-import { DominoBaseListViewEntry, ListType, ListViewEntryBody, ListViewEntryJSON } from './DominoListViewEntry';
+} from './DominoDocumentOperations.ts';
+import { DesignColumnSimple, DominoBaseListView, ListViewBody, SortType } from './DominoListView.ts';
+import { DominoBaseListViewEntry, ListType, ListViewEntryBody, ListViewEntryJSON } from './DominoListViewEntry.ts';
 import {
   CreateUpdateListResponse,
   DesignOptions,
@@ -45,11 +45,11 @@ import {
   PivotListViewResponse,
   SortShort,
   ViewEntryScopes,
-} from './DominoListViewOperations';
-import { AccessLevel, DominoBaseScope, ScopeBody, ScopeJSON } from './DominoScope';
-import { DominoApiMeta, DominoServer } from './DominoServer';
-import DominoSetupSession from './DominoSetupSession';
-import DominoUserSession from './DominoUserSession';
+} from './DominoListViewOperations.ts';
+import { AccessLevel, DominoBaseScope, ScopeBody, ScopeJSON } from './DominoScope.ts';
+import { DominoApiMeta, DominoServer } from './DominoServer.ts';
+import DominoSetupSession from './DominoSetupSession.ts';
+import DominoUserSession from './DominoUserSession.ts';
 import {
   ApiNotAvailable,
   CallbackError,
@@ -64,8 +64,8 @@ import {
   SdkError,
   TokenDecodeError,
   TokenError,
-} from './errors';
-import { streamSplit, streamToJson, streamToText, streamTransformToJson } from './helpers/StreamHelpers';
+} from './errors/index.ts';
+import { streamSplit, streamToJson, streamToText, streamTransformToJson } from './helpers/StreamHelpers.ts';
 
 export {
   AccessLevel,
