@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         /* Visit https://aka.ms/tsconfig to read more about this file */
-        "target": "ES2022",
+        "target": "ESNext",
         "module": "NodeNext",
-        "moduleResolution": "nodenext",
+        "moduleResolution": "NodeNext",
         "resolveJsonModule": true,
         "declaration": true,
         "declarationMap": true,
@@ -18,7 +18,9 @@
         "alwaysStrict": true,
         "noUnusedLocals": true,
         "noImplicitReturns": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
     },
     "include": [
         "src/**/*ts",
