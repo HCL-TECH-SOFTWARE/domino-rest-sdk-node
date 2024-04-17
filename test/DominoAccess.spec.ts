@@ -18,8 +18,8 @@ import {
   MissingParamError,
   RestCredentials,
   TokenError,
-} from '../src/index.ts';
-import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper.ts';
+} from '../src/index.js';
+import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper.js';
 
 use(chaiAsPromised);
 

@@ -7,8 +7,8 @@ import { expect } from 'chai';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
-import { TokenDecodeError } from '../src/index.ts';
-import { getExpiry, getOauthSampleJWT, getSampleJWT, isJwtExpired } from '../src/JwtHelper.ts';
+import { TokenDecodeError } from '../src/index.js';
+import { getExpiry, getOauthSampleJWT, getSampleJWT, isJwtExpired } from '../src/JwtHelper.js';
 
 describe('JwtHelper', () => {
   const template = JSON.parse(fs.readFileSync('./src/resources/jwtTemplate.json', 'utf-8'));

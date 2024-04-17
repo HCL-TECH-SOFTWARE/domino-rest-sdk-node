@@ -5,8 +5,8 @@
 
 import { expect } from 'chai';
 import fs from 'fs';
-import { AccessLevel, EmptyParamError, MissingParamError } from '../src/index.ts';
-import DominoScope from '../src/DominoScope.ts';
+import { AccessLevel, EmptyParamError, MissingParamError } from '../src/index.js';
+import DominoScope from '../src/DominoScope.js';
 
 describe('DominoScope', () => {
   const scp1 = JSON.parse(fs.readFileSync('./test/resources/DominoScope/scp1.json', 'utf-8'));

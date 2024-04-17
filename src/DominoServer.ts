@@ -3,9 +3,9 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import DominoConnector from './DominoConnector.ts';
-import { DominoRestServer } from './RestInterfaces.ts';
-import { ApiNotAvailable } from './errors/index.ts';
+import DominoConnector from './DominoConnector.js';
+import { DominoRestServer } from './RestInterfaces.js';
+import { ApiNotAvailable } from './errors/index.js';
 
 /**
  * Data structure returned by the /api endpoint describing the available OpenAPI endpoints.

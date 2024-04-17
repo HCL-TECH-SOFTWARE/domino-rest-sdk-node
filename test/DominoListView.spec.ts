@@ -5,8 +5,8 @@
 
 import { expect } from 'chai';
 import fs from 'fs';
-import { DesignColumnSimple, EmptyParamError, ListType, ListViewBody, MissingParamError, NotAnArrayError } from '../src/index.ts';
-import DominoListView from '../src/DominoListView.ts';
+import { DesignColumnSimple, EmptyParamError, ListType, ListViewBody, MissingParamError, NotAnArrayError } from '../src/index.js';
+import DominoListView from '../src/DominoListView.js';
 
 describe('DominoListView', () => {
   const dlv1 = JSON.parse(fs.readFileSync('./test/resources/DominoListView/dlv1_request.json', 'utf-8'));

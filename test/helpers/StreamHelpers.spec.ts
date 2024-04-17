@@ -5,7 +5,7 @@
 
 import { expect, use } from 'chai';
 import { chaiAsPromised } from 'chai-promised';
-import { streamSplit, streamToJson, streamToText, streamTransformToJson } from '../../src/index.ts';
+import { streamSplit, streamToJson, streamToText, streamTransformToJson } from '../../src/index.js';
 
 use(chaiAsPromised);
 

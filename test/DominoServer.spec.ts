@@ -7,8 +7,8 @@ import { expect, use } from 'chai';
 import { chaiAsPromised } from 'chai-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src/index.ts';
-import DominoConnector from '../src/DominoConnector.ts';
+import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src/index.js';
+import DominoConnector from '../src/DominoConnector.js';
 
 use(chaiAsPromised);
 

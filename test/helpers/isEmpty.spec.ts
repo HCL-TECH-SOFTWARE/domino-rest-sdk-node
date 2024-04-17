@@ -5,7 +5,7 @@
 
 import { expect, use } from 'chai';
 import { chaiAsPromised } from 'chai-promised';
-import { isEmpty } from '../../src/helpers/Utilities.ts';
+import { isEmpty } from '../../src/helpers/Utilities.js';
 
 use(chaiAsPromised);
 

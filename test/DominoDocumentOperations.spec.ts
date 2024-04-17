@@ -27,10 +27,10 @@ import {
   QueryActions,
   RichTextRepresentation,
   UpdateDocumentOptions,
-} from '../src/index.ts';
-import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector.ts';
-import DominoDocument from '../src/DominoDocument.ts';
-import { transformToRequestResponse } from './helpers/transformToRequestResponse.ts';
+} from '../src/index.js';
+import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector.js';
+import DominoDocument from '../src/DominoDocument.js';
+import { transformToRequestResponse } from './helpers/transformToRequestResponse.js';
 
 describe('DominoDocumentOperations', async () => {
   const doc = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc.json', 'utf-8'));

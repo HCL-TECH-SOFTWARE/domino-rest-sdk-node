@@ -3,10 +3,10 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { ListType } from './index.ts';
-import { DominoRestListView } from './RestInterfaces.ts';
-import { EmptyParamError, MissingParamError, NotAnArrayError } from './errors/index.ts';
-import { isEmpty } from './helpers/Utilities.ts';
+import { ListType } from './index.js';
+import { DominoRestListView } from './RestInterfaces.js';
+import { EmptyParamError, MissingParamError, NotAnArrayError } from './errors/index.js';
+import { isEmpty } from './helpers/Utilities.js';
 
 export type DesignColumnSimple = {
   name: string;

@@ -6,10 +6,10 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
-import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector.ts';
-import DominoDocument from '../src/DominoDocument.ts';
-import DominoListView from '../src/DominoListView.ts';
-import DominoListViewOperations from '../src/DominoListViewOperations.ts';
+import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector.js';
+import DominoDocument from '../src/DominoDocument.js';
+import DominoListView from '../src/DominoListView.js';
+import DominoListViewOperations from '../src/DominoListViewOperations.js';
 import {
   CredentialType,
   DesignOptions,
@@ -24,8 +24,8 @@ import {
   ListViewBody,
   NoResponseBody,
   SortType,
-} from '../src/index.ts';
-import { transformToRequestResponse } from './helpers/transformToRequestResponse.ts';
+} from '../src/index.js';
+import { transformToRequestResponse } from './helpers/transformToRequestResponse.js';
 
 describe('DominoListViewOperations', async () => {
   const docResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc_response.json', 'utf-8'));

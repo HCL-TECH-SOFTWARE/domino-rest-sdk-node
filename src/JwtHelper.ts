@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
-import { TokenDecodeError } from './errors/index.ts';
+import { TokenDecodeError } from './errors/index.js';
 // import template from './resources/jwtTemplate.json' assert { type: 'json' };
 
 type SampleJWT = {

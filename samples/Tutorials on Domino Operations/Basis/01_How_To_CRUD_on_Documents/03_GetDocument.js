@@ -16,7 +16,7 @@ const start = async () => {
   const dbs = await getDominoBasisSession();
 
   await dbs
-    .getDocument('customersdb', '3431740DA895807B00258A3E004C1755', options)
+    .getDocument('customersdb', 'FC9670AE0A33E92185258B020057390D', options)
     .then((response) => console.log(JSON.stringify(response.toJson(), null, 2)))
     .catch((err) => console.log(err.message));
 };

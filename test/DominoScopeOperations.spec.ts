@@ -15,11 +15,11 @@ import {
   EmptyParamError,
   HttpResponseError,
   NoResponseBody,
-} from '../src/index.ts';
-import DominoConnector from '../src/DominoConnector.ts';
-import DominoScope from '../src/DominoScope.ts';
-import DominoScopeOperations from '../src/DominoScopeOperations.ts';
-import { transformToRequestResponse } from './helpers/transformToRequestResponse.ts';
+} from '../src/index.js';
+import DominoConnector from '../src/DominoConnector.js';
+import DominoScope from '../src/DominoScope.js';
+import DominoScopeOperations from '../src/DominoScopeOperations.js';
+import { transformToRequestResponse } from './helpers/transformToRequestResponse.js';
 
 describe('DominoScopeOperations', async () => {
   const scp = JSON.parse(fs.readFileSync('./test/resources/DominoScope/scpJson.json', 'utf-8'));

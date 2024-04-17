@@ -5,8 +5,8 @@
 
 import { expect } from 'chai';
 import fs from 'fs';
-import { EmptyParamError, MissingParamError } from '../src/index.ts';
-import DominoDocument from '../src/DominoDocument.ts';
+import { EmptyParamError, MissingParamError } from '../src/index.js';
+import DominoDocument from '../src/DominoDocument.js';
 
 describe('DominoDocument', () => {
   const doc1 = JSON.parse(fs.readFileSync('./test/resources/DominoDocument/doc1.json', 'utf-8'));

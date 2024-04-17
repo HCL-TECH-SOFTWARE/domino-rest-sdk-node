@@ -5,7 +5,7 @@
 
 import { expect } from 'chai';
 import fs from 'fs';
-import DominoListViewEntry from '../src/DominoListViewEntry.ts';
+import DominoListViewEntry from '../src/DominoListViewEntry.js';
 
 describe('DominoListViewEntry', () => {
   const lve1 = JSON.parse(fs.readFileSync('./test/resources/DominoListViewEntry/lve1.json', 'utf-8'));
