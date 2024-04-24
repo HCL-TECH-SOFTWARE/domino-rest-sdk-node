@@ -3,12 +3,12 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoAccess, DominoRequestOptions, ScopeBody } from '.';
-import DominoConnector from './DominoConnector';
-import DominoScope from './DominoScope';
-import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors';
-import { streamToJson } from './helpers/StreamHelpers';
-import { isEmpty } from './helpers/Utilities';
+import { DominoAccess, DominoRequestOptions, ScopeBody } from './index.js';
+import DominoConnector from './DominoConnector.js';
+import DominoScope from './DominoScope.js';
+import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
+import { streamToJson } from './helpers/StreamHelpers.js';
+import { isEmpty } from './helpers/Utilities.js';
 
 /**
  * API call helper functions for scope operations.

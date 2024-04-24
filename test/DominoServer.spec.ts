@@ -3,14 +3,14 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect, use } from 'chai';
+import { chaiAsPromised } from 'chai-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src';
-import DominoConnector from '../src/DominoConnector';
+import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src/index.js';
+import DominoConnector from '../src/DominoConnector.js';
 
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
 describe('DominoServer', () => {
   const basisApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));

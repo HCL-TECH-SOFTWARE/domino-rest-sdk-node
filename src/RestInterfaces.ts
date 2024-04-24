@@ -41,12 +41,12 @@ import {
   ScopeBody,
   ScopeJSON,
   UpdateDocumentOptions,
-} from '.';
-import { streamSplit, streamTransformToJson } from './helpers/StreamHelpers';
-import DominoConnector, { DominoRequestResponse } from './DominoConnector';
-import DominoDocument from './DominoDocument';
-import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry';
-import DominoScope from './DominoScope';
+} from './index.js';
+import { streamSplit, streamTransformToJson } from './helpers/StreamHelpers.js';
+import DominoConnector, { DominoRequestResponse } from './DominoConnector.js';
+import DominoDocument from './DominoDocument.js';
+import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry.js';
+import DominoScope from './DominoScope.js';
 
 /* istanbul ignore file */
 /* Interfaces have no testable code - no point including them in coverage reports */

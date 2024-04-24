@@ -3,8 +3,8 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect, use } from 'chai';
+import { chaiAsPromised } from 'chai-promised';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
 import {
@@ -18,10 +18,10 @@ import {
   MissingParamError,
   RestCredentials,
   TokenError,
-} from '../src';
-import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper';
+} from '../src/index.js';
+import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper.js';
 
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
 describe('DominoAccess', () => {
   const sampleJWT = getSampleJWT('John Doe');

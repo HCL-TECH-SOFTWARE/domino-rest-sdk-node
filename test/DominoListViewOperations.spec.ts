@@ -1,4 +1,3 @@
-import { transformToRequestResponse } from './helpers/transformToRequestResponse';
 /* ========================================================================== *
  * Copyright (C) 2023 HCL America Inc.                                        *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
@@ -7,6 +6,10 @@ import { transformToRequestResponse } from './helpers/transformToRequestResponse
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
+import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector.js';
+import DominoDocument from '../src/DominoDocument.js';
+import DominoListView from '../src/DominoListView.js';
+import DominoListViewOperations from '../src/DominoListViewOperations.js';
 import {
   CredentialType,
   DesignOptions,
@@ -21,19 +24,16 @@ import {
   ListViewBody,
   NoResponseBody,
   SortType,
-} from '../src';
-import DominoConnector, { DominoRequestResponse } from '../src/DominoConnector';
-import DominoDocument from '../src/DominoDocument';
-import DominoListView from '../src/DominoListView';
-import DominoListViewOperations from '../src/DominoListViewOperations';
-import docResponse from './resources/DominoDocumentOperations/doc_response.json';
-import create_dlv1_response from './resources/DominoListView/create_dlv1_response.json';
-import dlv1_response from './resources/DominoListView/dlv1_response.json';
-import lv1_response from './resources/DominoListView/lv1_response.json';
-import lve1_response from './resources/DominoListView/lve1_response.json';
-import lvpe1_response from './resources/DominoListView/lvpe1_response.json';
+} from '../src/index.js';
+import { transformToRequestResponse } from './helpers/transformToRequestResponse.js';
 
 describe('DominoListViewOperations', async () => {
+  const docResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc_response.json', 'utf-8'));
+  const create_dlv1_response = JSON.parse(fs.readFileSync('./test/resources/DominoListView/create_dlv1_response.json', 'utf-8'));
+  const dlv1_response = JSON.parse(fs.readFileSync('./test/resources/DominoListView/dlv1_response.json', 'utf-8'));
+  const lv1_response = JSON.parse(fs.readFileSync('./test/resources/DominoListView/lv1_response.json', 'utf-8'));
+  const lve1_response = JSON.parse(fs.readFileSync('./test/resources/DominoListView/lve1_response.json', 'utf-8'));
+  const lvpe1_response = JSON.parse(fs.readFileSync('./test/resources/DominoListView/lvpe1_response.json', 'utf-8'));
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const dataSource = 'demoapi';
   const listViewName = 'Customers';

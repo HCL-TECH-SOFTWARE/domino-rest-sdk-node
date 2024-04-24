@@ -22,11 +22,11 @@ import {
   QueryActions,
   RichTextRepresentation,
   UpdateDocumentOptions,
-} from '.';
-import DominoConnector from './DominoConnector';
-import DominoDocument from './DominoDocument';
-import DominoListViewOperations from './DominoListViewOperations';
-import { DominoBasisRestSession } from './RestInterfaces';
+} from './index.js';
+import DominoConnector from './DominoConnector.js';
+import DominoDocument from './DominoDocument.js';
+import DominoListViewOperations from './DominoListViewOperations.js';
+import { DominoBasisRestSession } from './RestInterfaces.js';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user
