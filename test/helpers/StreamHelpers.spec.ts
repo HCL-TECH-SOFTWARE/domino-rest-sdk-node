@@ -3,12 +3,11 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import * as chai from 'chai';
-import { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-import { streamSplit, streamToJson, streamToText, streamTransformToJson } from '../../src';
+import { expect, use } from 'chai';
+import { chaiAsPromised } from 'chai-promised';
+import { streamSplit, streamToJson, streamToText, streamTransformToJson } from '../../src/index.js';
 
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
 describe('Stream conversion test', () => {
   const jsonObj = { color: 'red', shape: 'round' };

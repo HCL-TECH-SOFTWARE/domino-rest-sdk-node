@@ -3,20 +3,20 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect, use } from 'chai';
+import { chaiAsPromised } from 'chai-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src';
-import DominoConnector, { DominoRestOperation } from '../src/DominoConnector';
-import createDocResponse from './resources/DominoDocumentOperations/doc_response.json';
+import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src/index.js';
+import DominoConnector, { DominoRestOperation } from '../src/DominoConnector.js';
 
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
 describe('DominoConnector', () => {
   const sampleUrl = 'http://localhost:8880';
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
+  const createDocResponse = JSON.parse(fs.readFileSync('./test/resources/DominoDocumentOperations/doc_response.json', 'utf-8'));
   const fakeCredentials = {
     baseUrl: 'somewhere',
     credentials: {

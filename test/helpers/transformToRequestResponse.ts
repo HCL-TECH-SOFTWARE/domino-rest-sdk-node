@@ -1,4 +1,4 @@
-import { DominoRequestResponse } from '../../src';
+import { DominoRequestResponse } from '../../src/index.js';
 
 export const transformToRequestResponse = (incoming: any, status?: number): DominoRequestResponse => {
   const stream = incoming !== null && typeof incoming === 'object' ? JSON.stringify(incoming) : incoming;

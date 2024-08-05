@@ -6,10 +6,10 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoApiMeta, DominoServer, DominoSetupSession, SortType } from '../src';
-import DominoConnector from '../src/DominoConnector';
-import DominoListViewOperations from '../src/DominoListViewOperations';
-import DominoScopeOperations from '../src/DominoScopeOperations';
+import { CredentialType, DominoAccess, DominoApiMeta, DominoServer, DominoSetupSession, SortType } from '../src/index.js';
+import DominoConnector from '../src/DominoConnector.js';
+import DominoListViewOperations from '../src/DominoListViewOperations.js';
+import DominoScopeOperations from '../src/DominoScopeOperations.js';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',

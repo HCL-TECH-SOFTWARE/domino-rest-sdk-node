@@ -1,0 +1,18 @@
+{
+   "title": "HCL Domino REST NodeJS SDK",
+   "motivation": "NodeJS wrapper around the Domino REST API",
+   "contribution": [
+      "Bugfixes",
+      "Features",
+      "Enhancement",
+      "Infrastructure"
+   ],
+   "skills": [
+      "JavaScript",
+      "TypeScript",
+      "HTTP"
+   ],
+   "owner_Id": "jason.gary@hcl-software.com",
+   "docs": "https://www.npmjs.com/package/@hcl-software/domino-rest-sdk-node",
+   "language": "NodeJS"
+}

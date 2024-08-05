@@ -3,19 +3,19 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import ApiNotAvailable from './ApiNotAvailable';
-import EmptyParamError from './EmptyParamError';
-import HttpResponseError from './HttpResponseError';
-import InvalidParamError from './InvalidParamError';
-import MissingParamError from './MissingParamError';
-import MissingBearerError from './MissingBearerError'
-import CallbackError from './CallbackError'
-import NoResponseBody from './NoResponseBody';
-import NotAnArrayError from './NotAnArrayError';
-import OperationNotAvailable from './OperationNotAvailable';
-import SdkError from './SdkError';
-import TokenDecodeError from './TokenDecodeError';
-import TokenError from './TokenError';
+import ApiNotAvailable from './ApiNotAvailable.js';
+import EmptyParamError from './EmptyParamError.js';
+import HttpResponseError from './HttpResponseError.js';
+import InvalidParamError from './InvalidParamError.js';
+import MissingParamError from './MissingParamError.js';
+import MissingBearerError from './MissingBearerError.js';
+import CallbackError from './CallbackError.js';
+import NoResponseBody from './NoResponseBody.js';
+import NotAnArrayError from './NotAnArrayError.js';
+import OperationNotAvailable from './OperationNotAvailable.js';
+import SdkError from './SdkError.js';
+import TokenDecodeError from './TokenDecodeError.js';
+import TokenError from './TokenError.js';
 
 export {
   ApiNotAvailable,
@@ -32,4 +32,3 @@ export {
   TokenDecodeError,
   TokenError,
 };
-

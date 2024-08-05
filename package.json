@@ -1,9 +1,17 @@
 {
   "name": "@hcl-software/domino-rest-sdk-node",
-  "version": "0.1.6",
+  "version": "0.1.8",
+  "type": "module",
   "description": "NodeJS library to interact with a HCL Domino compatible REST API",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
   "private": false,
   "engines": {
     "node": ">20.0.0"
@@ -13,10 +21,10 @@
   ],
   "scripts": {
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts",
-    "build": "tsc",
+    "build": "tsc --project tsconfig.esm.json & tsc --project tsconfig.cjs.json & ./fixup.sh",
     "prepublish": "npm run build && npm run test",
     "start": "node .",
-    "test": "nyc --reporter=html --reporter=text mocha",
+    "test": "NODE_OPTIONS='--experimental-loader=@istanbuljs/esm-loader-hook --no-warnings=ExperimentalWarning' nyc --reporter=html --reporter=text mocha",
     "doc": "typedoc"
   },
   "repository": {
@@ -39,23 +47,33 @@
   },
   "homepage": "https://github.com/HCL-TECH-SOFTWARE/domino-rest-sdk-node#readme",
   "devDependencies": {
-    "@types/chai": "^4.3.11",
-    "@types/chai-as-promised": "^7.1.8",
-    "@types/jsonwebtoken": "^9.0.5",
+    "@istanbuljs/esm-loader-hook": "^0.2.0",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/chai": "^4.3.14",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.10.0",
-    "@types/sinon": "^17.0.2",
-    "chai": "^4.3.10",
-    "chai-as-promised": "^7.1.1",
-    "mocha": "^10.2.0",
+    "@types/node": "^20.12.7",
+    "@types/sinon": "^17.0.3",
+    "chai": "^5.1.0",
+    "chai-promised": "^1.0.3",
+    "mocha": "^10.4.0",
     "nyc": "^15.1.0",
     "sinon": "^17.0.1",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typedoc": "^0.25.7",
-    "typescript": "^5.3.2"
+    "typedoc": "^0.25.13",
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2"
+  },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "**/index.ts"
+    ]
   }
 }

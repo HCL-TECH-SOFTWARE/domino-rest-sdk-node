@@ -4,13 +4,14 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
+import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
-import { TokenDecodeError } from '../src';
-import { getExpiry, getOauthSampleJWT, getSampleJWT, isJwtExpired } from '../src/JwtHelper';
-import template from '../src/resources/jwtTemplate.json';
+import { TokenDecodeError } from '../src/index.js';
+import { getExpiry, getOauthSampleJWT, getSampleJWT, isJwtExpired } from '../src/JwtHelper.js';
 
 describe('JwtHelper', () => {
+  const template = JSON.parse(fs.readFileSync('./src/resources/jwtTemplate.json', 'utf-8'));
   let decodeStub: sinon.SinonStub<[token: string, options?: jwt.DecodeOptions | undefined], string | jwt.JwtPayload | null>;
   let fakeClock: sinon.SinonFakeTimers;
 

@@ -4,13 +4,15 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
-import { DesignColumnSimple, EmptyParamError, ListType, ListViewBody, MissingParamError, NotAnArrayError } from '../src';
-import DominoListView from '../src/DominoListView';
-import dlv1 from './resources/DominoListView/dlv1_request.json';
-import dlv2NoFormulaCol from './resources/DominoListView/dlv2_incorrectCols_noFormula.json';
-import dlv2NoNameCol from './resources/DominoListView/dlv2_incorrectCols_noName.json';
+import fs from 'fs';
+import { DesignColumnSimple, EmptyParamError, ListType, ListViewBody, MissingParamError, NotAnArrayError } from '../src/index.js';
+import DominoListView from '../src/DominoListView.js';
 
 describe('DominoListView', () => {
+  const dlv1 = JSON.parse(fs.readFileSync('./test/resources/DominoListView/dlv1_request.json', 'utf-8'));
+  const dlv2NoFormulaCol = JSON.parse(fs.readFileSync('./test/resources/DominoListView/dlv2_incorrectCols_noFormula.json', 'utf-8'));
+  const dlv2NoNameCol = JSON.parse(fs.readFileSync('./test/resources/DominoListView/dlv2_incorrectCols_noName.json', 'utf-8'));
+
   describe('constructor', () => {
     let listViewBody: ListViewBody;
 

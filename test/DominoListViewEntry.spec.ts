@@ -4,10 +4,12 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
-import DominoListViewEntry from '../src/DominoListViewEntry';
-import lve1 from './resources/DominoListViewEntry/lve1.json';
+import fs from 'fs';
+import DominoListViewEntry from '../src/DominoListViewEntry.js';
 
 describe('DominoListViewEntry', () => {
+  const lve1 = JSON.parse(fs.readFileSync('./test/resources/DominoListViewEntry/lve1.json', 'utf-8'));
+
   describe('structure', () => {
     describe('name', () => {
       it('should return @unid if it is in the given view entry', () => {

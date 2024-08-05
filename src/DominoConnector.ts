@@ -3,9 +3,9 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoAccess, DominoApiMeta } from '.';
-import { DominoRestConnector } from './RestInterfaces';
-import { HttpResponseError, MissingParamError, OperationNotAvailable } from './errors';
+import { DominoAccess, DominoApiMeta } from './index.js';
+import { DominoRestConnector } from './RestInterfaces.js';
+import { HttpResponseError, MissingParamError, OperationNotAvailable } from './errors/index.js';
 
 /**
  * All information needed to read a method

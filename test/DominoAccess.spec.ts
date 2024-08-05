@@ -3,8 +3,8 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect, use } from 'chai';
+import { chaiAsPromised } from 'chai-promised';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
 import {
@@ -18,10 +18,10 @@ import {
   MissingParamError,
   RestCredentials,
   TokenError,
-} from '../src';
-import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper';
+} from '../src/index.js';
+import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper.js';
 
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
 describe('DominoAccess', () => {
   const sampleJWT = getSampleJWT('John Doe');
@@ -235,6 +235,13 @@ describe('DominoAccess', () => {
 
   describe('accessToken', () => {
     let dominoAccess: DominoAccess;
+    let decodeStub: sinon.SinonStub<[token: string, options?: jwt.DecodeOptions | undefined], string | jwt.JwtPayload | null>;
+
+    afterEach(() => {
+      if (decodeStub) {
+        decodeStub.restore();
+      }
+    });
 
     describe(`credentials type is 'basic'`, () => {
       beforeEach(() => {
@@ -320,7 +327,7 @@ describe('DominoAccess', () => {
       });
 
       it('should fetch again for an access token if access token is expired', async () => {
-        const decodeStub = sinon.stub(jwt, 'decode');
+        decodeStub = sinon.stub(jwt, 'decode');
         decodeStub.returns({ exp: 1694529248 });
         fetchStub.onSecondCall().resolves(new Response(JSON.stringify(sampleJWT)));
 
@@ -331,7 +338,6 @@ describe('DominoAccess', () => {
 
         // fetch should only be called once
         expect(fetchStub.getCalls().length).to.equal(2);
-        decodeStub.restore();
       });
 
       it('should throw an error if token is empty after request', async () => {
@@ -408,7 +414,7 @@ describe('DominoAccess', () => {
       });
 
       it('should fetch again for an access token if access token is expired', async () => {
-        const decodeStub = sinon.stub(jwt, 'decode');
+        decodeStub = sinon.stub(jwt, 'decode');
         decodeStub.returns({ exp: 1694529248 });
         fetchStub.onSecondCall().resolves(new Response(JSON.stringify(sampleOauthJWT)));
 
@@ -419,7 +425,6 @@ describe('DominoAccess', () => {
 
         // fetch should only be called once
         expect(fetchStub.getCalls().length).to.equal(2);
-        decodeStub.restore();
       });
 
       it('should throw an error if token is empty after request', async () => {
@@ -462,11 +467,10 @@ describe('DominoAccess', () => {
       });
 
       it('should throw an error if given access token is expired', async () => {
-        const decodeStub = sinon.stub(jwt, 'decode');
+        decodeStub = sinon.stub(jwt, 'decode');
         decodeStub.returns({ exp: 1694529248 });
 
         await expect(dominoAccess.accessToken()).to.be.rejectedWith(TokenError, 'Access token empty or expired.');
-        decodeStub.restore();
       });
 
       it('should throw an error if given access token is empty', async () => {

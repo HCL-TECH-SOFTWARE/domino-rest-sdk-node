@@ -3,12 +3,12 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from '.';
-import DominoConnector from './DominoConnector';
-import DominoDocument from './DominoDocument';
-import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors';
-import { streamToJson } from './helpers/StreamHelpers';
-import { isEmpty } from './helpers/Utilities';
+import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from './index.js';
+import DominoConnector from './DominoConnector.js';
+import DominoDocument from './DominoDocument.js';
+import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors/index.js';
+import { streamToJson } from './helpers/StreamHelpers.js';
+import { isEmpty } from './helpers/Utilities.js';
 
 /**
  * A response for document operations that can return document's status after operation.

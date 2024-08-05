@@ -3,12 +3,12 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect, use } from 'chai';
+import { chaiAsPromised } from 'chai-promised';
 import { afterEach } from 'mocha';
 import sinon from 'sinon';
 
-chai.use(chaiAsPromised);
+use(chaiAsPromised);
 
 const urlToResultMapping = new Map<string, any>();
 
