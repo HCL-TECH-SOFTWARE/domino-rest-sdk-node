@@ -19,6 +19,7 @@ import {
   GetListPivotViewEntryOptions,
   GetListViewEntryOptions,
   GetListViewOptions,
+  GetRichtextOptions,
   QueryActions,
   UpdateDocumentOptions,
 } from './index.js';
@@ -94,6 +95,9 @@ export class DominoBasisSession implements DominoBasisRestSession {
 
   getDocumentsByQuery = (dataSource: string, request: GetDocumentsByQueryRequest, action: QueryActions, options?: GetDocumentsByQueryOptions) =>
     DominoDocumentOperations.getDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, action, options);
+
+  getRichtext = (dataSource: string, unid: string, richTextAs: string, options?: GetRichtextOptions) => 
+    DominoDocumentOperations.getRichtext(dataSource, this.dominoAccess, this.dominoConnector, unid, richTextAs, options);
 
   getListViews = (dataSource: string, options?: GetListViewOptions) =>
     DominoListViewOperations.getListViews(dataSource, this.dominoAccess, this.dominoConnector, options);

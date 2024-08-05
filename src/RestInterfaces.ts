@@ -5,6 +5,11 @@
 
 /* istanbul ignore file */
 /* Interfaces have no testable code - no point including them in coverage reports */
+import DominoConnector, { DominoRequestResponse } from './DominoConnector.js';
+import DominoDocument from './DominoDocument.js';
+import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry.js';
+import DominoScope from './DominoScope.js';
+import { streamSplit, streamTransformToJson } from './helpers/StreamHelpers.js';
 import {
   BulkGetDocumentsOptions,
   BulkGetErrorResponse,
@@ -31,6 +36,7 @@ import {
   GetListViewEntryOptions,
   GetListViewJSON,
   GetListViewOptions,
+  GetRichtextOptions,
   ListViewBody,
   PivotListViewResponse,
   QueryActions,
@@ -41,11 +47,6 @@ import {
   ScopeJSON,
   UpdateDocumentOptions,
 } from './index.js';
-import { streamSplit, streamTransformToJson } from './helpers/StreamHelpers.js';
-import DominoConnector, { DominoRequestResponse } from './DominoConnector.js';
-import DominoDocument from './DominoDocument.js';
-import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry.js';
-import DominoScope from './DominoScope.js';
 
 /* istanbul ignore file */
 /* Interfaces have no testable code - no point including them in coverage reports */
@@ -455,6 +456,16 @@ export interface DominoBasisRestSession {
     action: QueryActions,
     options?: GetDocumentsByQueryOptions,
   ) => Promise<DominoDocument[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>;
+  /**
+   * Return a plain unformatted text from a Rich Text field.
+   * 
+   * @param dataSource the scope name
+   * @param unid the UNID of the document to be deleted
+   * @param richTextAs the format to return richtext field value
+   * @param options optional parameters for GET `/richtext/{richTextAs}/{unid}` endpoint
+   * @returns A promise that resolves to a string of the richtext field value.
+   */
+  getRichtext: (dataSource: string, unid: string, richTextAs: string, options?: GetRichtextOptions) => Promise<string>;
   /**
    * Pulls in view data. Will return view entries unless `options.documents` is `true`, which will return {@link DominoDocument} instead. `options.subscriber` can also be provided, if instead of a response, you want the subscriber function to be called for each array item in the response.
    *

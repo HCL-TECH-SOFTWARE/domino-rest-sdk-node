@@ -7,7 +7,7 @@ import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from '
 import DominoConnector from './DominoConnector.js';
 import DominoDocument from './DominoDocument.js';
 import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors/index.js';
-import { streamToJson } from './helpers/StreamHelpers.js';
+import { streamToJson, streamToText } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
 
 /**
@@ -238,6 +238,20 @@ export type GetDocumentsByQueryOptions = {
  * Options for bulk create document operation.
  */
 export type BulkCreateDocumentsOptions = Pick<DocumentOptions, 'richTextAs'>;
+
+/**
+ * Options for GET `/richtext/{richTextAs}/{unid}` operation.
+ */
+export type GetRichtextOptions = {
+  /**
+   * Mode to perform the document access in. Defaults to "default" if missing.
+   */
+  mode?: string;
+  /**
+   * Name of the RichText item to retrieve. When omitted "Body" is used as item name.
+   */
+  item?: string;
+};
 
 /**
  * Different methods for query.
@@ -739,6 +753,42 @@ export class DominoDocumentOperations {
         .catch((error) => reject(error));
     });
 
+  static getRichtext = (
+    dataSource: string,
+    dominoAccess: DominoAccess,
+    dominoConnector: DominoConnector,
+    unid: string,
+    richTextAs: string,
+    options?: GetRichtextOptions,
+  ) =>
+    new Promise<string>((resolve, reject) => {
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
+      }
+      if (isEmpty(unid)) {
+        return reject(new EmptyParamError('unid'));
+      }
+      if (isEmpty(richTextAs)) {
+        return reject(new EmptyParamError('richTextAs'));
+      }
+
+      const params: Map<string, any> = new Map();
+      for (const key in options) {
+        params.set(key, options[key as keyof GetRichtextOptions]);
+      }
+      params.set('unid', unid);
+      params.set('richTextAs', richTextAs);
+
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+      };
+
+      this._executeOperation<string>(dominoConnector, dominoAccess, 'getRichText', reqOptions, streamToText)
+        .then((richtextValue) => resolve(richtextValue))
+        .catch((error) => reject(error));
+    });
+
   private static _executeOperation = <T = any>(
     dominoConnector: DominoConnector,
     dominoAccess: DominoAccess,
@@ -753,10 +803,11 @@ export class DominoDocumentOperations {
           if (result.dataStream === null) {
             throw new NoResponseBody(operationId);
           }
-          const decodedStream = await streamDecoder(result.dataStream);
           if (result.status >= 400) {
-            throw new HttpResponseError(decodedStream as any);
+            const decodedErrorStream = await streamToJson(result.dataStream);
+            throw new HttpResponseError(decodedErrorStream);
           }
+          const decodedStream = await streamDecoder(result.dataStream);
 
           return resolve(decodedStream);
         })
