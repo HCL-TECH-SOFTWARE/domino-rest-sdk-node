@@ -6,6 +6,9 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
+import DominoConnector from '../src/DominoConnector.js';
+import DominoDocument from '../src/DominoDocument.js';
+import DominoListViewOperations from '../src/DominoListViewOperations.js';
 import {
   CredentialType,
   DominoAccess,
@@ -14,11 +17,7 @@ import {
   DominoDocumentOperations,
   DominoServer,
   QueryActions,
-  RichTextRepresentation,
 } from '../src/index.js';
-import DominoConnector from '../src/DominoConnector.js';
-import DominoDocument from '../src/DominoDocument.js';
-import DominoListViewOperations from '../src/DominoListViewOperations.js';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',
@@ -263,7 +262,7 @@ describe('DominoBasisSession', async () => {
       });
 
       it('should get called with richTextAs', async () => {
-        const richTextAs = RichTextRepresentation.HTML;
+        const richTextAs = "html";
         additionalParameters = [docs, richTextAs];
 
         await dbs.bulkCreateDocuments(dataSource, docs, richTextAs);
@@ -289,7 +288,7 @@ describe('DominoBasisSession', async () => {
       });
 
       it('should get called with richTextAs', async () => {
-        const richTextAs = RichTextRepresentation.HTML;
+        const richTextAs = "html";
         additionalParameters = [request, richTextAs];
 
         await dbs.bulkUpdateDocumentsByQuery(dataSource, request, richTextAs);

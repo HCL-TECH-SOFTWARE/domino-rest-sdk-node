@@ -26,7 +26,6 @@ import {
   QueryActions,
   QueryDocumentExplainResponse,
   QueryDocumentParseResponse,
-  RichTextRepresentation,
   UpdateDocumentOptions,
 } from './DominoDocumentOperations.js';
 import { DesignColumnSimple, DominoBaseListView, ListViewBody, SortType } from './DominoListView.js';
@@ -129,7 +128,6 @@ export {
   QueryDocumentExplainResponse,
   QueryDocumentParseResponse,
   RestCredentials,
-  RichTextRepresentation,
   ScopeBody,
   ScopeJSON,
   SdkError,

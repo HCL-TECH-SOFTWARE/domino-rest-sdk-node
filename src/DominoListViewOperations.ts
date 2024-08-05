@@ -3,7 +3,6 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DesignColumnSimple, DocumentBody, DominoAccess, DominoRequestOptions, ListViewBody, ListViewEntryJSON, RichTextRepresentation } from './index.js';
 import DominoConnector from './DominoConnector.js';
 import DominoDocument from './DominoDocument.js';
 import DominoListView from './DominoListView.js';
@@ -11,6 +10,7 @@ import DominoListViewEntry from './DominoListViewEntry.js';
 import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
 import { streamToJson } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
+import { DesignColumnSimple, DocumentBody, DominoAccess, DominoRequestOptions, ListViewBody, ListViewEntryJSON } from './index.js';
 
 export type GetListViewDesignJSON = {
   '@name': string;
@@ -113,7 +113,7 @@ export type ListViewEntryOptions = {
   /**
    * The format RichText fields will be returned when retrieving documents instead of view entries. The default if unspecified is mime.
    */
-  richTextAs?: RichTextRepresentation;
+  richTextAs?: string;
   /**
    * When retrieving documents instead of view entries, mark them as read by the current user after retrieval
    */

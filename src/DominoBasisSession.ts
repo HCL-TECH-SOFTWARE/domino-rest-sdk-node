@@ -20,7 +20,6 @@ import {
   GetListViewEntryOptions,
   GetListViewOptions,
   QueryActions,
-  RichTextRepresentation,
   UpdateDocumentOptions,
 } from './index.js';
 import DominoConnector from './DominoConnector.js';
@@ -81,10 +80,10 @@ export class DominoBasisSession implements DominoBasisRestSession {
   bulkGetDocuments = (dataSource: string, unids: string[], options?: BulkGetDocumentsOptions) =>
     DominoDocumentOperations.bulkGetDocuments(dataSource, this.dominoAccess, this.dominoConnector, unids, options);
 
-  bulkCreateDocuments = (dataSource: string, docs: DocumentJSON[], richTextAs?: RichTextRepresentation) =>
+  bulkCreateDocuments = (dataSource: string, docs: DocumentJSON[], richTextAs?: string) =>
     DominoDocumentOperations.bulkCreateDocuments(dataSource, this.dominoAccess, this.dominoConnector, docs, richTextAs);
 
-  bulkUpdateDocumentsByQuery = (dataSource: string, request: BulkUpdateDocumentsByQueryRequest, richTextAs?: RichTextRepresentation) =>
+  bulkUpdateDocumentsByQuery = (dataSource: string, request: BulkUpdateDocumentsByQueryRequest, richTextAs?: string) =>
     DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, richTextAs);
 
   bulkDeleteDocuments = (dataSource: string, docs: Array<DominoDocument>, mode?: string) =>

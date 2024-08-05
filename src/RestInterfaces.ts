@@ -37,7 +37,6 @@ import {
   QueryDocumentExplainResponse,
   QueryDocumentParseResponse,
   RestCredentials,
-  RichTextRepresentation,
   ScopeBody,
   ScopeJSON,
   UpdateDocumentOptions,
@@ -392,7 +391,7 @@ export interface DominoBasisRestSession {
    *
    * @throws an error if given array of document JSON is empty.
    */
-  bulkCreateDocuments: (dataSource: string, docs: DocumentJSON[], richTextAs?: RichTextRepresentation) => Promise<DominoDocument[]>;
+  bulkCreateDocuments: (dataSource: string, docs: DocumentJSON[], richTextAs?: string) => Promise<DominoDocument[]>;
   /**
    * Bulk update documents via specified request. Richtext return format can be specified
    * (defaults to `mime` if not given).
@@ -408,7 +407,7 @@ export interface DominoBasisRestSession {
   bulkUpdateDocumentsByQuery: (
     dataSource: string,
     request: BulkUpdateDocumentsByQueryRequest,
-    richTextAs?: RichTextRepresentation,
+    richTextAs?: string,
   ) => Promise<DominoDocument[] | DocumentStatusResponse[]>;
   /**
    * Delete all given {@link DominoDocument} in the given array. A mode can be provided if

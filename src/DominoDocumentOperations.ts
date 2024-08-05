@@ -155,9 +155,9 @@ export type DocumentOptions = {
    */
   meta?: boolean;
   /**
-   * The {@link RichTextRepresentation} the RichText fields will be returned.
+   * The {@link string} the RichText fields will be returned.
    */
-  richTextAs?: RichTextRepresentation;
+  richTextAs?: string;
   /**
    * Mark the document as read by the current user when the operation completes.
    */
@@ -226,9 +226,9 @@ export type GetDocumentsByQueryOptions = {
    */
   count?: number;
   /**
-   * The {@link RichTextRepresentation} the RichText fields will be returned.
+   * The {@link string} the RichText fields will be returned.
    */
-  richTextAs?: RichTextRepresentation;
+  richTextAs?: string;
   /**
    * At which entry should return values start (zero based), default = 0
    */
@@ -239,27 +239,6 @@ export type GetDocumentsByQueryOptions = {
  */
 export type BulkCreateDocumentsOptions = Pick<DocumentOptions, 'richTextAs'>;
 
-/**
- * Different representations for RichText.
- */
-export enum RichTextRepresentation {
-  /**
-   * Return richtext fields as HTML.
-   */
-  HTML = 'html',
-  /**
-   * Return richtext fields as mime.
-   */
-  MIME = 'mime',
-  /**
-   * Return richtext fields as markdown.
-   */
-  MARKDOWN = 'markdown',
-  /**
-   * Return richtext fields as plain text.
-   */
-  PLAIN = 'plain',
-}
 /**
  * Different methods for query.
  */
@@ -596,7 +575,7 @@ export class DominoDocumentOperations {
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     docs: DocumentJSON[],
-    richTextAs?: RichTextRepresentation,
+    richTextAs?: string,
   ) =>
     new Promise<DominoDocument[]>((resolve, reject) => {
       if (isEmpty(dataSource)) {
@@ -630,7 +609,7 @@ export class DominoDocumentOperations {
     dominoAccess: DominoAccess,
     dominoConnector: DominoConnector,
     request: BulkUpdateDocumentsByQueryRequest,
-    richTextAs?: RichTextRepresentation,
+    richTextAs?: string,
   ) =>
     new Promise<DominoDocument[] | DocumentStatusResponse[]>((resolve, reject) => {
       if (isEmpty(dataSource)) {
