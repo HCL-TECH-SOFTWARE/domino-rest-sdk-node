@@ -20,6 +20,7 @@ import {
   DominoRequestOptions,
   DominoRestAccess,
   DominoRestConnector,
+  DominoRestDocument,
   EmptyParamError,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
@@ -145,7 +146,7 @@ describe('DominoDocumentOperations', async () => {
   });
 
   describe('createDocument', () => {
-    let ddoc1: DominoDocument;
+    let ddoc1: DominoRestDocument;
 
     beforeEach(() => {
       operationId = 'createDocument';
@@ -184,7 +185,7 @@ describe('DominoDocumentOperations', async () => {
   });
 
   describe('updateDocument', () => {
-    let ddoc1: DominoDocument;
+    let ddoc1: DominoRestDocument;
 
     beforeEach(() => {
       operationId = 'updateDocument';
@@ -283,7 +284,7 @@ describe('DominoDocumentOperations', async () => {
   });
 
   describe('deleteDocument', () => {
-    let ddoc1: DominoDocument;
+    let ddoc1: DominoRestDocument;
 
     beforeEach(() => {
       operationId = 'deleteDocument';
@@ -713,7 +714,7 @@ describe('DominoDocumentOperations', async () => {
 
   describe('bulkDeleteDocuments', () => {
     let unids: string[];
-    let docs: DominoDocument[];
+    let docs: DominoRestDocument[];
 
     beforeEach(() => {
       operationId = 'bulkDeleteDocuments';

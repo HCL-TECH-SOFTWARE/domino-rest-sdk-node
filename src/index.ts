@@ -50,7 +50,7 @@ import { AccessLevel, DominoBaseScope, ScopeBody, ScopeJSON } from './DominoScop
 import { DominoApiMeta, DominoServer } from './DominoServer.js';
 import DominoSetupSession from './DominoSetupSession.js';
 import DominoUserSession from './DominoUserSession.js';
-import { DominoBasisRestSession, DominoRestAccess, DominoRestConnector } from './RestInterfaces.js';
+import { DominoBasisRestSession, DominoRestAccess, DominoRestConnector, DominoRestDocument } from './RestInterfaces.js';
 import {
   ApiNotAvailable,
   CallbackError,
@@ -101,6 +101,7 @@ export {
   DominoRestAccess,
   DominoRestAccessJSON,
   DominoRestConnector,
+  DominoRestDocument,
   DominoRestOperation,
   DominoServer,
   DominoSetupSession,

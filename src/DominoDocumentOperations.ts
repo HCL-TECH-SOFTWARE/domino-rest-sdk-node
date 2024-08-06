@@ -7,7 +7,7 @@ import DominoDocument from './DominoDocument.js';
 import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors/index.js';
 import { streamToJson, streamToText } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
-import { DocumentBody, DocumentJSON, DominoRequestOptions, DominoRestAccess, DominoRestConnector } from './index.js';
+import { DocumentBody, DocumentJSON, DominoRequestOptions, DominoRestAccess, DominoRestConnector, DominoRestDocument } from './index.js';
 
 /**
  * A response for document operations that can return document's status after operation.
@@ -346,7 +346,7 @@ export class DominoDocumentOperations {
     dataSource: string,
     dominoAccess: DominoRestAccess,
     dominoConnector: DominoRestConnector,
-    doc: DominoDocument,
+    doc: DominoRestDocument,
     options?: UpdateDocumentOptions,
   ) =>
     new Promise<DominoDocument>((resolve, reject) => {
@@ -423,7 +423,7 @@ export class DominoDocumentOperations {
     dataSource: string,
     dominoAccess: DominoRestAccess,
     dominoConnector: DominoRestConnector,
-    doc: DominoDocument,
+    doc: DominoRestDocument,
     mode?: string,
   ) =>
     new Promise<DocumentStatusResponse>((resolve, reject) => {
@@ -681,7 +681,7 @@ export class DominoDocumentOperations {
     dataSource: string,
     dominoAccess: DominoRestAccess,
     dominoConnector: DominoRestConnector,
-    docs: DominoDocument[],
+    docs: DominoRestDocument[],
     mode?: string,
   ) =>
     new Promise<DocumentStatusResponse[]>((resolve, reject) => {

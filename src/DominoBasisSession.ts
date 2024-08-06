@@ -16,6 +16,7 @@ import {
   DominoBasisRestSession,
   DominoDocumentOperations,
   DominoRestAccess,
+  DominoRestDocument,
   DominoServer,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
@@ -66,13 +67,13 @@ export class DominoBasisSession implements DominoBasisRestSession {
   createDocument = (dataSource: string, doc: DocumentJSON, options?: CreateDocumentOptions) =>
     DominoDocumentOperations.createDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
 
-  updateDocument = (dataSource: string, doc: DominoDocument, options?: UpdateDocumentOptions) =>
+  updateDocument = (dataSource: string, doc: DominoRestDocument, options?: UpdateDocumentOptions) =>
     DominoDocumentOperations.updateDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
 
   patchDocument = (dataSource: string, unid: string, docJsonPatch: DocumentBody, options?: UpdateDocumentOptions) =>
     DominoDocumentOperations.patchDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, docJsonPatch, options);
 
-  deleteDocument = (dataSource: string, doc: DominoDocument, mode?: string) =>
+  deleteDocument = (dataSource: string, doc: DominoRestDocument, mode?: string) =>
     DominoDocumentOperations.deleteDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, mode);
 
   deleteDocumentByUNID = (dataSource: string, unid: string, mode?: string): Promise<DocumentStatusResponse> =>
