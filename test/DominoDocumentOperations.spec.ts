@@ -161,7 +161,7 @@ describe('DominoDocumentOperations', async () => {
       expectedParams.set('parentUnid', 'parent');
       expectedParams.set('richTextAs', 'html');
 
-      const options: CreateDocumentOptions = { parentUnid: 'parent', richTextAs: "html" };
+      const options: CreateDocumentOptions = { parentUnid: 'parent', richTextAs: 'html' };
       const response = await DominoDocumentOperations.createDocument(dataSource, fakeToken, dc, doc, options);
       expect(response instanceof DominoDocument).to.be.true;
     });
@@ -201,7 +201,7 @@ describe('DominoDocumentOperations', async () => {
       expectedParams.set('parentUnid', 'parent');
       expectedParams.set('richTextAs', 'html');
 
-      const options: UpdateDocumentOptions = { richTextAs: "html", parentUnid: 'parent' };
+      const options: UpdateDocumentOptions = { richTextAs: 'html', parentUnid: 'parent' };
       const response = await DominoDocumentOperations.updateDocument(dataSource, fakeToken, dc, ddoc1, options);
       expect(response instanceof DominoDocument).to.be.true;
     });
@@ -250,7 +250,7 @@ describe('DominoDocumentOperations', async () => {
       expectedParams.set('parentUnid', 'parent');
       expectedParams.set('richTextAs', 'html');
 
-      const options: CreateDocumentOptions = { parentUnid: 'parent', richTextAs: "html" };
+      const options: CreateDocumentOptions = { parentUnid: 'parent', richTextAs: 'html' };
       const response = await DominoDocumentOperations.patchDocument(dataSource, fakeToken, dc, patchUnid, docPatchReq, options);
       expect(response instanceof DominoDocument).to.be.true;
     });
@@ -405,7 +405,7 @@ describe('DominoDocumentOperations', async () => {
 
       const options: BulkGetDocumentsOptions = {
         meta: true,
-        richTextAs: "html",
+        richTextAs: 'html',
       };
 
       const response = await DominoDocumentOperations.bulkGetDocuments(dataSource, fakeToken, dc, unids, options);
@@ -509,7 +509,7 @@ describe('DominoDocumentOperations', async () => {
       expectedParams.set('richTextAs', 'html');
 
       const options: GetDocumentsByQueryOptions = {
-        richTextAs: "html",
+        richTextAs: 'html',
         count: 3,
         start: 3,
       };
@@ -615,7 +615,7 @@ describe('DominoDocumentOperations', async () => {
     it('should be able to execute operation with options', async () => {
       expectedParams.set('richTextAs', 'html');
 
-      const response = await DominoDocumentOperations.bulkCreateDocuments(dataSource, fakeToken, dc, docs, "html");
+      const response = await DominoDocumentOperations.bulkCreateDocuments(dataSource, fakeToken, dc, docs, 'html');
       expect(response).to.exist;
       expect(response.length).to.be.equal(3);
       for (const doc of response) {
@@ -664,7 +664,7 @@ describe('DominoDocumentOperations', async () => {
     it('should be able to execute operation with options', async () => {
       expectedParams.set('richTextAs', 'html');
 
-      const response = await DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request, "html");
+      const response = await DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, fakeToken, dc, request, 'html');
       expect(response).to.exist;
       expect(response.length).to.be.equal(3);
     });
@@ -819,6 +819,50 @@ describe('DominoDocumentOperations', async () => {
       await expect(DominoDocumentOperations.bulkDeleteDocumentsByUNID(dataSource, fakeToken, dc, unids)).to.be.rejectedWith(
         'Execute operation error.',
       );
+    });
+  });
+
+  describe('getRichtext', () => {
+    const unid = '28FB14A0F6BB9A3A00258A1D004C6F9D';
+    const richTextAs = 'html';
+
+    beforeEach(() => {
+      operationId = 'getRichText';
+      dcRequestStub.resolves(transformToRequestResponse('<h1>Hello world!</h1>'));
+      expectedParams.set('unid', unid);
+      expectedParams.set('richTextAs', richTextAs);
+    });
+
+    it('should be able to execute operation', async () => {
+      const response = await DominoDocumentOperations.getRichtext(dataSource, fakeToken, dc, unid, richTextAs);
+      expect(response).to.exist;
+    });
+
+    it('should be able to execute operation with options', async () => {
+      const options = { mode: 'delete', item: 'status' };
+      expectedParams.set('mode', options.mode);
+      expectedParams.set('item', options.item);
+
+      const response = await DominoDocumentOperations.getRichtext(dataSource, fakeToken, dc, unid, richTextAs, options);
+      expect(response).to.exist;
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoDocumentOperations.getRichtext('', fakeToken, dc, unid, richTextAs)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'unid' is empty`, async () => {
+      await expect(DominoDocumentOperations.getRichtext(dataSource, fakeToken, dc, '', richTextAs)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it(`should throw an error if 'richTextAs' is empty`, async () => {
+      await expect(DominoDocumentOperations.getRichtext(dataSource, fakeToken, dc, unid, '')).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoDocumentOperations.getRichtext(dataSource, fakeToken, dc, unid, richTextAs)).to.be.rejectedWith('Execute operation error.');
     });
   });
 

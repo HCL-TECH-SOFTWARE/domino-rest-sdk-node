@@ -7,8 +7,8 @@ import { expect, use } from 'chai';
 import { chaiAsPromised } from 'chai-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src/index.js';
 import DominoConnector, { DominoRestOperation } from '../src/DominoConnector.js';
+import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src/index.js';
 
 use(chaiAsPromised);
 
@@ -300,7 +300,7 @@ describe('DominoConnector', () => {
     it('should return all of the operations', () => {
       const result = baseConnector.getOperations();
       expect(result).not.null;
-      expect(result.size).to.equal(58);
+      expect(result.size).to.equal(71);
       const result2 = baseConnector.getOperations();
       expect(result).to.deep.equal(result2);
     });

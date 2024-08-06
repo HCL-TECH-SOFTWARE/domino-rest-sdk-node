@@ -262,7 +262,7 @@ describe('DominoBasisSession', async () => {
       });
 
       it('should get called with richTextAs', async () => {
-        const richTextAs = "html";
+        const richTextAs = 'html';
         additionalParameters = [docs, richTextAs];
 
         await dbs.bulkCreateDocuments(dataSource, docs, richTextAs);
@@ -288,7 +288,7 @@ describe('DominoBasisSession', async () => {
       });
 
       it('should get called with richTextAs', async () => {
-        const richTextAs = "html";
+        const richTextAs = 'html';
         additionalParameters = [request, richTextAs];
 
         await dbs.bulkUpdateDocumentsByQuery(dataSource, request, richTextAs);
@@ -344,6 +344,30 @@ describe('DominoBasisSession', async () => {
         additionalParameters = [unids, mode];
 
         await dbs.bulkDeleteDocumentsByUNID(dataSource, unids, mode);
+      });
+    });
+
+    describe('getRichtext', () => {
+      beforeEach(() => {
+        stub = sinon.stub(DominoDocumentOperations, 'getRichtext');
+      });
+
+      it('should get called', async () => {
+        const richTextAs = 'html';
+        additionalParameters = [unid, richTextAs, undefined];
+
+        await dbs.getRichtext(dataSource, unid, richTextAs);
+      });
+
+      it('should get called with options', async () => {
+        const richTextAs = 'html';
+        const options = {
+          mode,
+          item: 'status',
+        };
+        additionalParameters = [unid, richTextAs, options];
+
+        await dbs.getRichtext(dataSource, unid, richTextAs, options);
       });
     });
   });
