@@ -6,7 +6,8 @@
 import DominoDocument from './DominoDocument.js';
 import DominoListView from './DominoListView.js';
 import DominoListViewEntry from './DominoListViewEntry.js';
-import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
+import DominoRestOperations from './DominoRestOperations.js';
+import { EmptyParamError } from './errors/index.js';
 import { streamToJson } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
 import {
@@ -209,7 +210,7 @@ export enum ViewEntryScopes {
  * @author <emmanuelryan.gamla@hcl.software>
  * @author <alecvincent.bardiano@hcl.software>
  */
-export class DominoListViewOperations {
+export class DominoListViewOperations extends DominoRestOperations {
   static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoRestAccess,
@@ -377,30 +378,6 @@ export class DominoListViewOperations {
 
       this._executeOperation<GetListViewDesignJSON>(dominoConnector, dominoAccess, 'getDesign', reqOptions, streamToJson)
         .then((listView) => resolve(listView))
-        .catch((error) => reject(error));
-    });
-
-  private static _executeOperation = <T = any>(
-    dominoConnector: DominoRestConnector,
-    dominoAccess: DominoRestAccess,
-    operationId: string,
-    options: DominoRequestOptions,
-    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
-  ): Promise<T> =>
-    new Promise<T>((resolve, reject) => {
-      dominoConnector
-        .request(dominoAccess, operationId, options)
-        .then(async (result) => {
-          if (result.dataStream === null) {
-            throw new NoResponseBody(operationId);
-          }
-          const decodedStream = await streamDecoder(result.dataStream);
-          if (result.status >= 400) {
-            throw new HttpResponseError(decodedStream as any);
-          }
-
-          return resolve(decodedStream);
-        })
         .catch((error) => reject(error));
     });
 }

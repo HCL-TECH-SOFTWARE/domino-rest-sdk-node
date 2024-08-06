@@ -4,7 +4,8 @@
  * ========================================================================== */
 
 import DominoDocument from './DominoDocument.js';
-import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors/index.js';
+import DominoRestOperations from './DominoRestOperations.js';
+import { EmptyParamError, InvalidParamError, NotAnArrayError } from './errors/index.js';
 import { streamToJson, streamToText } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
 import { DocumentBody, DocumentJSON, DominoRequestOptions, DominoRestAccess, DominoRestConnector, DominoRestDocument } from './index.js';
@@ -277,7 +278,7 @@ export enum QueryActions {
  * @author <emmanuelryan.gamla@hcl.software>
  * @author <alecvincent.bardiano@hcl.software>
  */
-export class DominoDocumentOperations {
+export class DominoDocumentOperations extends DominoRestOperations {
   static getDocument = (
     dataSource: string,
     dominoAccess: DominoRestAccess,
@@ -797,31 +798,6 @@ export class DominoDocumentOperations {
 
       this._executeOperation<string>(dominoConnector, dominoAccess, 'getRichText', reqOptions, streamToText)
         .then((richtextValue) => resolve(richtextValue))
-        .catch((error) => reject(error));
-    });
-
-  private static _executeOperation = <T = any>(
-    dominoConnector: DominoRestConnector,
-    dominoAccess: DominoRestAccess,
-    operationId: string,
-    options: DominoRequestOptions,
-    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
-  ) =>
-    new Promise<T>((resolve, reject) => {
-      dominoConnector
-        .request(dominoAccess, operationId, options)
-        .then(async (result) => {
-          if (result.dataStream === null) {
-            throw new NoResponseBody(operationId);
-          }
-          if (result.status >= 400) {
-            const decodedErrorStream = await streamToJson(result.dataStream);
-            throw new HttpResponseError(decodedErrorStream);
-          }
-          const decodedStream = await streamDecoder(result.dataStream);
-
-          return resolve(decodedStream);
-        })
         .catch((error) => reject(error));
     });
 }
