@@ -15,6 +15,7 @@ import {
   DominoRequestResponse,
   DominoRestAccess,
   DominoRestConnector,
+  DominoUserRestSession,
   DominoUserSession,
   HttpResponseError,
   NoResponseBody,
@@ -35,7 +36,7 @@ describe('DominoUserSession', async () => {
   const fakeToken = new DominoAccess(fakeCredentials);
 
   let dc: DominoRestConnector;
-  let dus: DominoUserSession;
+  let dus: DominoUserRestSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
   let stub: sinon.SinonStub<any, Promise<any>>;
