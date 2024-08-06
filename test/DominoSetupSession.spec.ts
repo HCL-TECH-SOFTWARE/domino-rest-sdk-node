@@ -16,6 +16,7 @@ import {
   DominoRestConnector,
   DominoRestServer,
   DominoServer,
+  DominoSetupRestSession,
   DominoSetupSession,
   SortType,
 } from '../src/index.js';
@@ -35,7 +36,7 @@ describe('DominoSetupSession', async () => {
   const fakeToken = new DominoAccess(fakeCredentials);
 
   let dc: DominoRestConnector;
-  let dss: DominoSetupSession;
+  let dss: DominoSetupRestSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
   let stub: sinon.SinonStub<any, Promise<any>>;

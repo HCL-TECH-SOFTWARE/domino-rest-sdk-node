@@ -57,6 +57,7 @@ import {
   DominoRestDocument,
   DominoRestScope,
   DominoRestServer,
+  DominoSetupRestSession,
 } from './RestInterfaces.js';
 import {
   ApiNotAvailable,
@@ -113,6 +114,7 @@ export {
   DominoRestScope,
   DominoRestServer,
   DominoServer,
+  DominoSetupRestSession,
   DominoSetupSession,
   DominoUserSession,
   EmptyParamError,
