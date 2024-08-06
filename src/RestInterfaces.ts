@@ -11,6 +11,7 @@ import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry.js
 import DominoScope from './DominoScope.js';
 import { streamSplit, streamTransformToJson } from './helpers/StreamHelpers.js';
 import {
+  AccessTokenReturn,
   BulkGetDocumentsOptions,
   BulkGetErrorResponse,
   BulkUpdateDocumentsByQueryRequest,
@@ -61,6 +62,10 @@ export interface DominoRestAccess {
    */
   baseUrl: string;
   /**
+   * Holds all the credentials needed to access the Domino REST API server.
+   */
+  credentials: RestCredentials;
+  /**
    * The JWT token for access.
    */
   token?: string;
@@ -84,7 +89,7 @@ export interface DominoRestAccess {
    *
    * @returns a promise the resolves the JWT token for access.
    */
-  accessToken: () => Promise<string>;
+  accessToken: (callback?: () => Promise<AccessTokenReturn>) => Promise<string>;
   /**
    * Get JWT token (if any) expiry.
    *
@@ -251,7 +256,7 @@ export interface DominoUserRestSession {
   /**
    * Provides access to Domino REST API server.
    */
-  dominoAccess: DominoAccess;
+  dominoAccess: DominoRestAccess;
   /**
    * Provides accessible operations and its required parameters.
    */
@@ -288,7 +293,7 @@ export interface DominoBasisRestSession {
   /**
    * Provides access to Domino REST API server.
    */
-  dominoAccess: DominoAccess;
+  dominoAccess: DominoRestAccess;
   /**
    * Provides accessible operations and its required parameters.
    */
@@ -520,7 +525,7 @@ export interface DominoSetupRestSession {
   /**
    * Provides access to Domino REST API server.
    */
-  dominoAccess: DominoAccess;
+  dominoAccess: DominoRestAccess;
   /**
    * Provides accessible operations and its required parameters.
    */
@@ -610,7 +615,7 @@ export interface DominoRestConnector {
    *
    * @throws an error if response is not okay.
    */
-  request: (dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions) => Promise<DominoRequestResponse>;
+  request: (dominoAccess: DominoRestAccess, operationId: string, options: DominoRequestOptions) => Promise<DominoRequestResponse>;
   /**
    * Return information about the given operation ID.
    *
@@ -647,5 +652,5 @@ export interface DominoRestConnector {
    * @throws an error if a mandatory header parameter is not given.
    * @throws an error if something went wrong on building request options.
    */
-  getFetchOptions: (dominoAccess: DominoAccess, operation: DominoRestOperation, request: DominoRequestOptions) => Promise<any>;
+  getFetchOptions: (dominoAccess: DominoRestAccess, operation: DominoRestOperation, request: DominoRequestOptions) => Promise<any>;
 }

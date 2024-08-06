@@ -12,6 +12,7 @@ import {
   CallbackError,
   CredentialType,
   DominoAccess,
+  DominoRestAccess,
   DominoRestAccessJSON,
   EmptyParamError,
   HttpResponseError,
@@ -141,7 +142,7 @@ describe('DominoAccess', () => {
   });
 
   describe('updateCredentials', () => {
-    let dominoAccessToUpdate: DominoAccess;
+    let dominoAccessToUpdate: DominoRestAccess;
     let incomingCredentials: RestCredentials;
 
     beforeEach(() => {
@@ -234,7 +235,7 @@ describe('DominoAccess', () => {
   });
 
   describe('accessToken', () => {
-    let dominoAccess: DominoAccess;
+    let dominoAccess: DominoRestAccess;
     let decodeStub: sinon.SinonStub<[token: string, options?: jwt.DecodeOptions | undefined], string | jwt.JwtPayload | null>;
 
     afterEach(() => {
@@ -483,7 +484,7 @@ describe('DominoAccess', () => {
   });
 
   describe('scope', () => {
-    let dominoAccess: DominoAccess;
+    let dominoAccess: DominoRestAccess;
 
     beforeEach(() => {
       dominoAccess = new DominoAccess(simpleAccess);
@@ -500,7 +501,7 @@ describe('DominoAccess', () => {
   });
 
   describe('expiry', () => {
-    let dominoAccess: DominoAccess;
+    let dominoAccess: DominoRestAccess;
 
     beforeEach(() => {
       dominoAccess = new DominoAccess(simpleAccess);

@@ -6,7 +6,7 @@
 /* istanbul ignore file */
 /* index have no testable code - no point including them in coverage reports */
 
-import { CredentialType, DominoAccess, DominoRestAccessJSON, RestCredentials } from './DominoAccess.js';
+import { AccessTokenReturn, CredentialType, DominoAccess, DominoRestAccessJSON, RestCredentials } from './DominoAccess.js';
 import DominoBasisSession from './DominoBasisSession.js';
 import { DominoRequestOptions, DominoRequestResponse, DominoRestOperation } from './DominoConnector.js';
 import { DocumentBody, DocumentJSON, DominoBaseDocument, DominoDocumentMeta } from './DominoDocument.js';
@@ -50,6 +50,7 @@ import { AccessLevel, DominoBaseScope, ScopeBody, ScopeJSON } from './DominoScop
 import { DominoApiMeta, DominoServer } from './DominoServer.js';
 import DominoSetupSession from './DominoSetupSession.js';
 import DominoUserSession from './DominoUserSession.js';
+import { DominoRestAccess } from './RestInterfaces.js';
 import {
   ApiNotAvailable,
   CallbackError,
@@ -69,6 +70,7 @@ import { streamSplit, streamToJson, streamToText, streamTransformToJson } from '
 
 export {
   AccessLevel,
+  AccessTokenReturn,
   ApiNotAvailable,
   BulkCreateDocumentsOptions,
   BulkGetDocumentsOptions,
@@ -95,6 +97,7 @@ export {
   DominoDocumentOperations,
   DominoRequestOptions,
   DominoRequestResponse,
+  DominoRestAccess,
   DominoRestAccessJSON,
   DominoRestOperation,
   DominoServer,

@@ -18,6 +18,7 @@ import {
   DominoApiMeta,
   DominoDocumentOperations,
   DominoRequestOptions,
+  DominoRestAccess,
   EmptyParamError,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
@@ -63,7 +64,7 @@ describe('DominoDocumentOperations', async () => {
   let expectedParams: Map<string, any>;
   let expectedOptions: DominoRequestOptions;
   let dcRequestStub: sinon.SinonStub<
-    [dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions],
+    [dominoAccess: DominoRestAccess, operationId: string, options: DominoRequestOptions],
     Promise<DominoRequestResponse>
   >;
 

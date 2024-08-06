@@ -8,7 +8,7 @@ import DominoDocument from './DominoDocument.js';
 import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors/index.js';
 import { streamToJson, streamToText } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
-import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from './index.js';
+import { DocumentBody, DocumentJSON, DominoRequestOptions, DominoRestAccess } from './index.js';
 
 /**
  * A response for document operations that can return document's status after operation.
@@ -281,7 +281,7 @@ export enum QueryActions {
 export class DominoDocumentOperations {
   static getDocument = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     unid: string,
     options?: GetDocumentOptions,
@@ -312,7 +312,7 @@ export class DominoDocumentOperations {
 
   static createDocument = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     doc: DocumentJSON,
     options?: CreateDocumentOptions,
@@ -345,7 +345,7 @@ export class DominoDocumentOperations {
 
   static updateDocument = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     doc: DominoDocument,
     options?: UpdateDocumentOptions,
@@ -383,7 +383,7 @@ export class DominoDocumentOperations {
 
   static patchDocument = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     unid: string,
     docJsonPatch: DocumentJSON,
@@ -420,7 +420,13 @@ export class DominoDocumentOperations {
         .catch((error) => reject(error));
     });
 
-  static deleteDocument = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, doc: DominoDocument, mode?: string) =>
+  static deleteDocument = (
+    dataSource: string,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoConnector,
+    doc: DominoDocument,
+    mode?: string,
+  ) =>
     new Promise<DocumentStatusResponse>((resolve, reject) => {
       if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
@@ -449,7 +455,7 @@ export class DominoDocumentOperations {
         .catch((error) => reject(error));
     });
 
-  static deleteDocumentByUNID = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, unid: string, mode?: string) =>
+  static deleteDocumentByUNID = (dataSource: string, dominoAccess: DominoRestAccess, dominoConnector: DominoConnector, unid: string, mode?: string) =>
     new Promise<DocumentStatusResponse>((resolve, reject) => {
       if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
@@ -476,7 +482,7 @@ export class DominoDocumentOperations {
 
   static bulkGetDocuments = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     unids: string[],
     options?: BulkGetDocumentsOptions,
@@ -533,7 +539,7 @@ export class DominoDocumentOperations {
 
   static getDocumentsByQuery = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     request: GetDocumentsByQueryRequest,
     qaction: QueryActions,
@@ -586,7 +592,7 @@ export class DominoDocumentOperations {
 
   static bulkCreateDocuments = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     docs: DocumentJSON[],
     richTextAs?: string,
@@ -620,7 +626,7 @@ export class DominoDocumentOperations {
 
   static bulkUpdateDocumentsByQuery = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     request: BulkUpdateDocumentsByQueryRequest,
     richTextAs?: string,
@@ -668,7 +674,7 @@ export class DominoDocumentOperations {
 
   static bulkDeleteDocuments = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     docs: DominoDocument[],
     mode?: string,
@@ -713,7 +719,7 @@ export class DominoDocumentOperations {
 
   static bulkDeleteDocumentsByUNID = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     unids: string[],
     mode?: string,
@@ -755,7 +761,7 @@ export class DominoDocumentOperations {
 
   static getRichtext = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     unid: string,
     richTextAs: string,
@@ -791,7 +797,7 @@ export class DominoDocumentOperations {
 
   private static _executeOperation = <T = any>(
     dominoConnector: DominoConnector,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     operationId: string,
     options: DominoRequestOptions,
     streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,

@@ -10,7 +10,7 @@ import DominoListViewEntry from './DominoListViewEntry.js';
 import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
 import { streamToJson } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
-import { DesignColumnSimple, DocumentBody, DominoAccess, DominoRequestOptions, ListViewBody, ListViewEntryJSON } from './index.js';
+import { DesignColumnSimple, DocumentBody, DominoRequestOptions, DominoRestAccess, ListViewBody, ListViewEntryJSON } from './index.js';
 
 export type GetListViewDesignJSON = {
   '@name': string;
@@ -205,21 +205,21 @@ export enum ViewEntryScopes {
 export class DominoListViewOperations {
   static getListViewEntry(
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { document: false },
   ): Promise<ListViewEntryJSON[]>;
   static getListViewEntry(
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { document: true },
   ): Promise<DominoDocument[]>;
   static getListViewEntry(
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     options?: GetListViewEntryOptions,
@@ -257,7 +257,7 @@ export class DominoListViewOperations {
 
   static getListViewPivotEntry = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     listViewName: string,
     pivotColumn: string,
@@ -288,7 +288,7 @@ export class DominoListViewOperations {
         .catch((error) => reject(error));
     });
 
-  static getListViews = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, options?: GetListViewOptions) =>
+  static getListViews = (dataSource: string, dominoAccess: DominoRestAccess, dominoConnector: DominoConnector, options?: GetListViewOptions) =>
     new Promise<GetListViewJSON[]>((resolve, reject) => {
       if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
@@ -308,7 +308,7 @@ export class DominoListViewOperations {
 
   static createUpdateListView = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     listView: ListViewBody,
     designName: string,
@@ -346,7 +346,7 @@ export class DominoListViewOperations {
 
   static getListView = (
     dataSource: string,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     dominoConnector: DominoConnector,
     designName: string,
     options?: DesignOptions,
@@ -375,7 +375,7 @@ export class DominoListViewOperations {
 
   private static _executeOperation = <T = any>(
     dominoConnector: DominoConnector,
-    dominoAccess: DominoAccess,
+    dominoAccess: DominoRestAccess,
     operationId: string,
     options: DominoRequestOptions,
     streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,

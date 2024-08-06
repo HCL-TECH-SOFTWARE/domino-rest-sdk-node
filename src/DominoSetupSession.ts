@@ -3,12 +3,12 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DesignOptions, DominoAccess, DominoServer, ListViewBody, ScopeBody } from './index.js';
 import DominoConnector from './DominoConnector.js';
 import DominoListViewOperations from './DominoListViewOperations.js';
 import DominoScope from './DominoScope.js';
 import DominoScopeOperations from './DominoScopeOperations.js';
 import { DominoSetupRestSession } from './RestInterfaces.js';
+import { DesignOptions, DominoRestAccess, DominoServer, ListViewBody, ScopeBody } from './index.js';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user
@@ -19,7 +19,7 @@ import { DominoSetupRestSession } from './RestInterfaces.js';
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoSetupSession implements DominoSetupRestSession {
-  dominoAccess: DominoAccess;
+  dominoAccess: DominoRestAccess;
   dominoConnector: DominoConnector;
 
   /**
@@ -29,7 +29,7 @@ export class DominoSetupSession implements DominoSetupRestSession {
    * @param dominoServer DominoServer to use
    * @returns DominoSetupSession class
    */
-  static getSetupSession = (dominoAccess: DominoAccess, dominoServer: DominoServer) =>
+  static getSetupSession = (dominoAccess: DominoRestAccess, dominoServer: DominoServer) =>
     new Promise<DominoSetupSession>((resolve, reject) => {
       dominoServer
         .getDominoConnector('setup')
@@ -37,7 +37,7 @@ export class DominoSetupSession implements DominoSetupRestSession {
         .catch((error) => reject(error));
     });
 
-  constructor(dominoAccess: DominoAccess, dominoConnector: DominoConnector) {
+  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) {
     this.dominoAccess = dominoAccess;
     this.dominoConnector = dominoConnector;
   }

@@ -6,19 +6,20 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
+import DominoConnector from '../src/DominoConnector.js';
+import DominoScope from '../src/DominoScope.js';
+import DominoScopeOperations from '../src/DominoScopeOperations.js';
 import {
   CredentialType,
   DominoAccess,
   DominoApiMeta,
   DominoRequestOptions,
   DominoRequestResponse,
+  DominoRestAccess,
   EmptyParamError,
   HttpResponseError,
   NoResponseBody,
 } from '../src/index.js';
-import DominoConnector from '../src/DominoConnector.js';
-import DominoScope from '../src/DominoScope.js';
-import DominoScopeOperations from '../src/DominoScopeOperations.js';
 import { transformToRequestResponse } from './helpers/transformToRequestResponse.js';
 
 describe('DominoScopeOperations', async () => {
@@ -41,7 +42,7 @@ describe('DominoScopeOperations', async () => {
   let expectedParams: Map<string, any>;
   let expectedOptions: DominoRequestOptions;
   let dcRequestStub: sinon.SinonStub<
-    [dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions],
+    [dominoAccess: DominoRestAccess, operationId: string, options: DominoRequestOptions],
     Promise<DominoRequestResponse>
   >;
 

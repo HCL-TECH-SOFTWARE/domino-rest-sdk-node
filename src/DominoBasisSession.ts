@@ -14,8 +14,8 @@ import {
   DocumentBody,
   DocumentJSON,
   DocumentStatusResponse,
-  DominoAccess,
   DominoDocumentOperations,
+  DominoRestAccess,
   DominoServer,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
@@ -37,7 +37,7 @@ import {
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoBasisSession implements DominoBasisRestSession {
-  dominoAccess: DominoAccess;
+  dominoAccess: DominoRestAccess;
   dominoConnector: DominoConnector;
 
   /**
@@ -47,7 +47,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
    * @param dominoServer DominoServer to use
    * @returns DominoBasisSession class
    */
-  static getBasisSession = (dominoAccess: DominoAccess, dominoServer: DominoServer) =>
+  static getBasisSession = (dominoAccess: DominoRestAccess, dominoServer: DominoServer) =>
     new Promise<DominoBasisSession>((resolve, reject) => {
       dominoServer
         .getDominoConnector('basis')
@@ -55,7 +55,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
         .catch((error) => reject(error));
     });
 
-  constructor(dominoAccess: DominoAccess, dominoConnector: DominoConnector) {
+  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) {
     this.dominoAccess = dominoAccess;
     this.dominoConnector = dominoConnector;
   }
