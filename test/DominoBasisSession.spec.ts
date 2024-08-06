@@ -13,6 +13,7 @@ import {
   CredentialType,
   DominoAccess,
   DominoApiMeta,
+  DominoBasisRestSession,
   DominoBasisSession,
   DominoDocumentOperations,
   DominoServer,
@@ -34,7 +35,7 @@ describe('DominoBasisSession', async () => {
   const fakeToken = new DominoAccess(fakeCredentials);
 
   let dc: DominoConnector;
-  let dbs: DominoBasisSession;
+  let dbs: DominoBasisRestSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
   let stub: sinon.SinonStub<any, Promise<any>>;

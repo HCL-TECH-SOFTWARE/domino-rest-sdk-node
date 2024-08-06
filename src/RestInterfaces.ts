@@ -332,7 +332,7 @@ export interface DominoBasisRestSession {
    * @throws an error if given document has empty UNID.
    * @throws an error if given document has invalid UNID.
    */
-  updateDocument: (dataSource: string, doc: DominoDocument, options: UpdateDocumentOptions) => Promise<DominoDocument>;
+  updateDocument: (dataSource: string, doc: DominoDocument, options?: UpdateDocumentOptions) => Promise<DominoDocument>;
   /**
    * Update a document pointed by its UNID. Performs a PATCH on the document using the given
    * document body JSON. Additional request options can be provided.
