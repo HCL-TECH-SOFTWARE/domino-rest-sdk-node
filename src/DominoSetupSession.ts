@@ -4,10 +4,9 @@
  * ========================================================================== */
 
 import DominoListViewOperations from './DominoListViewOperations.js';
-import DominoScope from './DominoScope.js';
 import DominoScopeOperations from './DominoScopeOperations.js';
 import { DominoSetupRestSession } from './RestInterfaces.js';
-import { DesignOptions, DominoRestAccess, DominoRestConnector, DominoServer, ListViewBody, ScopeBody } from './index.js';
+import { DesignOptions, DominoRestAccess, DominoRestConnector, DominoRestScope, DominoServer, ListViewBody, ScopeBody } from './index.js';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user
@@ -41,7 +40,7 @@ export class DominoSetupSession implements DominoSetupRestSession {
     this.dominoConnector = dominoConnector;
   }
 
-  createUpdateScope = (scope: DominoScope | ScopeBody) => DominoScopeOperations.createUpdateScope(scope, this.dominoAccess, this.dominoConnector);
+  createUpdateScope = (scope: DominoRestScope | ScopeBody) => DominoScopeOperations.createUpdateScope(scope, this.dominoAccess, this.dominoConnector);
 
   getScope = (scopeName: string) => DominoScopeOperations.getScope(scopeName, this.dominoAccess, this.dominoConnector);
 

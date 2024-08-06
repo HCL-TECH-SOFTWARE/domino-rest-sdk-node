@@ -17,6 +17,7 @@ import {
   DominoRequestResponse,
   DominoRestAccess,
   DominoRestConnector,
+  DominoRestScope,
   EmptyParamError,
   HttpResponseError,
   NoResponseBody,
@@ -144,7 +145,7 @@ describe('DominoScopeOperations', async () => {
   });
 
   describe('createUpdateScope', () => {
-    let scope: DominoScope;
+    let scope: DominoRestScope;
 
     beforeEach(() => {
       operationId = 'createUpdateScopeMapping';

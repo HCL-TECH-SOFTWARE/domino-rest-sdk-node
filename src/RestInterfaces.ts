@@ -560,7 +560,7 @@ export interface DominoSetupRestSession {
    * @param scope accepts a {@link DominoScope} or a JSON format containing all of the fields needed when creating a Domino REST scope
    * @returns a promise that resolves to the created scope.
    */
-  createUpdateScope: (scope: DominoScope | ScopeJSON) => Promise<DominoScope>;
+  createUpdateScope: (scope: DominoRestScope | ScopeJSON) => Promise<DominoScope>;
   /**
    * Create or update Domino design view based on simplified JSON.
    *

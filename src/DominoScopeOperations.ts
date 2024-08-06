@@ -7,7 +7,7 @@ import DominoScope from './DominoScope.js';
 import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
 import { streamToJson } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
-import { DominoRequestOptions, DominoRestAccess, DominoRestConnector, ScopeBody } from './index.js';
+import { DominoRequestOptions, DominoRestAccess, DominoRestConnector, DominoRestScope, ScopeBody } from './index.js';
 
 /**
  * API call helper functions for scope operations.
@@ -60,13 +60,13 @@ export class DominoScopeOperations {
         .catch((error) => reject(error));
     });
 
-  static createUpdateScope = (scope: DominoScope | ScopeBody, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
+  static createUpdateScope = (scope: DominoRestScope | ScopeBody, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
       if (isEmpty(scope)) {
         return reject(new EmptyParamError('scope'));
       }
 
-      let dominoScope: DominoScope;
+      let dominoScope: DominoRestScope;
       if (!(scope instanceof DominoScope)) {
         dominoScope = new DominoScope(scope);
       } else {
