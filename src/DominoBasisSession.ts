@@ -1,8 +1,12 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
+import DominoConnector from './DominoConnector.js';
+import DominoDocument from './DominoDocument.js';
+import DominoListViewOperations from './DominoListViewOperations.js';
+import { DominoBasisRestSession } from './RestInterfaces.js';
 import {
   BulkGetDocumentsOptions,
   BulkUpdateDocumentsByQueryRequest,
@@ -23,10 +27,6 @@ import {
   QueryActions,
   UpdateDocumentOptions,
 } from './index.js';
-import DominoConnector from './DominoConnector.js';
-import DominoDocument from './DominoDocument.js';
-import DominoListViewOperations from './DominoListViewOperations.js';
-import { DominoBasisRestSession } from './RestInterfaces.js';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user
@@ -96,7 +96,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
   getDocumentsByQuery = (dataSource: string, request: GetDocumentsByQueryRequest, action: QueryActions, options?: GetDocumentsByQueryOptions) =>
     DominoDocumentOperations.getDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, action, options);
 
-  getRichtext = (dataSource: string, unid: string, richTextAs: string, options?: GetRichtextOptions) => 
+  getRichtext = (dataSource: string, unid: string, richTextAs: string, options?: GetRichtextOptions) =>
     DominoDocumentOperations.getRichtext(dataSource, this.dominoAccess, this.dominoConnector, unid, richTextAs, options);
 
   getListViews = (dataSource: string, options?: GetListViewOptions) =>

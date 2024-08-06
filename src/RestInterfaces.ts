@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -458,7 +458,7 @@ export interface DominoBasisRestSession {
   ) => Promise<DominoDocument[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>;
   /**
    * Return a plain unformatted text from a Rich Text field.
-   * 
+   *
    * @param dataSource the scope name
    * @param unid the UNID of the document to be deleted
    * @param richTextAs the format to return richtext field value

@@ -1,14 +1,14 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from './index.js';
 import DominoConnector from './DominoConnector.js';
 import DominoDocument from './DominoDocument.js';
 import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors/index.js';
 import { streamToJson, streamToText } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
+import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from './index.js';
 
 /**
  * A response for document operations that can return document's status after operation.
