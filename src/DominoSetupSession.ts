@@ -6,7 +6,7 @@
 import DominoListViewOperations from './DominoListViewOperations.js';
 import DominoScopeOperations from './DominoScopeOperations.js';
 import { DominoSetupRestSession } from './RestInterfaces.js';
-import { DesignOptions, DominoRestAccess, DominoRestConnector, DominoRestScope, DominoServer, ListViewBody, ScopeBody } from './index.js';
+import { DesignOptions, DominoRestAccess, DominoRestConnector, DominoRestScope, DominoRestServer, ListViewBody, ScopeBody } from './index.js';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user
@@ -27,7 +27,7 @@ export class DominoSetupSession implements DominoSetupRestSession {
    * @param dominoServer DominoServer to use
    * @returns DominoSetupSession class
    */
-  static getSetupSession = (dominoAccess: DominoRestAccess, dominoServer: DominoServer) =>
+  static getSetupSession = (dominoAccess: DominoRestAccess, dominoServer: DominoRestServer) =>
     new Promise<DominoSetupSession>((resolve, reject) => {
       dominoServer
         .getDominoConnector('setup')

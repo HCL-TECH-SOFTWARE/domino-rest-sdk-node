@@ -17,6 +17,7 @@ import {
   DominoBasisSession,
   DominoDocumentOperations,
   DominoRestConnector,
+  DominoRestServer,
   DominoServer,
   QueryActions,
 } from '../src/index.js';
@@ -64,7 +65,7 @@ describe('DominoBasisSession', async () => {
   describe('getBasisSession', () => {
     const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
 
-    let dominoServer: DominoServer;
+    let dominoServer: DominoRestServer;
     let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoRestConnector>>;
 
     beforeEach(async () => {

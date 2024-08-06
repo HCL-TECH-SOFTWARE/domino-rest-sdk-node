@@ -120,6 +120,10 @@ export interface DominoRestServer {
    */
   readonly baseUrl: string;
   /**
+   * Maps APIs loaded from Domino REST API server's /api endpoint.
+   */
+  apiMap: Map<string, DominoApiMeta>;
+  /**
    * Gets all available APIs on Domino REST API server. Will fetch from /api endpoint if
    * API map is yet to be loaded.
    *

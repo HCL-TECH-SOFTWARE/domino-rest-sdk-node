@@ -17,7 +17,7 @@ import {
   DominoDocumentOperations,
   DominoRestAccess,
   DominoRestDocument,
-  DominoServer,
+  DominoRestServer,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
   GetDocumentsByQueryRequest,
@@ -48,7 +48,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
    * @param dominoServer DominoServer to use
    * @returns DominoBasisSession class
    */
-  static getBasisSession = (dominoAccess: DominoRestAccess, dominoServer: DominoServer) =>
+  static getBasisSession = (dominoAccess: DominoRestAccess, dominoServer: DominoRestServer) =>
     new Promise<DominoBasisSession>((resolve, reject) => {
       dominoServer
         .getDominoConnector('basis')

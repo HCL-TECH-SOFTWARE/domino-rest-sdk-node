@@ -9,7 +9,16 @@ import sinon from 'sinon';
 import DominoConnector from '../src/DominoConnector.js';
 import DominoListViewOperations from '../src/DominoListViewOperations.js';
 import DominoScopeOperations from '../src/DominoScopeOperations.js';
-import { CredentialType, DominoAccess, DominoApiMeta, DominoRestConnector, DominoServer, DominoSetupSession, SortType } from '../src/index.js';
+import {
+  CredentialType,
+  DominoAccess,
+  DominoApiMeta,
+  DominoRestConnector,
+  DominoRestServer,
+  DominoServer,
+  DominoSetupSession,
+  SortType,
+} from '../src/index.js';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',
@@ -54,7 +63,7 @@ describe('DominoSetupSession', async () => {
   describe('getSetupSession', () => {
     const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
 
-    let dominoServer: DominoServer;
+    let dominoServer: DominoRestServer;
     let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoRestConnector>>;
 
     beforeEach(async () => {
