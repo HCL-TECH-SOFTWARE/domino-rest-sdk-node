@@ -3,12 +3,11 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import DominoConnector from './DominoConnector.js';
 import DominoScope from './DominoScope.js';
 import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
 import { streamToJson } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
-import { DominoRequestOptions, DominoRestAccess, ScopeBody } from './index.js';
+import { DominoRequestOptions, DominoRestAccess, DominoRestConnector, ScopeBody } from './index.js';
 
 /**
  * API call helper functions for scope operations.
@@ -18,7 +17,7 @@ import { DominoRequestOptions, DominoRestAccess, ScopeBody } from './index.js';
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoScopeOperations {
-  static getScope = (scopeName: string, dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) =>
+  static getScope = (scopeName: string, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
       if (isEmpty(scopeName)) {
         return reject(new EmptyParamError('scopeName'));
@@ -34,7 +33,7 @@ export class DominoScopeOperations {
         .catch((error) => reject(error));
     });
 
-  static getScopes = (dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) =>
+  static getScopes = (dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope[]>((resolve, reject) => {
       const params: Map<string, any> = new Map();
 
@@ -45,7 +44,7 @@ export class DominoScopeOperations {
         .catch((error) => reject(error));
     });
 
-  static deleteScope = (scopeName: string, dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) =>
+  static deleteScope = (scopeName: string, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
       if (isEmpty(scopeName)) {
         return reject(new EmptyParamError('scopeName'));
@@ -61,7 +60,7 @@ export class DominoScopeOperations {
         .catch((error) => reject(error));
     });
 
-  static createUpdateScope = (scope: DominoScope | ScopeBody, dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) =>
+  static createUpdateScope = (scope: DominoScope | ScopeBody, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
       if (isEmpty(scope)) {
         return reject(new EmptyParamError('scope'));
@@ -86,7 +85,7 @@ export class DominoScopeOperations {
     });
 
   private static _executeOperation = <T = any>(
-    dominoConnector: DominoConnector,
+    dominoConnector: DominoRestConnector,
     dominoAccess: DominoRestAccess,
     operationId: string,
     options: DominoRequestOptions,

@@ -8,7 +8,15 @@ import { chaiAsPromised } from 'chai-promised';
 import fs from 'fs';
 import sinon from 'sinon';
 import DominoConnector, { DominoRestOperation } from '../src/DominoConnector.js';
-import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src/index.js';
+import {
+  CredentialType,
+  DominoAccess,
+  DominoRestConnector,
+  DominoServer,
+  HttpResponseError,
+  MissingParamError,
+  OperationNotAvailable,
+} from '../src/index.js';
 
 use(chaiAsPromised);
 
@@ -30,7 +38,7 @@ describe('DominoConnector', () => {
 
   let fetchStub: sinon.SinonStub<[input: string | URL | Request, init?: RequestInit | undefined], Promise<Response>>;
   let accessTokenStub: sinon.SinonStub<[callback?: (() => Promise<any>) | undefined], Promise<string>>;
-  let baseConnector: DominoConnector;
+  let baseConnector: DominoRestConnector;
 
   beforeEach(async () => {
     fetchStub = sinon.stub(global, 'fetch');

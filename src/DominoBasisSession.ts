@@ -3,10 +3,9 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import DominoConnector from './DominoConnector.js';
 import DominoDocument from './DominoDocument.js';
 import DominoListViewOperations from './DominoListViewOperations.js';
-import { DominoBasisRestSession } from './RestInterfaces.js';
+import { DominoRestConnector } from './RestInterfaces.js';
 import {
   BulkGetDocumentsOptions,
   BulkUpdateDocumentsByQueryRequest,
@@ -14,6 +13,7 @@ import {
   DocumentBody,
   DocumentJSON,
   DocumentStatusResponse,
+  DominoBasisRestSession,
   DominoDocumentOperations,
   DominoRestAccess,
   DominoServer,
@@ -38,7 +38,7 @@ import {
  */
 export class DominoBasisSession implements DominoBasisRestSession {
   dominoAccess: DominoRestAccess;
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
 
   /**
    * Static factory method to get DominoBasisSession.
@@ -55,7 +55,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
         .catch((error) => reject(error));
     });
 
-  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) {
+  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) {
     this.dominoAccess = dominoAccess;
     this.dominoConnector = dominoConnector;
   }

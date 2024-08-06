@@ -16,6 +16,7 @@ import {
   DominoBasisRestSession,
   DominoBasisSession,
   DominoDocumentOperations,
+  DominoRestConnector,
   DominoServer,
   QueryActions,
 } from '../src/index.js';
@@ -34,7 +35,7 @@ describe('DominoBasisSession', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let dc: DominoConnector;
+  let dc: DominoRestConnector;
   let dbs: DominoBasisRestSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
@@ -64,7 +65,7 @@ describe('DominoBasisSession', async () => {
     const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
 
     let dominoServer: DominoServer;
-    let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoConnector>>;
+    let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoRestConnector>>;
 
     beforeEach(async () => {
       const fetchStub = sinon.stub(global, 'fetch');

@@ -260,7 +260,7 @@ export interface DominoUserRestSession {
   /**
    * Provides accessible operations and its required parameters.
    */
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
   /**
    * Generic request method to use. One can call all Domino REST API operations as long
    * as the operation ID and all the provided options are valid.
@@ -297,7 +297,7 @@ export interface DominoBasisRestSession {
   /**
    * Provides accessible operations and its required parameters.
    */
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
   /**
    * Get a document via its UNID. Additional request options can be provided.
    *
@@ -529,7 +529,7 @@ export interface DominoSetupRestSession {
   /**
    * Provides accessible operations and its required parameters.
    */
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
   /**
    * Retrieves rest configuration from the server.
    *

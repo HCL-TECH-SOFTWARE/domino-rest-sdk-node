@@ -14,6 +14,7 @@ import {
   DominoRequestOptions,
   DominoRequestResponse,
   DominoRestAccess,
+  DominoRestConnector,
   DominoUserSession,
   HttpResponseError,
   NoResponseBody,
@@ -33,7 +34,7 @@ describe('DominoUserSession', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let dc: DominoConnector;
+  let dc: DominoRestConnector;
   let dus: DominoUserSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];

@@ -3,14 +3,21 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import DominoConnector from './DominoConnector.js';
 import DominoDocument from './DominoDocument.js';
 import DominoListView from './DominoListView.js';
 import DominoListViewEntry from './DominoListViewEntry.js';
 import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
 import { streamToJson } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
-import { DesignColumnSimple, DocumentBody, DominoRequestOptions, DominoRestAccess, ListViewBody, ListViewEntryJSON } from './index.js';
+import {
+  DesignColumnSimple,
+  DocumentBody,
+  DominoRequestOptions,
+  DominoRestAccess,
+  DominoRestConnector,
+  ListViewBody,
+  ListViewEntryJSON,
+} from './index.js';
 
 export type GetListViewDesignJSON = {
   '@name': string;
@@ -206,21 +213,21 @@ export class DominoListViewOperations {
   static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoRestAccess,
-    dominoConnector: DominoConnector,
+    dominoConnector: DominoRestConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { document: false },
   ): Promise<ListViewEntryJSON[]>;
   static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoRestAccess,
-    dominoConnector: DominoConnector,
+    dominoConnector: DominoRestConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { document: true },
   ): Promise<DominoDocument[]>;
   static getListViewEntry(
     dataSource: string,
     dominoAccess: DominoRestAccess,
-    dominoConnector: DominoConnector,
+    dominoConnector: DominoRestConnector,
     listViewName: string,
     options?: GetListViewEntryOptions,
   ) {
@@ -258,7 +265,7 @@ export class DominoListViewOperations {
   static getListViewPivotEntry = (
     dataSource: string,
     dominoAccess: DominoRestAccess,
-    dominoConnector: DominoConnector,
+    dominoConnector: DominoRestConnector,
     listViewName: string,
     pivotColumn: string,
     options?: GetListPivotViewEntryOptions,
@@ -288,7 +295,7 @@ export class DominoListViewOperations {
         .catch((error) => reject(error));
     });
 
-  static getListViews = (dataSource: string, dominoAccess: DominoRestAccess, dominoConnector: DominoConnector, options?: GetListViewOptions) =>
+  static getListViews = (dataSource: string, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector, options?: GetListViewOptions) =>
     new Promise<GetListViewJSON[]>((resolve, reject) => {
       if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
@@ -309,7 +316,7 @@ export class DominoListViewOperations {
   static createUpdateListView = (
     dataSource: string,
     dominoAccess: DominoRestAccess,
-    dominoConnector: DominoConnector,
+    dominoConnector: DominoRestConnector,
     listView: ListViewBody,
     designName: string,
     options?: DesignOptions,
@@ -347,7 +354,7 @@ export class DominoListViewOperations {
   static getListView = (
     dataSource: string,
     dominoAccess: DominoRestAccess,
-    dominoConnector: DominoConnector,
+    dominoConnector: DominoRestConnector,
     designName: string,
     options?: DesignOptions,
   ) =>
@@ -374,7 +381,7 @@ export class DominoListViewOperations {
     });
 
   private static _executeOperation = <T = any>(
-    dominoConnector: DominoConnector,
+    dominoConnector: DominoRestConnector,
     dominoAccess: DominoRestAccess,
     operationId: string,
     options: DominoRequestOptions,

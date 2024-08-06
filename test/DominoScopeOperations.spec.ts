@@ -16,6 +16,7 @@ import {
   DominoRequestOptions,
   DominoRequestResponse,
   DominoRestAccess,
+  DominoRestConnector,
   EmptyParamError,
   HttpResponseError,
   NoResponseBody,
@@ -37,7 +38,7 @@ describe('DominoScopeOperations', async () => {
   };
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let dc: DominoConnector;
+  let dc: DominoRestConnector;
   let operationId: string;
   let expectedParams: Map<string, any>;
   let expectedOptions: DominoRequestOptions;

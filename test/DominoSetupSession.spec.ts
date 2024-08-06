@@ -6,10 +6,10 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoApiMeta, DominoServer, DominoSetupSession, SortType } from '../src/index.js';
 import DominoConnector from '../src/DominoConnector.js';
 import DominoListViewOperations from '../src/DominoListViewOperations.js';
 import DominoScopeOperations from '../src/DominoScopeOperations.js';
+import { CredentialType, DominoAccess, DominoApiMeta, DominoRestConnector, DominoServer, DominoSetupSession, SortType } from '../src/index.js';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',
@@ -25,7 +25,7 @@ describe('DominoSetupSession', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let dc: DominoConnector;
+  let dc: DominoRestConnector;
   let dss: DominoSetupSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
@@ -55,7 +55,7 @@ describe('DominoSetupSession', async () => {
     const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
 
     let dominoServer: DominoServer;
-    let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoConnector>>;
+    let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoRestConnector>>;
 
     beforeEach(async () => {
       const fetchStub = sinon.stub(global, 'fetch');

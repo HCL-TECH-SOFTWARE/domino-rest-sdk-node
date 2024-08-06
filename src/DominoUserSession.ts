@@ -3,11 +3,11 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import DominoConnector from './DominoConnector.js';
 import { DominoUserRestSession } from './RestInterfaces.js';
 import {
   DominoRequestOptions,
   DominoRestAccess,
+  DominoRestConnector,
   HttpResponseError,
   NoResponseBody,
   streamSplit,
@@ -25,9 +25,9 @@ import {
  */
 export class DominoUserSession implements DominoUserRestSession {
   dominoAccess: DominoRestAccess;
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
 
-  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) {
+  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) {
     this.dominoAccess = dominoAccess;
     this.dominoConnector = dominoConnector;
   }

@@ -3,12 +3,11 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import DominoConnector from './DominoConnector.js';
 import DominoListViewOperations from './DominoListViewOperations.js';
 import DominoScope from './DominoScope.js';
 import DominoScopeOperations from './DominoScopeOperations.js';
 import { DominoSetupRestSession } from './RestInterfaces.js';
-import { DesignOptions, DominoRestAccess, DominoServer, ListViewBody, ScopeBody } from './index.js';
+import { DesignOptions, DominoRestAccess, DominoRestConnector, DominoServer, ListViewBody, ScopeBody } from './index.js';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user
@@ -20,7 +19,7 @@ import { DesignOptions, DominoRestAccess, DominoServer, ListViewBody, ScopeBody 
  */
 export class DominoSetupSession implements DominoSetupRestSession {
   dominoAccess: DominoRestAccess;
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
 
   /**
    * Static factory method to get DominoSetupSession.
@@ -37,7 +36,7 @@ export class DominoSetupSession implements DominoSetupRestSession {
         .catch((error) => reject(error));
     });
 
-  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoConnector) {
+  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) {
     this.dominoAccess = dominoAccess;
     this.dominoConnector = dominoConnector;
   }
