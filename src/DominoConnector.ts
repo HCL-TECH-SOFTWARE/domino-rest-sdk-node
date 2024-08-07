@@ -1,11 +1,11 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoAccess, DominoApiMeta } from './index.js';
 import { DominoRestConnector } from './RestInterfaces.js';
 import { HttpResponseError, MissingParamError, OperationNotAvailable } from './errors/index.js';
+import { DominoApiMeta, DominoRestAccess } from './index.js';
 
 /**
  * All information needed to read a method
@@ -110,7 +110,7 @@ export class DominoConnector implements DominoRestConnector {
     return workingURL.toString();
   };
 
-  request = (dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions) =>
+  request = (dominoAccess: DominoRestAccess, operationId: string, options: DominoRequestOptions) =>
     new Promise<DominoRequestResponse>((resolve, reject) => {
       const scopeVal = options.dataSource ? options.dataSource : '';
       const operation = this.getOperation(operationId);
@@ -140,7 +140,7 @@ export class DominoConnector implements DominoRestConnector {
 
   getOperations = () => this.schema;
 
-  getFetchOptions = (dominoAccess: DominoAccess, operation: DominoRestOperation, request: DominoRequestOptions) =>
+  getFetchOptions = (dominoAccess: DominoRestAccess, operation: DominoRestOperation, request: DominoRequestOptions) =>
     new Promise<any>((resolve, reject) => {
       const params: Map<string, string> = request.params;
       const headers: any = {};

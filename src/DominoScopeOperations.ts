@@ -1,14 +1,14 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoAccess, DominoRequestOptions, ScopeBody } from './index.js';
-import DominoConnector from './DominoConnector.js';
+import DominoRestOperations from './DominoRestOperations.js';
 import DominoScope from './DominoScope.js';
-import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
+import { EmptyParamError } from './errors/index.js';
 import { streamToJson } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
+import { DominoRequestOptions, DominoRestAccess, DominoRestConnector, DominoRestScope, ScopeBody } from './index.js';
 
 /**
  * API call helper functions for scope operations.
@@ -17,8 +17,8 @@ import { isEmpty } from './helpers/Utilities.js';
  * @author <emmanuelryan.gamla@hcl.software>
  * @author <alecvincent.bardiano@hcl.software>
  */
-export class DominoScopeOperations {
-  static getScope = (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
+export class DominoScopeOperations extends DominoRestOperations {
+  static getScope = (scopeName: string, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
       if (isEmpty(scopeName)) {
         return reject(new EmptyParamError('scopeName'));
@@ -34,7 +34,7 @@ export class DominoScopeOperations {
         .catch((error) => reject(error));
     });
 
-  static getScopes = (dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
+  static getScopes = (dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope[]>((resolve, reject) => {
       const params: Map<string, any> = new Map();
 
@@ -45,7 +45,7 @@ export class DominoScopeOperations {
         .catch((error) => reject(error));
     });
 
-  static deleteScope = (scopeName: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
+  static deleteScope = (scopeName: string, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
       if (isEmpty(scopeName)) {
         return reject(new EmptyParamError('scopeName'));
@@ -61,13 +61,13 @@ export class DominoScopeOperations {
         .catch((error) => reject(error));
     });
 
-  static createUpdateScope = (scope: DominoScope | ScopeBody, dominoAccess: DominoAccess, dominoConnector: DominoConnector) =>
+  static createUpdateScope = (scope: DominoRestScope | ScopeBody, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
     new Promise<DominoScope>((resolve, reject) => {
       if (isEmpty(scope)) {
         return reject(new EmptyParamError('scope'));
       }
 
-      let dominoScope: DominoScope;
+      let dominoScope: DominoRestScope;
       if (!(scope instanceof DominoScope)) {
         dominoScope = new DominoScope(scope);
       } else {
@@ -82,30 +82,6 @@ export class DominoScopeOperations {
 
       this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'createUpdateScopeMapping', reqOptions, streamToJson)
         .then((scope) => resolve(new DominoScope(scope)))
-        .catch((error) => reject(error));
-    });
-
-  private static _executeOperation = <T = any>(
-    dominoConnector: DominoConnector,
-    dominoAccess: DominoAccess,
-    operationId: string,
-    options: DominoRequestOptions,
-    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
-  ) =>
-    new Promise<T>((resolve, reject) => {
-      dominoConnector
-        .request(dominoAccess, operationId, options)
-        .then(async (result) => {
-          if (result.dataStream === null) {
-            throw new NoResponseBody(operationId);
-          }
-          const decodedStream = await streamDecoder(result.dataStream);
-          if (result.status >= 400) {
-            throw new HttpResponseError(decodedStream as any);
-          }
-
-          return resolve(decodedStream);
-        })
         .catch((error) => reject(error));
     });
 }

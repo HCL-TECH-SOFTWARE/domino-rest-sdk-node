@@ -1,11 +1,17 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
 /* istanbul ignore file */
 /* Interfaces have no testable code - no point including them in coverage reports */
+import DominoConnector, { DominoRequestResponse } from './DominoConnector.js';
+import DominoDocument from './DominoDocument.js';
+import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry.js';
+import DominoScope from './DominoScope.js';
+import { streamSplit, streamTransformToJson } from './helpers/StreamHelpers.js';
 import {
+  AccessTokenReturn,
   BulkGetDocumentsOptions,
   BulkGetErrorResponse,
   BulkUpdateDocumentsByQueryRequest,
@@ -31,22 +37,17 @@ import {
   GetListViewEntryOptions,
   GetListViewJSON,
   GetListViewOptions,
+  GetRichtextOptions,
   ListViewBody,
   PivotListViewResponse,
   QueryActions,
   QueryDocumentExplainResponse,
   QueryDocumentParseResponse,
   RestCredentials,
-  RichTextRepresentation,
   ScopeBody,
   ScopeJSON,
   UpdateDocumentOptions,
 } from './index.js';
-import { streamSplit, streamTransformToJson } from './helpers/StreamHelpers.js';
-import DominoConnector, { DominoRequestResponse } from './DominoConnector.js';
-import DominoDocument from './DominoDocument.js';
-import DominoListViewEntry, { ListViewEntryJSON } from './DominoListViewEntry.js';
-import DominoScope from './DominoScope.js';
 
 /* istanbul ignore file */
 /* Interfaces have no testable code - no point including them in coverage reports */
@@ -60,6 +61,10 @@ export interface DominoRestAccess {
    * Base URL of the Idp: Domino REST API, Active Directory, Keycloak, Octa, etc.
    */
   baseUrl: string;
+  /**
+   * Holds all the credentials needed to access the Domino REST API server.
+   */
+  credentials: RestCredentials;
   /**
    * The JWT token for access.
    */
@@ -84,7 +89,7 @@ export interface DominoRestAccess {
    *
    * @returns a promise the resolves the JWT token for access.
    */
-  accessToken: () => Promise<string>;
+  accessToken: (callback?: () => Promise<AccessTokenReturn>) => Promise<string>;
   /**
    * Get JWT token (if any) expiry.
    *
@@ -114,6 +119,10 @@ export interface DominoRestServer {
    * Base URL of Domino REST API server.
    */
   readonly baseUrl: string;
+  /**
+   * Maps APIs loaded from Domino REST API server's /api endpoint.
+   */
+  apiMap: Map<string, DominoApiMeta>;
   /**
    * Gets all available APIs on Domino REST API server. Will fetch from /api endpoint if
    * API map is yet to be loaded.
@@ -251,11 +260,11 @@ export interface DominoUserRestSession {
   /**
    * Provides access to Domino REST API server.
    */
-  dominoAccess: DominoAccess;
+  dominoAccess: DominoRestAccess;
   /**
    * Provides accessible operations and its required parameters.
    */
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
   /**
    * Generic request method to use. One can call all Domino REST API operations as long
    * as the operation ID and all the provided options are valid.
@@ -288,11 +297,11 @@ export interface DominoBasisRestSession {
   /**
    * Provides access to Domino REST API server.
    */
-  dominoAccess: DominoAccess;
+  dominoAccess: DominoRestAccess;
   /**
    * Provides accessible operations and its required parameters.
    */
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
   /**
    * Get a document via its UNID. Additional request options can be provided.
    *
@@ -327,7 +336,7 @@ export interface DominoBasisRestSession {
    * @throws an error if given document has empty UNID.
    * @throws an error if given document has invalid UNID.
    */
-  updateDocument: (dataSource: string, doc: DominoDocument, options: UpdateDocumentOptions) => Promise<DominoDocument>;
+  updateDocument: (dataSource: string, doc: DominoRestDocument, options?: UpdateDocumentOptions) => Promise<DominoDocument>;
   /**
    * Update a document pointed by its UNID. Performs a PATCH on the document using the given
    * document body JSON. Additional request options can be provided.
@@ -354,7 +363,7 @@ export interface DominoBasisRestSession {
    * @throws an error if given document has empty UNID.
    * @throws an error if given document has invalid UNID.
    */
-  deleteDocument: (dataSource: string, doc: DominoDocument, mode?: string) => Promise<DocumentStatusResponse>;
+  deleteDocument: (dataSource: string, doc: DominoRestDocument, mode?: string) => Promise<DocumentStatusResponse>;
   /**
    * Delete a document pointed by its UNID. A mode can be provided if the operation
    * needs to be done on other modes (default mode is `default`).
@@ -392,7 +401,7 @@ export interface DominoBasisRestSession {
    *
    * @throws an error if given array of document JSON is empty.
    */
-  bulkCreateDocuments: (dataSource: string, docs: DocumentJSON[], richTextAs?: RichTextRepresentation) => Promise<DominoDocument[]>;
+  bulkCreateDocuments: (dataSource: string, docs: DocumentJSON[], richTextAs?: string) => Promise<DominoDocument[]>;
   /**
    * Bulk update documents via specified request. Richtext return format can be specified
    * (defaults to `mime` if not given).
@@ -408,7 +417,7 @@ export interface DominoBasisRestSession {
   bulkUpdateDocumentsByQuery: (
     dataSource: string,
     request: BulkUpdateDocumentsByQueryRequest,
-    richTextAs?: RichTextRepresentation,
+    richTextAs?: string,
   ) => Promise<DominoDocument[] | DocumentStatusResponse[]>;
   /**
    * Delete all given {@link DominoDocument} in the given array. A mode can be provided if
@@ -456,6 +465,16 @@ export interface DominoBasisRestSession {
     action: QueryActions,
     options?: GetDocumentsByQueryOptions,
   ) => Promise<DominoDocument[] | QueryDocumentExplainResponse[] | QueryDocumentParseResponse[]>;
+  /**
+   * Return a plain unformatted text from a Rich Text field.
+   *
+   * @param dataSource the scope name
+   * @param unid the UNID of the document to be deleted
+   * @param richTextAs the format to return richtext field value
+   * @param options optional parameters for GET `/richtext/{richTextAs}/{unid}` endpoint
+   * @returns A promise that resolves to a string of the richtext field value.
+   */
+  getRichtext: (dataSource: string, unid: string, richTextAs: string, options?: GetRichtextOptions) => Promise<string>;
   /**
    * Pulls in view data. Will return view entries unless `options.documents` is `true`, which will return {@link DominoDocument} instead. `options.subscriber` can also be provided, if instead of a response, you want the subscriber function to be called for each array item in the response.
    *
@@ -510,11 +529,11 @@ export interface DominoSetupRestSession {
   /**
    * Provides access to Domino REST API server.
    */
-  dominoAccess: DominoAccess;
+  dominoAccess: DominoRestAccess;
   /**
    * Provides accessible operations and its required parameters.
    */
-  dominoConnector: DominoConnector;
+  dominoConnector: DominoRestConnector;
   /**
    * Retrieves rest configuration from the server.
    *
@@ -545,7 +564,7 @@ export interface DominoSetupRestSession {
    * @param scope accepts a {@link DominoScope} or a JSON format containing all of the fields needed when creating a Domino REST scope
    * @returns a promise that resolves to the created scope.
    */
-  createUpdateScope: (scope: DominoScope | ScopeJSON) => Promise<DominoScope>;
+  createUpdateScope: (scope: DominoRestScope | ScopeJSON) => Promise<DominoScope>;
   /**
    * Create or update Domino design view based on simplified JSON.
    *
@@ -600,7 +619,7 @@ export interface DominoRestConnector {
    *
    * @throws an error if response is not okay.
    */
-  request: (dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions) => Promise<DominoRequestResponse>;
+  request: (dominoAccess: DominoRestAccess, operationId: string, options: DominoRequestOptions) => Promise<DominoRequestResponse>;
   /**
    * Return information about the given operation ID.
    *
@@ -637,5 +656,5 @@ export interface DominoRestConnector {
    * @throws an error if a mandatory header parameter is not given.
    * @throws an error if something went wrong on building request options.
    */
-  getFetchOptions: (dominoAccess: DominoAccess, operation: DominoRestOperation, request: DominoRequestOptions) => Promise<any>;
+  getFetchOptions: (dominoAccess: DominoRestAccess, operation: DominoRestOperation, request: DominoRequestOptions) => Promise<any>;
 }

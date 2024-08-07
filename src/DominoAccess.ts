@@ -4,9 +4,9 @@
  * ========================================================================== */
 
 import { getExpiry, isJwtExpired } from './JwtHelper.js';
-import { DominoRestAccess } from './RestInterfaces.js';
 import { CallbackError, EmptyParamError, HttpResponseError, MissingBearerError, MissingParamError, TokenError } from './errors/index.js';
 import { isEmpty } from './helpers/Utilities.js';
+import { DominoRestAccess } from './index.js';
 
 /**
  * Credentials needed to access Domino REST API server. Required properties changes depending
@@ -51,7 +51,7 @@ export type RestCredentials = {
 /**
  * Access Token for API Access
  */
-type AccessTokenReturn = {
+export type AccessTokenReturn = {
   bearer: string;
 };
 

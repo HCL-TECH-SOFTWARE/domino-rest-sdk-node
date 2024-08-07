@@ -1,14 +1,14 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DocumentBody, DocumentJSON, DominoAccess, DominoRequestOptions } from './index.js';
-import DominoConnector from './DominoConnector.js';
 import DominoDocument from './DominoDocument.js';
-import { EmptyParamError, HttpResponseError, InvalidParamError, NoResponseBody, NotAnArrayError } from './errors/index.js';
-import { streamToJson } from './helpers/StreamHelpers.js';
+import DominoRestOperations from './DominoRestOperations.js';
+import { EmptyParamError, InvalidParamError, NotAnArrayError } from './errors/index.js';
+import { streamToJson, streamToText } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
+import { DocumentBody, DocumentJSON, DominoRequestOptions, DominoRestAccess, DominoRestConnector, DominoRestDocument } from './index.js';
 
 /**
  * A response for document operations that can return document's status after operation.
@@ -155,9 +155,9 @@ export type DocumentOptions = {
    */
   meta?: boolean;
   /**
-   * The {@link RichTextRepresentation} the RichText fields will be returned.
+   * The {@link string} the RichText fields will be returned.
    */
-  richTextAs?: RichTextRepresentation;
+  richTextAs?: string;
   /**
    * Mark the document as read by the current user when the operation completes.
    */
@@ -226,9 +226,9 @@ export type GetDocumentsByQueryOptions = {
    */
   count?: number;
   /**
-   * The {@link RichTextRepresentation} the RichText fields will be returned.
+   * The {@link string} the RichText fields will be returned.
    */
-  richTextAs?: RichTextRepresentation;
+  richTextAs?: string;
   /**
    * At which entry should return values start (zero based), default = 0
    */
@@ -240,26 +240,19 @@ export type GetDocumentsByQueryOptions = {
 export type BulkCreateDocumentsOptions = Pick<DocumentOptions, 'richTextAs'>;
 
 /**
- * Different representations for RichText.
+ * Options for GET `/richtext/{richTextAs}/{unid}` operation.
  */
-export enum RichTextRepresentation {
+export type GetRichtextOptions = {
   /**
-   * Return richtext fields as HTML.
+   * Mode to perform the document access in. Defaults to "default" if missing.
    */
-  HTML = 'html',
+  mode?: string;
   /**
-   * Return richtext fields as mime.
+   * Name of the RichText item to retrieve. When omitted "Body" is used as item name.
    */
-  MIME = 'mime',
-  /**
-   * Return richtext fields as markdown.
-   */
-  MARKDOWN = 'markdown',
-  /**
-   * Return richtext fields as plain text.
-   */
-  PLAIN = 'plain',
-}
+  item?: string;
+};
+
 /**
  * Different methods for query.
  */
@@ -285,11 +278,11 @@ export enum QueryActions {
  * @author <emmanuelryan.gamla@hcl.software>
  * @author <alecvincent.bardiano@hcl.software>
  */
-export class DominoDocumentOperations {
+export class DominoDocumentOperations extends DominoRestOperations {
   static getDocument = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     unid: string,
     options?: GetDocumentOptions,
   ) =>
@@ -319,8 +312,8 @@ export class DominoDocumentOperations {
 
   static createDocument = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     doc: DocumentJSON,
     options?: CreateDocumentOptions,
   ) =>
@@ -352,9 +345,9 @@ export class DominoDocumentOperations {
 
   static updateDocument = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
-    doc: DominoDocument,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
+    doc: DominoRestDocument,
     options?: UpdateDocumentOptions,
   ) =>
     new Promise<DominoDocument>((resolve, reject) => {
@@ -390,8 +383,8 @@ export class DominoDocumentOperations {
 
   static patchDocument = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     unid: string,
     docJsonPatch: DocumentJSON,
     options?: UpdateDocumentOptions,
@@ -427,7 +420,13 @@ export class DominoDocumentOperations {
         .catch((error) => reject(error));
     });
 
-  static deleteDocument = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, doc: DominoDocument, mode?: string) =>
+  static deleteDocument = (
+    dataSource: string,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
+    doc: DominoRestDocument,
+    mode?: string,
+  ) =>
     new Promise<DocumentStatusResponse>((resolve, reject) => {
       if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
@@ -456,7 +455,13 @@ export class DominoDocumentOperations {
         .catch((error) => reject(error));
     });
 
-  static deleteDocumentByUNID = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, unid: string, mode?: string) =>
+  static deleteDocumentByUNID = (
+    dataSource: string,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
+    unid: string,
+    mode?: string,
+  ) =>
     new Promise<DocumentStatusResponse>((resolve, reject) => {
       if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
@@ -483,8 +488,8 @@ export class DominoDocumentOperations {
 
   static bulkGetDocuments = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     unids: string[],
     options?: BulkGetDocumentsOptions,
   ) =>
@@ -540,8 +545,8 @@ export class DominoDocumentOperations {
 
   static getDocumentsByQuery = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     request: GetDocumentsByQueryRequest,
     qaction: QueryActions,
     options?: GetDocumentsByQueryOptions,
@@ -593,10 +598,10 @@ export class DominoDocumentOperations {
 
   static bulkCreateDocuments = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     docs: DocumentJSON[],
-    richTextAs?: RichTextRepresentation,
+    richTextAs?: string,
   ) =>
     new Promise<DominoDocument[]>((resolve, reject) => {
       if (isEmpty(dataSource)) {
@@ -627,10 +632,10 @@ export class DominoDocumentOperations {
 
   static bulkUpdateDocumentsByQuery = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     request: BulkUpdateDocumentsByQueryRequest,
-    richTextAs?: RichTextRepresentation,
+    richTextAs?: string,
   ) =>
     new Promise<DominoDocument[] | DocumentStatusResponse[]>((resolve, reject) => {
       if (isEmpty(dataSource)) {
@@ -675,9 +680,9 @@ export class DominoDocumentOperations {
 
   static bulkDeleteDocuments = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
-    docs: DominoDocument[],
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
+    docs: DominoRestDocument[],
     mode?: string,
   ) =>
     new Promise<DocumentStatusResponse[]>((resolve, reject) => {
@@ -720,8 +725,8 @@ export class DominoDocumentOperations {
 
   static bulkDeleteDocumentsByUNID = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     unids: string[],
     mode?: string,
   ) =>
@@ -760,27 +765,39 @@ export class DominoDocumentOperations {
         .catch((error) => reject(error));
     });
 
-  private static _executeOperation = <T = any>(
-    dominoConnector: DominoConnector,
-    dominoAccess: DominoAccess,
-    operationId: string,
-    options: DominoRequestOptions,
-    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
+  static getRichtext = (
+    dataSource: string,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
+    unid: string,
+    richTextAs: string,
+    options?: GetRichtextOptions,
   ) =>
-    new Promise<T>((resolve, reject) => {
-      dominoConnector
-        .request(dominoAccess, operationId, options)
-        .then(async (result) => {
-          if (result.dataStream === null) {
-            throw new NoResponseBody(operationId);
-          }
-          const decodedStream = await streamDecoder(result.dataStream);
-          if (result.status >= 400) {
-            throw new HttpResponseError(decodedStream as any);
-          }
+    new Promise<string>((resolve, reject) => {
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
+      }
+      if (isEmpty(unid)) {
+        return reject(new EmptyParamError('unid'));
+      }
+      if (isEmpty(richTextAs)) {
+        return reject(new EmptyParamError('richTextAs'));
+      }
 
-          return resolve(decodedStream);
-        })
+      const params: Map<string, any> = new Map();
+      for (const key in options) {
+        params.set(key, options[key as keyof GetRichtextOptions]);
+      }
+      params.set('unid', unid);
+      params.set('richTextAs', richTextAs);
+
+      const reqOptions: DominoRequestOptions = {
+        dataSource,
+        params,
+      };
+
+      this._executeOperation<string>(dominoConnector, dominoAccess, 'getRichText', reqOptions, streamToText)
+        .then((richtextValue) => resolve(richtextValue))
         .catch((error) => reject(error));
     });
 }

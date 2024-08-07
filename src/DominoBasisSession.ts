@@ -1,8 +1,11 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
+import DominoDocument from './DominoDocument.js';
+import DominoListViewOperations from './DominoListViewOperations.js';
+import { DominoRestConnector } from './RestInterfaces.js';
 import {
   BulkGetDocumentsOptions,
   BulkUpdateDocumentsByQueryRequest,
@@ -10,23 +13,21 @@ import {
   DocumentBody,
   DocumentJSON,
   DocumentStatusResponse,
-  DominoAccess,
+  DominoBasisRestSession,
   DominoDocumentOperations,
-  DominoServer,
+  DominoRestAccess,
+  DominoRestDocument,
+  DominoRestServer,
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
   GetDocumentsByQueryRequest,
   GetListPivotViewEntryOptions,
   GetListViewEntryOptions,
   GetListViewOptions,
+  GetRichtextOptions,
   QueryActions,
-  RichTextRepresentation,
   UpdateDocumentOptions,
 } from './index.js';
-import DominoConnector from './DominoConnector.js';
-import DominoDocument from './DominoDocument.js';
-import DominoListViewOperations from './DominoListViewOperations.js';
-import { DominoBasisRestSession } from './RestInterfaces.js';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user
@@ -37,8 +38,8 @@ import { DominoBasisRestSession } from './RestInterfaces.js';
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoBasisSession implements DominoBasisRestSession {
-  dominoAccess: DominoAccess;
-  dominoConnector: DominoConnector;
+  dominoAccess: DominoRestAccess;
+  dominoConnector: DominoRestConnector;
 
   /**
    * Static factory method to get DominoBasisSession.
@@ -47,7 +48,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
    * @param dominoServer DominoServer to use
    * @returns DominoBasisSession class
    */
-  static getBasisSession = (dominoAccess: DominoAccess, dominoServer: DominoServer) =>
+  static getBasisSession = (dominoAccess: DominoRestAccess, dominoServer: DominoRestServer) =>
     new Promise<DominoBasisSession>((resolve, reject) => {
       dominoServer
         .getDominoConnector('basis')
@@ -55,7 +56,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
         .catch((error) => reject(error));
     });
 
-  constructor(dominoAccess: DominoAccess, dominoConnector: DominoConnector) {
+  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) {
     this.dominoAccess = dominoAccess;
     this.dominoConnector = dominoConnector;
   }
@@ -66,13 +67,13 @@ export class DominoBasisSession implements DominoBasisRestSession {
   createDocument = (dataSource: string, doc: DocumentJSON, options?: CreateDocumentOptions) =>
     DominoDocumentOperations.createDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
 
-  updateDocument = (dataSource: string, doc: DominoDocument, options?: UpdateDocumentOptions) =>
+  updateDocument = (dataSource: string, doc: DominoRestDocument, options?: UpdateDocumentOptions) =>
     DominoDocumentOperations.updateDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
 
   patchDocument = (dataSource: string, unid: string, docJsonPatch: DocumentBody, options?: UpdateDocumentOptions) =>
     DominoDocumentOperations.patchDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, docJsonPatch, options);
 
-  deleteDocument = (dataSource: string, doc: DominoDocument, mode?: string) =>
+  deleteDocument = (dataSource: string, doc: DominoRestDocument, mode?: string) =>
     DominoDocumentOperations.deleteDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, mode);
 
   deleteDocumentByUNID = (dataSource: string, unid: string, mode?: string): Promise<DocumentStatusResponse> =>
@@ -81,10 +82,10 @@ export class DominoBasisSession implements DominoBasisRestSession {
   bulkGetDocuments = (dataSource: string, unids: string[], options?: BulkGetDocumentsOptions) =>
     DominoDocumentOperations.bulkGetDocuments(dataSource, this.dominoAccess, this.dominoConnector, unids, options);
 
-  bulkCreateDocuments = (dataSource: string, docs: DocumentJSON[], richTextAs?: RichTextRepresentation) =>
+  bulkCreateDocuments = (dataSource: string, docs: DocumentJSON[], richTextAs?: string) =>
     DominoDocumentOperations.bulkCreateDocuments(dataSource, this.dominoAccess, this.dominoConnector, docs, richTextAs);
 
-  bulkUpdateDocumentsByQuery = (dataSource: string, request: BulkUpdateDocumentsByQueryRequest, richTextAs?: RichTextRepresentation) =>
+  bulkUpdateDocumentsByQuery = (dataSource: string, request: BulkUpdateDocumentsByQueryRequest, richTextAs?: string) =>
     DominoDocumentOperations.bulkUpdateDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, richTextAs);
 
   bulkDeleteDocuments = (dataSource: string, docs: Array<DominoDocument>, mode?: string) =>
@@ -95,6 +96,9 @@ export class DominoBasisSession implements DominoBasisRestSession {
 
   getDocumentsByQuery = (dataSource: string, request: GetDocumentsByQueryRequest, action: QueryActions, options?: GetDocumentsByQueryOptions) =>
     DominoDocumentOperations.getDocumentsByQuery(dataSource, this.dominoAccess, this.dominoConnector, request, action, options);
+
+  getRichtext = (dataSource: string, unid: string, richTextAs: string, options?: GetRichtextOptions) =>
+    DominoDocumentOperations.getRichtext(dataSource, this.dominoAccess, this.dominoConnector, unid, richTextAs, options);
 
   getListViews = (dataSource: string, options?: GetListViewOptions) =>
     DominoListViewOperations.getListViews(dataSource, this.dominoAccess, this.dominoConnector, options);
