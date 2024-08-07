@@ -33,6 +33,7 @@ npm install @hcl-software/domino-rest-sdk-node
     - `/bulk/update`
     - `/bulk/delete`
     - `/query`
+    - `/richtext/{richTextAs}/{unid}`
     - `/lists`
     - `/lists/{name}`
     - `/listspivot/{name}`

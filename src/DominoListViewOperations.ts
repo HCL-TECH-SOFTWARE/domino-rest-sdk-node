@@ -1,16 +1,24 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DesignColumnSimple, DocumentBody, DominoAccess, DominoRequestOptions, ListViewBody, ListViewEntryJSON, RichTextRepresentation } from './index.js';
-import DominoConnector from './DominoConnector.js';
 import DominoDocument from './DominoDocument.js';
 import DominoListView from './DominoListView.js';
 import DominoListViewEntry from './DominoListViewEntry.js';
-import { EmptyParamError, HttpResponseError, NoResponseBody } from './errors/index.js';
+import DominoRestOperations from './DominoRestOperations.js';
+import { EmptyParamError } from './errors/index.js';
 import { streamToJson } from './helpers/StreamHelpers.js';
 import { isEmpty } from './helpers/Utilities.js';
+import {
+  DesignColumnSimple,
+  DocumentBody,
+  DominoRequestOptions,
+  DominoRestAccess,
+  DominoRestConnector,
+  ListViewBody,
+  ListViewEntryJSON,
+} from './index.js';
 
 export type GetListViewDesignJSON = {
   '@name': string;
@@ -113,7 +121,7 @@ export type ListViewEntryOptions = {
   /**
    * The format RichText fields will be returned when retrieving documents instead of view entries. The default if unspecified is mime.
    */
-  richTextAs?: RichTextRepresentation;
+  richTextAs?: string;
   /**
    * When retrieving documents instead of view entries, mark them as read by the current user after retrieval
    */
@@ -202,25 +210,25 @@ export enum ViewEntryScopes {
  * @author <emmanuelryan.gamla@hcl.software>
  * @author <alecvincent.bardiano@hcl.software>
  */
-export class DominoListViewOperations {
+export class DominoListViewOperations extends DominoRestOperations {
   static getListViewEntry(
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { document: false },
   ): Promise<ListViewEntryJSON[]>;
   static getListViewEntry(
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     listViewName: string,
     options?: GetListViewEntryOptions | { document: true },
   ): Promise<DominoDocument[]>;
   static getListViewEntry(
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     listViewName: string,
     options?: GetListViewEntryOptions,
   ) {
@@ -257,8 +265,8 @@ export class DominoListViewOperations {
 
   static getListViewPivotEntry = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     listViewName: string,
     pivotColumn: string,
     options?: GetListPivotViewEntryOptions,
@@ -288,7 +296,7 @@ export class DominoListViewOperations {
         .catch((error) => reject(error));
     });
 
-  static getListViews = (dataSource: string, dominoAccess: DominoAccess, dominoConnector: DominoConnector, options?: GetListViewOptions) =>
+  static getListViews = (dataSource: string, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector, options?: GetListViewOptions) =>
     new Promise<GetListViewJSON[]>((resolve, reject) => {
       if (isEmpty(dataSource)) {
         return reject(new EmptyParamError('dataSource'));
@@ -308,8 +316,8 @@ export class DominoListViewOperations {
 
   static createUpdateListView = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     listView: ListViewBody,
     designName: string,
     options?: DesignOptions,
@@ -346,8 +354,8 @@ export class DominoListViewOperations {
 
   static getListView = (
     dataSource: string,
-    dominoAccess: DominoAccess,
-    dominoConnector: DominoConnector,
+    dominoAccess: DominoRestAccess,
+    dominoConnector: DominoRestConnector,
     designName: string,
     options?: DesignOptions,
   ) =>
@@ -370,30 +378,6 @@ export class DominoListViewOperations {
 
       this._executeOperation<GetListViewDesignJSON>(dominoConnector, dominoAccess, 'getDesign', reqOptions, streamToJson)
         .then((listView) => resolve(listView))
-        .catch((error) => reject(error));
-    });
-
-  private static _executeOperation = <T = any>(
-    dominoConnector: DominoConnector,
-    dominoAccess: DominoAccess,
-    operationId: string,
-    options: DominoRequestOptions,
-    streamDecoder: (dataStream: ReadableStream<any>) => Promise<T>,
-  ): Promise<T> =>
-    new Promise<T>((resolve, reject) => {
-      dominoConnector
-        .request(dominoAccess, operationId, options)
-        .then(async (result) => {
-          if (result.dataStream === null) {
-            throw new NoResponseBody(operationId);
-          }
-          const decodedStream = await streamDecoder(result.dataStream);
-          if (result.status >= 400) {
-            throw new HttpResponseError(decodedStream as any);
-          }
-
-          return resolve(decodedStream);
-        })
         .catch((error) => reject(error));
     });
 }

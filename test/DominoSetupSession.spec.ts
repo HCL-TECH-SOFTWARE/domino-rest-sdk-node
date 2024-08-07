@@ -1,15 +1,25 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoApiMeta, DominoServer, DominoSetupSession, SortType } from '../src/index.js';
 import DominoConnector from '../src/DominoConnector.js';
 import DominoListViewOperations from '../src/DominoListViewOperations.js';
 import DominoScopeOperations from '../src/DominoScopeOperations.js';
+import {
+  CredentialType,
+  DominoAccess,
+  DominoApiMeta,
+  DominoRestConnector,
+  DominoRestServer,
+  DominoServer,
+  DominoSetupRestSession,
+  DominoSetupSession,
+  SortType,
+} from '../src/index.js';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',
@@ -25,8 +35,8 @@ describe('DominoSetupSession', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let dc: DominoConnector;
-  let dss: DominoSetupSession;
+  let dc: DominoRestConnector;
+  let dss: DominoSetupRestSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
   let stub: sinon.SinonStub<any, Promise<any>>;
@@ -54,8 +64,8 @@ describe('DominoSetupSession', async () => {
   describe('getSetupSession', () => {
     const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
 
-    let dominoServer: DominoServer;
-    let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoConnector>>;
+    let dominoServer: DominoRestServer;
+    let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoRestConnector>>;
 
     beforeEach(async () => {
       const fetchStub = sinon.stub(global, 'fetch');

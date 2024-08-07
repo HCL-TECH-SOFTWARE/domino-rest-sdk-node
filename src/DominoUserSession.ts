@@ -1,11 +1,19 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoAccess, DominoRequestOptions, HttpResponseError, NoResponseBody, streamSplit, streamToJson, streamTransformToJson } from './index.js';
-import DominoConnector from './DominoConnector.js';
 import { DominoUserRestSession } from './RestInterfaces.js';
+import {
+  DominoRequestOptions,
+  DominoRestAccess,
+  DominoRestConnector,
+  HttpResponseError,
+  NoResponseBody,
+  streamSplit,
+  streamToJson,
+  streamTransformToJson,
+} from './index.js';
 
 /**
  * Takes in both Domino access and connector, and forms a session wherein a user
@@ -16,10 +24,10 @@ import { DominoUserRestSession } from './RestInterfaces.js';
  * @author <alecvincent.bardiano@hcl.software>
  */
 export class DominoUserSession implements DominoUserRestSession {
-  dominoAccess: DominoAccess;
-  dominoConnector: DominoConnector;
+  dominoAccess: DominoRestAccess;
+  dominoConnector: DominoRestConnector;
 
-  constructor(dominoAccess: DominoAccess, dominoConnector: DominoConnector) {
+  constructor(dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) {
     this.dominoAccess = dominoAccess;
     this.dominoConnector = dominoConnector;
   }

@@ -1,22 +1,25 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
+import DominoConnector from '../src/DominoConnector.js';
 import {
   CredentialType,
   DominoAccess,
   DominoApiMeta,
   DominoRequestOptions,
   DominoRequestResponse,
+  DominoRestAccess,
+  DominoRestConnector,
+  DominoUserRestSession,
   DominoUserSession,
   HttpResponseError,
-  NoResponseBody
+  NoResponseBody,
 } from '../src/index.js';
-import DominoConnector from '../src/DominoConnector.js';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',
@@ -32,8 +35,8 @@ describe('DominoUserSession', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let dc: DominoConnector;
-  let dus: DominoUserSession;
+  let dc: DominoRestConnector;
+  let dus: DominoUserRestSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
   let stub: sinon.SinonStub<any, Promise<any>>;
@@ -61,7 +64,7 @@ describe('DominoUserSession', async () => {
   describe('request', () => {
     it('should get called', async () => {
       const dcRequestStub = sinon.stub(dc, 'request');
-      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream: new ReadableStream(),expect: "json" });
+      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream: new ReadableStream(), expect: 'json' });
 
       const response = await dus.request('operation', { params: new Map() });
       expect(dcRequestStub.calledOnce).to.be.true;
@@ -89,7 +92,7 @@ describe('DominoUserSession', async () => {
     };
 
     let dcRequestStub: sinon.SinonStub<
-      [dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions],
+      [dominoAccess: DominoRestAccess, operationId: string, options: DominoRequestOptions],
       Promise<DominoRequestResponse>
     >;
 
@@ -104,7 +107,7 @@ describe('DominoUserSession', async () => {
     it('should pass handling of response to the subscriber', async () => {
       const jsonString = `[\n{ "color": "red" },\n{ "color": "yellow" },\n{ "color": "green" }\n]`;
       const dataStream = new Response(jsonString).body;
-      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream, expect: "json" });
+      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream, expect: 'json' });
       expected = 3;
 
       await dus.requestJsonStream('operation', { params: new Map() }, subscriber);
@@ -113,7 +116,7 @@ describe('DominoUserSession', async () => {
     });
 
     it(`should throw 'NoResponseBody' if response data stream is 'null'`, async () => {
-      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream: null , expect: "json"});
+      dcRequestStub.resolves({ status: 0, headers: new Headers(), dataStream: null, expect: 'json' });
 
       await expect(dus.requestJsonStream('operation', { params: new Map() }, subscriber)).to.be.rejectedWith(NoResponseBody);
     });
@@ -125,7 +128,7 @@ describe('DominoUserSession', async () => {
         errorId: 0,
       };
       const dataStream = new Response(JSON.stringify(errorResponse), { status: 404, statusText: 'Not Found' }).body;
-      dcRequestStub.resolves({ status: 404, headers: new Headers(), dataStream, expect: "json" });
+      dcRequestStub.resolves({ status: 404, headers: new Headers(), dataStream, expect: 'json' });
 
       await expect(dus.requestJsonStream('operation', { params: new Map() }, subscriber)).to.be.rejectedWith(HttpResponseError);
     });
