@@ -1,12 +1,12 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import { DominoBaseDocument, DominoDocumentMeta } from './index.js';
 import { DominoRestScope } from './RestInterfaces.js';
 import { EmptyParamError, MissingParamError } from './errors/index.js';
 import { isEmpty } from './helpers/Utilities.js';
+import { DominoBaseDocument, DominoDocumentMeta } from './index.js';
 
 /**
  * Domino REST API scope base properties.

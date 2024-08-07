@@ -1,24 +1,26 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
 import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
+import DominoConnector from '../src/DominoConnector.js';
+import DominoDocument from '../src/DominoDocument.js';
+import DominoListViewOperations from '../src/DominoListViewOperations.js';
 import {
   CredentialType,
   DominoAccess,
   DominoApiMeta,
+  DominoBasisRestSession,
   DominoBasisSession,
   DominoDocumentOperations,
+  DominoRestConnector,
+  DominoRestServer,
   DominoServer,
   QueryActions,
-  RichTextRepresentation,
 } from '../src/index.js';
-import DominoConnector from '../src/DominoConnector.js';
-import DominoDocument from '../src/DominoDocument.js';
-import DominoListViewOperations from '../src/DominoListViewOperations.js';
 
 const fakeCredentials = {
   baseUrl: 'somewhere',
@@ -34,8 +36,8 @@ describe('DominoBasisSession', async () => {
   const baseApi = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let dc: DominoConnector;
-  let dbs: DominoBasisSession;
+  let dc: DominoRestConnector;
+  let dbs: DominoBasisRestSession;
   let baseParameters: Array<any> = [];
   let additionalParameters: Array<any> = [];
   let stub: sinon.SinonStub<any, Promise<any>>;
@@ -63,8 +65,8 @@ describe('DominoBasisSession', async () => {
   describe('getBasisSession', () => {
     const apiDefinitions = JSON.parse(fs.readFileSync('./test/resources/apidefinitions.json', 'utf-8'));
 
-    let dominoServer: DominoServer;
-    let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoConnector>>;
+    let dominoServer: DominoRestServer;
+    let dominoServerStub: sinon.SinonStub<[apiName: string], Promise<DominoRestConnector>>;
 
     beforeEach(async () => {
       const fetchStub = sinon.stub(global, 'fetch');
@@ -263,7 +265,7 @@ describe('DominoBasisSession', async () => {
       });
 
       it('should get called with richTextAs', async () => {
-        const richTextAs = RichTextRepresentation.HTML;
+        const richTextAs = 'html';
         additionalParameters = [docs, richTextAs];
 
         await dbs.bulkCreateDocuments(dataSource, docs, richTextAs);
@@ -289,7 +291,7 @@ describe('DominoBasisSession', async () => {
       });
 
       it('should get called with richTextAs', async () => {
-        const richTextAs = RichTextRepresentation.HTML;
+        const richTextAs = 'html';
         additionalParameters = [request, richTextAs];
 
         await dbs.bulkUpdateDocumentsByQuery(dataSource, request, richTextAs);
@@ -345,6 +347,30 @@ describe('DominoBasisSession', async () => {
         additionalParameters = [unids, mode];
 
         await dbs.bulkDeleteDocumentsByUNID(dataSource, unids, mode);
+      });
+    });
+
+    describe('getRichtext', () => {
+      beforeEach(() => {
+        stub = sinon.stub(DominoDocumentOperations, 'getRichtext');
+      });
+
+      it('should get called', async () => {
+        const richTextAs = 'html';
+        additionalParameters = [unid, richTextAs, undefined];
+
+        await dbs.getRichtext(dataSource, unid, richTextAs);
+      });
+
+      it('should get called with options', async () => {
+        const richTextAs = 'html';
+        const options = {
+          mode,
+          item: 'status',
+        };
+        additionalParameters = [unid, richTextAs, options];
+
+        await dbs.getRichtext(dataSource, unid, richTextAs, options);
       });
     });
   });

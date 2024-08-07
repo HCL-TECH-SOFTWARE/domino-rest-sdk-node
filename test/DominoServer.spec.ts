@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -7,8 +7,8 @@ import { expect, use } from 'chai';
 import { chaiAsPromised } from 'chai-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { ApiNotAvailable, DominoServer, HttpResponseError } from '../src/index.js';
 import DominoConnector from '../src/DominoConnector.js';
+import { ApiNotAvailable, DominoRestServer, DominoServer, HttpResponseError } from '../src/index.js';
 
 use(chaiAsPromised);
 
@@ -53,7 +53,7 @@ describe('DominoServer', () => {
   });
 
   describe('getDominoConnector', () => {
-    let dominoServer: DominoServer;
+    let dominoServer: DominoRestServer;
 
     beforeEach(async () => {
       fetchStub.onSecondCall().resolves(new Response(JSON.stringify(basisApi)));
@@ -93,7 +93,7 @@ describe('DominoServer', () => {
   describe('availableOperations', () => {
     const basisApiOperations = JSON.parse(fs.readFileSync('./test/resources/openapi.basis.json', 'utf-8'));
 
-    let dominoServer: DominoServer;
+    let dominoServer: DominoRestServer;
 
     beforeEach(async () => {
       fetchStub.onSecondCall().resolves(new Response(JSON.stringify(basisApi)));

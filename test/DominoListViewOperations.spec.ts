@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -16,6 +16,8 @@ import {
   DominoAccess,
   DominoApiMeta,
   DominoRequestOptions,
+  DominoRestAccess,
+  DominoRestConnector,
   EmptyParamError,
   GetListPivotViewEntryOptions,
   GetListViewEntryOptions,
@@ -48,12 +50,12 @@ describe('DominoListViewOperations', async () => {
   };
   const fakeToken = new DominoAccess(fakeCredentials);
 
-  let dc: DominoConnector;
+  let dc: DominoRestConnector;
   let operationId: string;
   let expectedParams: Map<string, any>;
   let expectedOptions: DominoRequestOptions;
   let dcRequestStub: sinon.SinonStub<
-    [dominoAccess: DominoAccess, operationId: string, options: DominoRequestOptions],
+    [dominoAccess: DominoRestAccess, operationId: string, options: DominoRequestOptions],
     Promise<DominoRequestResponse>
   >;
 

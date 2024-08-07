@@ -6,7 +6,7 @@
 /* istanbul ignore file */
 /* index have no testable code - no point including them in coverage reports */
 
-import { CredentialType, DominoAccess, DominoRestAccessJSON, RestCredentials } from './DominoAccess.js';
+import { AccessTokenReturn, CredentialType, DominoAccess, DominoRestAccessJSON, RestCredentials } from './DominoAccess.js';
 import DominoBasisSession from './DominoBasisSession.js';
 import { DominoRequestOptions, DominoRequestResponse, DominoRestOperation } from './DominoConnector.js';
 import { DocumentBody, DocumentJSON, DominoBaseDocument, DominoDocumentMeta } from './DominoDocument.js';
@@ -22,11 +22,11 @@ import {
   GetDocumentOptions,
   GetDocumentsByQueryOptions,
   GetDocumentsByQueryRequest,
+  GetRichtextOptions,
   PatchDocumentOptions,
   QueryActions,
   QueryDocumentExplainResponse,
   QueryDocumentParseResponse,
-  RichTextRepresentation,
   UpdateDocumentOptions,
 } from './DominoDocumentOperations.js';
 import { DesignColumnSimple, DominoBaseListView, ListViewBody, SortType } from './DominoListView.js';
@@ -51,6 +51,16 @@ import { DominoApiMeta, DominoServer } from './DominoServer.js';
 import DominoSetupSession from './DominoSetupSession.js';
 import DominoUserSession from './DominoUserSession.js';
 import {
+  DominoBasisRestSession,
+  DominoRestAccess,
+  DominoRestConnector,
+  DominoRestDocument,
+  DominoRestScope,
+  DominoRestServer,
+  DominoSetupRestSession,
+  DominoUserRestSession,
+} from './RestInterfaces.js';
+import {
   ApiNotAvailable,
   CallbackError,
   EmptyParamError,
@@ -69,6 +79,7 @@ import { streamSplit, streamToJson, streamToText, streamTransformToJson } from '
 
 export {
   AccessLevel,
+  AccessTokenReturn,
   ApiNotAvailable,
   BulkCreateDocumentsOptions,
   BulkGetDocumentsOptions,
@@ -90,15 +101,23 @@ export {
   DominoBaseListView,
   DominoBaseListViewEntry,
   DominoBaseScope,
+  DominoBasisRestSession,
   DominoBasisSession,
   DominoDocumentMeta,
   DominoDocumentOperations,
   DominoRequestOptions,
   DominoRequestResponse,
+  DominoRestAccess,
   DominoRestAccessJSON,
+  DominoRestConnector,
+  DominoRestDocument,
   DominoRestOperation,
+  DominoRestScope,
+  DominoRestServer,
   DominoServer,
+  DominoSetupRestSession,
   DominoSetupSession,
+  DominoUserRestSession,
   DominoUserSession,
   EmptyParamError,
   GetDocumentOptions,
@@ -109,6 +128,7 @@ export {
   GetListViewEntryOptions,
   GetListViewJSON,
   GetListViewOptions,
+  GetRichtextOptions,
   HttpResponseError,
   InvalidParamError,
   ListType,
@@ -129,7 +149,6 @@ export {
   QueryDocumentExplainResponse,
   QueryDocumentParseResponse,
   RestCredentials,
-  RichTextRepresentation,
   ScopeBody,
   ScopeJSON,
   SdkError,

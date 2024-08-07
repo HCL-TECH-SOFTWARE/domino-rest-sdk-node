@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -7,8 +7,16 @@ import { expect, use } from 'chai';
 import { chaiAsPromised } from 'chai-promised';
 import fs from 'fs';
 import sinon from 'sinon';
-import { CredentialType, DominoAccess, DominoServer, HttpResponseError, MissingParamError, OperationNotAvailable } from '../src/index.js';
 import DominoConnector, { DominoRestOperation } from '../src/DominoConnector.js';
+import {
+  CredentialType,
+  DominoAccess,
+  DominoRestConnector,
+  DominoServer,
+  HttpResponseError,
+  MissingParamError,
+  OperationNotAvailable,
+} from '../src/index.js';
 
 use(chaiAsPromised);
 
@@ -30,7 +38,7 @@ describe('DominoConnector', () => {
 
   let fetchStub: sinon.SinonStub<[input: string | URL | Request, init?: RequestInit | undefined], Promise<Response>>;
   let accessTokenStub: sinon.SinonStub<[callback?: (() => Promise<any>) | undefined], Promise<string>>;
-  let baseConnector: DominoConnector;
+  let baseConnector: DominoRestConnector;
 
   beforeEach(async () => {
     fetchStub = sinon.stub(global, 'fetch');
@@ -300,7 +308,7 @@ describe('DominoConnector', () => {
     it('should return all of the operations', () => {
       const result = baseConnector.getOperations();
       expect(result).not.null;
-      expect(result.size).to.equal(58);
+      expect(result.size).to.equal(71);
       const result2 = baseConnector.getOperations();
       expect(result).to.deep.equal(result2);
     });

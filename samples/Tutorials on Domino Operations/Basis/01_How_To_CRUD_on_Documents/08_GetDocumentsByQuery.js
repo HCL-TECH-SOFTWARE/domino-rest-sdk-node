@@ -1,11 +1,11 @@
 /* ========================================================================== *
- * Copyright (C) 2023 HCL America Inc.                                        *
+ * Copyright (C) 2023, 2024 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
 /* Getting documents by query. */
 
-const { QueryActions } = require('../../../../dist');
+const { QueryActions } = require('@hcl-software/domino-rest-sdk-node');
 const { getDominoBasisSession } = require('../../../_DominoSession');
 
 const start = async () => {

@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "HCL Domino REST API basis",
-        "version": "1.1.1",
+        "version": "1.3.0",
         "description": "REST APIs for Domino and more done right. With declarative security and access to Code, Design and Data",
         "contact": {
             "name": "HCL America Inc",
@@ -64,6 +64,14 @@
                         "description": "When set to true, column information gets returned. Use with caution, slows down the API",
                         "schema": {
                             "type": "boolean"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "filter",
+                        "description": "If present, perform a case insensitive partial text match that retrieves any lists that contains the input as a part of the list title.",
+                        "schema": {
+                            "type": "string"
                         },
                         "in": "query"
                     }
@@ -291,8 +299,8 @@
                     }
                 ],
                 "operationId": "getOdataItem",
-                "summary": "Get an document in OData format",
-                "description": "ODATA is JSON with defined Meta data",
+                "summary": "Get document in a form using OData format",
+                "description": "Returns OData as JSON format and includes defined metadata.",
                 "x-keep-version": 1
             },
             "put": {
@@ -392,7 +400,7 @@
                 ],
                 "operationId": "updateOdataDocument",
                 "summary": "Perform an update on the document in OData format",
-                "description": "Perform an update on the document in OData format",
+                "description": "Updates the document in OData format.",
                 "x-keep-version": 1
             },
             "parameters": [
@@ -485,6 +493,7 @@
                                         "query": "form = 'Customer' and Color = ?Color",
                                         "maxScanDocs": 500000,
                                         "maxScanEntries": 200000,
+                                        "includeFormAlias": true,
                                         "timeoutSecs": 300,
                                         "viewRefresh": true,
                                         "noViews": false,
@@ -493,6 +502,21 @@
                                             "Color": "Maroon",
                                             "Pet": "Giraffe"
                                         }
+                                    }
+                                },
+                                "Query to return all documents of a specific form, including any documents that have different aliases.": {
+                                    "value": {
+                                        "includeFormAlias": true,
+                                        "forms": [
+                                            "customer"
+                                        ],
+                                        "query": "@All",
+                                        "maxScanDocs": 500000,
+                                        "maxScanEntries": 200000,
+                                        "mode": "dql",
+                                        "noViews": false,
+                                        "timeoutSecs": 300,
+                                        "viewRefresh": true
                                     }
                                 }
                             }
@@ -1098,8 +1122,8 @@
             ]
         },
         "/run/formula": {
-            "summary": "Tests formula for completeness and results",
-            "description": "Tests formula for completeness and results",
+            "summary": "Executes a formula and returns results.",
+            "description": "Executes a formula and returns results.",
             "post": {
                 "requestBody": {
                     "description": "Formula to be checked",
@@ -1203,8 +1227,8 @@
                     }
                 ],
                 "operationId": "runFormula",
-                "summary": "Post a formula  to Domino",
-                "description": "Checks if a formula would execute properly. Mostly used for Domino REST API AdminUI to test formula fields",
+                "summary": "Executes a formula and returns results.",
+                "description": "Executes a formula and returns results.",
                 "x-keep-version": 1
             },
             "parameters": [
@@ -1463,37 +1487,6 @@
                 "operationId": "createDocument",
                 "summary": "Create a new document for a specified form.",
                 "description": "Create a new document for a specified form.",
-                "x-keep-version": 1
-            },
-            "get": {
-                "parameters": [
-                    {
-                        "examples": {
-                            "CustomApp": {
-                                "value": "demo"
-                            },
-                            "Directory": {
-                                "value": "dominodirectory"
-                            }
-                        },
-                        "name": "dataSource",
-                        "description": "Scope name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "name": "requiredHeader",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "operationId": "createDocumentGet",
                 "x-keep-version": 1
             },
             "parameters": [
@@ -2304,355 +2297,6 @@
                 }
             ]
         },
-        "/listspivot/{name}": {
-            "summary": "Performs Pivot table operation on list entries",
-            "description": "Operates on list entries only, not the underlying documents",
-            "get": {
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "examples": {
-                            "CustomApp": {
-                                "value": "demo"
-                            },
-                            "Directory": {
-                                "value": "dominodirectory"
-                            }
-                        },
-                        "name": "dataSource",
-                        "description": "Scope name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "name": "mode",
-                        "description": "Document mode to retrieve the documents with. Current user must qualify for those",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                },
-                                "examples": {
-                                    "listspivotExample": {
-                                        "value": {
-                                            "Basic Industries": {
-                                                "Newsletter": {
-                                                    "count": 100,
-                                                    "min": "Daily",
-                                                    "max": "Yearly"
-                                                },
-                                                "gender": {
-                                                    "count": 100,
-                                                    "min": "Female",
-                                                    "max": "Male"
-                                                },
-                                                "Assets": {
-                                                    "count": 100,
-                                                    "min": "1069916.51",
-                                                    "max": "988208.57",
-                                                    "sum": 5.261524021599999E8
-                                                },
-                                                "FullName": {
-                                                    "count": 100,
-                                                    "min": "Alexis Judd",
-                                                    "max": "Zane Gioan"
-                                                },
-                                                "Country": {
-                                                    "count": 100,
-                                                    "min": "Afghanistan",
-                                                    "max": "Yemen"
-                                                },
-                                                "email": {
-                                                    "count": 100,
-                                                    "min": "",
-                                                    "max": "wscamerdine1@weather.com"
-                                                }
-                                            },
-                                            "Capital Goods": {
-                                                "Newsletter": {
-                                                    "count": 142,
-                                                    "min": "Daily",
-                                                    "max": "Yearly"
-                                                },
-                                                "gender": {
-                                                    "count": 142,
-                                                    "min": "Female",
-                                                    "max": "Male"
-                                                },
-                                                "Assets": {
-                                                    "count": 142,
-                                                    "min": "1158322.88",
-                                                    "max": "9968502.31",
-                                                    "sum": 6.702025365799999E8
-                                                },
-                                                "FullName": {
-                                                    "count": 142,
-                                                    "min": "Adham Farmiloe",
-                                                    "max": "Yuri Probets"
-                                                },
-                                                "Country": {
-                                                    "count": 142,
-                                                    "min": "Andorra",
-                                                    "max": "Vietnam"
-                                                },
-                                                "email": {
-                                                    "count": 142,
-                                                    "min": "",
-                                                    "max": "yprobets72@nationalgeographic.com"
-                                                }
-                                            },
-                                            "n/a": {
-                                                "Newsletter": {
-                                                    "count": 536,
-                                                    "min": "Daily",
-                                                    "max": "Yearly"
-                                                },
-                                                "gender": {
-                                                    "count": 536,
-                                                    "min": "Female",
-                                                    "max": "Male"
-                                                },
-                                                "Assets": {
-                                                    "count": 536,
-                                                    "min": "100328.2",
-                                                    "max": "9952273.9",
-                                                    "sum": 2.7953133287000003E9
-                                                },
-                                                "FullName": {
-                                                    "count": 536,
-                                                    "min": "Abbot Molineux",
-                                                    "max": "Zorah Emberson"
-                                                },
-                                                "Country": {
-                                                    "count": 536,
-                                                    "min": "Afghanistan",
-                                                    "max": "Zimbabwe"
-                                                },
-                                                "email": {
-                                                    "count": 536,
-                                                    "min": "",
-                                                    "max": "zromayneko@delicious.com"
-                                                }
-                                            },
-                                            "Energy": {
-                                                "Newsletter": {
-                                                    "count": 112,
-                                                    "min": "Daily",
-                                                    "max": "Yearly"
-                                                },
-                                                "gender": {
-                                                    "count": 112,
-                                                    "min": "Female",
-                                                    "max": "Male"
-                                                },
-                                                "Assets": {
-                                                    "count": 112,
-                                                    "min": "1075211.73",
-                                                    "max": "9836423.95",
-                                                    "sum": 5.6201872244E8
-                                                },
-                                                "FullName": {
-                                                    "count": 112,
-                                                    "min": "Adriena Jones",
-                                                    "max": "Zsa zsa Culvey"
-                                                },
-                                                "Country": {
-                                                    "count": 112,
-                                                    "min": "Afghanistan",
-                                                    "max": "Venezuela"
-                                                },
-                                                "email": {
-                                                    "count": 112,
-                                                    "min": "",
-                                                    "max": "zzsams@macromedia.com"
-                                                }
-                                            },
-                                            "Transportation": {
-                                                "Newsletter": {
-                                                    "count": 33,
-                                                    "min": "Daily",
-                                                    "max": "Yearly"
-                                                },
-                                                "gender": {
-                                                    "count": 33,
-                                                    "min": "Female",
-                                                    "max": "Male"
-                                                },
-                                                "Assets": {
-                                                    "count": 33,
-                                                    "min": "1085519.82",
-                                                    "max": "9995833.06",
-                                                    "sum": 1.7402618585999995E8
-                                                },
-                                                "FullName": {
-                                                    "count": 33,
-                                                    "min": "Alejandrina Milne",
-                                                    "max": "Tam Touzey"
-                                                },
-                                                "Country": {
-                                                    "count": 33,
-                                                    "min": "Armenia",
-                                                    "max": "Yemen"
-                                                },
-                                                "email": {
-                                                    "count": 33,
-                                                    "min": "alardiner9h@google.de",
-                                                    "max": "ttouzeykd@booking.com"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Data coming back, including unids. Metadata is listed first, with JSON property names prefixed with \"@\". All entry fields follow, output in alphabetical order."
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequest"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFound"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "pivotViewEntries",
-                "summary": "Processes view data as pivot",
-                "description": "Computes min, max, count, total of retrieved view entries",
-                "x-keep-version": 1
-            },
-            "parameters": [
-                {
-                    "name": "count",
-                    "description": "How many entries shall be returned, default = Integer.MaxInteger",
-                    "schema": {
-                        "type": "integer"
-                    },
-                    "in": "query"
-                },
-                {
-                    "examples": {
-                        "CustomApp": {
-                            "value": "demo"
-                        },
-                        "Directory": {
-                            "value": "dominodirectory"
-                        }
-                    },
-                    "name": "dataSource",
-                    "description": "Scope name",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "example": {
-                            "value": "MarketingInfo"
-                        }
-                    },
-                    "name": "name",
-                    "description": "Name of the view or folder",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "path",
-                    "required": true
-                },
-                {
-                    "name": "scope",
-                    "description": "What shall the view return:\n- document entries\n- category names\n- all",
-                    "schema": {
-                        "enum": [
-                            "all",
-                            "categories",
-                            "documents"
-                        ],
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": false
-                },
-                {
-                    "name": "start",
-                    "description": "at which entry should return values start (zero based), default = 0",
-                    "schema": {
-                        "type": "integer"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "key",
-                    "description": "Useful for categorised or sorted lists. Limits return values to entries matching the key or keys. Separate multiple values with commas, where the first value will be matched to the first sorted column, the second value to the second sorted column etc.",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "column",
-                    "description": "Column for alternative sorting. This requires the list to be designed for indexing on this column",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "direction",
-                    "description": "The direction for alternative sorting. This is ignored unless \"column\" query parameter is passed as well. This requires the list to be designed for indexing on this column in the desired direction. Defaults to ascending if column is set.",
-                    "schema": {
-                        "enum": [
-                            "asc",
-                            "desc"
-                        ],
-                        "type": "string"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "startsWith",
-                    "description": "A character combination to perform a partial match to identify a starting point. The character combination will be applied to the \"column\" and \"direction\" passed in the query string. This cannot be combined with the \"keys\" parameter, i.e. you cannot filter on keys and startwith within that key.",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "pivotColumn",
-                    "description": "Name of the column to provide the data for the pivot aggregator",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                }
-            ]
-        },
         "/bulk/update": {
             "summary": "Update multiple documents with a single call",
             "description": "Update multiple documents with a single call",
@@ -2677,6 +2321,29 @@
                                             "first_name": "TestName"
                                         },
                                         "timeoutSecs": 300,
+                                        "viewRefresh": true
+                                    }
+                                },
+                                "Update documents by DQL document forms listed in array.": {
+                                    "value": {
+                                        "forms": [
+                                            "Client",
+                                            "Lead"
+                                        ],
+                                        "includeFormAlias": true,
+                                        "maxScanDocs": 500000,
+                                        "maxScanEntries": 200000,
+                                        "mode": "default",
+                                        "noViews": false,
+                                        "query": "City = ?City",
+                                        "replaceItems": {
+                                            "Sales_Rep": "James"
+                                        },
+                                        "returnUpdatedDocument": false,
+                                        "timeoutSecs": 300,
+                                        "variables": {
+                                            "City": "Boston"
+                                        },
                                         "viewRefresh": true
                                     }
                                 }
@@ -3090,7 +2757,7 @@
         },
         "/run/agentWithContext": {
             "summary": "Runs an existing agent in a given database using a specific document as the agent's run context",
-            "description": "Pay attention to the agent's target. ",
+            "description": "Provide an array of UNIDs, each unid will be executed by the agent. \nNOTE : NotesSession.documentContext must be used in the agent to access the relevant document. ",
             "post": {
                 "requestBody": {
                     "description": "Name of agent",
@@ -3117,14 +2784,20 @@
                                 "sample": {
                                     "value": {
                                         "agentName": "processJson",
-                                        "unid": "36EBDFD11D4381F280258600003ED607",
+                                        "unids": [
+                                            "36EBDFD11D4381F280258600003ED607",
+                                            "36EBDFD11D4381F280258600003ED608"
+                                        ],
                                         "returnMode": "default"
                                     }
                                 },
                                 "sampleWithOutMode": {
                                     "value": {
                                         "agentName": "processJson",
-                                        "unid": "36EBDFD11D4381F280258600003ED607"
+                                        "unids": [
+                                            "36EBDFD11D4381F280258600003ED607",
+                                            "36EBDFD11D4381F280258600003ED608"
+                                        ]
                                     }
                                 }
                             }
@@ -3214,7 +2887,7 @@
                 "operationId": "executeAgentWithContext",
                 "summary": "Runs an agent in a database, in real time, passing a document for context",
                 "description": "Runs an existing agent, serverside, passing an UNID of a document to act upon. NotesSession.documentContext can be used in the agent to access the relevant document. Existing limits of agent execution duration apply. This should only be used for short-running agents and simulated calling the agent from a browser.",
-                "x-keep-version": 5
+                "x-keep-version": 1
             },
             "parameters": [
                 {
@@ -3250,8 +2923,8 @@
                             "examples": {
                                 "AuthLogin": {
                                     "value": {
-                                        "password": "AdminPassword",
-                                        "username": "AdminName"
+                                        "username": "AdminName",
+                                        "password": "AdminPassword"
                                     }
                                 }
                             }
@@ -3303,108 +2976,6 @@
                 "x-keep-version": 1,
                 "x-keep-scope": "ANY"
             }
-        },
-        "/richtext/markdown/{unid}": {
-            "summary": "Provides Read access to a RichText field as MIME",
-            "description": "Legacy RichText fields (typically Body) returned as Markdown, subject to the limitations of the Flexmark markdown processor",
-            "get": {
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "name": "item",
-                        "description": "Name of the RichText item to retrieve. When omitted \"Body\" is used as item name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "text/markdown": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "description": "Returns Markdown data converted from RichText"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequest"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFound"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "getRichTextMarkdown",
-                "summary": "Return RichText as Base64 encoded Markdown",
-                "description": "Return RichText as Base64 encoded Markdown",
-                "x-keep-version": 1
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "CustomApp": {
-                            "value": "customcontacts"
-                        },
-                        "Directory": {
-                            "value": "dominodirectory"
-                        }
-                    },
-                    "name": "dataSource",
-                    "description": "Scope name",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "sample": {
-                            "value": "94CA3B3B5E035D6048258471003639C6"
-                        }
-                    },
-                    "name": "unid",
-                    "description": "Universal Id of the document to be acted upon",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "path",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "defaultValue": {
-                            "value": "default"
-                        },
-                        "ForApprover": {
-                            "value": "approver"
-                        }
-                    },
-                    "name": "mode",
-                    "description": "mode to perform the document access in. Defaults to 'default' if missing. All lowercase, no spaces, letters and numbers only",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
-                }
-            ]
         },
         "/odata/{dataSource}/$metadata": {
             "summary": "Retrieve data in ODATA format",
@@ -3479,8 +3050,8 @@
                     }
                 ],
                 "operationId": "getOdataMetadata",
-                "summary": "ODATA Meta Data is XML",
-                "description": "Get ODATA Meta Data which is XML",
+                "summary": "Get OData metadata in XML format.",
+                "description": "Get OData metadata, which returns in XML format.",
                 "x-keep-version": 1
             },
             "parameters": [
@@ -3536,113 +3107,6 @@
                         "type": "string"
                     },
                     "in": "header"
-                }
-            ]
-        },
-        "/richtext/mime/{unid}": {
-            "summary": "Provides Read access to a RichText field as MIME",
-            "description": "Legacy RichText fields (typically Body) returned as MIME including embedded images and links to attachmentd",
-            "get": {
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "name": "item",
-                        "description": "Name of the RichText item to retrieve. When omitted \"Body\" is used as item name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/mime": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {
-                                    "mimeExample": {
-                                        "value": "'\r\nMIME-Version: 1.0\r\nContent-Type: multipart/related; boundary=0-ab12cd74-b592-4523-990d-f35a312e48c2\r\n\r\n--0-ab12cd74-b592-4523-990d-f35a312e48c2\r\nContent-type: text/html; charset=UTF-8\r\nContent-Disposition: inline\r\n<html>\r\n <head></head>\r\n <body>\r\n  <span style=\"font-family: sans-serif ; font-size: 10pt ; \">name</span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">: </span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">John Doe</span><br> <span style=\"font-family: sans-serif ; font-size: 10pt ; \">lastmodifieddate</span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">: </span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">2019-07-18T15:47:53.000+0000</span><br> <span style=\"font-family: sans-serif ; font-size: 10pt ; \">id</span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">: </span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">0037F00001WZH78QAH</span><br> <span style=\"font-family: sans-serif ; font-size: 10pt ; \">form</span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">: </span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">fromSalesforce</span><br> <span style=\"font-family: sans-serif ; font-size: 10pt ; \">$UpdatedBy</span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">: </span><span style=\"font-family: sans-serif ; font-size: 10pt ; \">Anonymous</span>\r\n </body>\r\n</html>\r\n--0-ab12cd74-b592-4523-990d-f35a312e48c2--\r\n'"
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Returns RichText as Base64 encoded MIME. The example shows the decoded MIME."
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequest"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404NotFound"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "getRichTextMime",
-                "summary": "Return RichText as Base64 encoded MIME",
-                "description": "Return RichText as Base64 encoded MIME",
-                "x-keep-version": 1
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "CustomApp": {
-                            "value": "customcontacts"
-                        },
-                        "Directory": {
-                            "value": "dominodirectory"
-                        }
-                    },
-                    "name": "dataSource",
-                    "description": "Scope name",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "sample": {
-                            "value": "94CA3B3B5E035D6048258471003639C6"
-                        }
-                    },
-                    "name": "unid",
-                    "description": "Universal Id of the document to be acted upon",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "path",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "defaultValue": {
-                            "value": "default"
-                        },
-                        "ForApprover": {
-                            "value": "approver"
-                        }
-                    },
-                    "name": "mode",
-                    "description": "mode to perform the document access in. Defaults to 'default' if missing. All lowercase, no spaces, letters and numbers only",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
                 }
             ]
         },
@@ -5243,7 +4707,7 @@
                     {
                         "examples": {
                             "Customer": {
-                                "value": "\"Customer\""
+                                "value": "Customer"
                             }
                         },
                         "name": "form",
@@ -5615,6 +5079,16 @@
                                             "D650B4BF0DE3BB714825881400434113"
                                         ]
                                     }
+                                },
+                                "Request with mode": {
+                                    "value": {
+                                        "mode": "mymode",
+                                        "unids": [
+                                            "20E0116E35C1A29300258A3100587BB4",
+                                            "1CC22F3EF91B466200258A3100584D9B",
+                                            "8D2CFCF259A6197E00258A31004F8853"
+                                        ]
+                                    }
                                 }
                             }
                         }
@@ -5862,39 +5336,6 @@
                 }
             ]
         },
-        "/apps": {
-            "summary": "Short list of OAuth applications",
-            "description": "Only Application Name/client_name, description, icon/logo_uri, Application URL/client_uri to be shown to be able to render the Domino REST API landing page",
-            "get": {
-                "tags": [
-                    "admin"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/AppInfo"
-                                    }
-                                }
-                            }
-                        },
-                        "description": "List of active apps"
-                    }
-                },
-                "security": [
-                    {
-
-                    }
-                ],
-                "operationId": "fetchApps",
-                "summary": "Get the list of configured OAuth applications",
-                "description": "Return Application Name/client_name, Description, Icon/logo_URI, Application URL/client_uri of active OAuth applications",
-                "x-keep-version": 1
-            }
-        },
         "/scope/access": {
             "summary": "Retrieve ACCESS levels for Domino REST API configuration",
             "description": "Operation on a Domino REST API configuration for a NSF.",
@@ -6038,6 +5479,15 @@
                         "examples": {
                             "RichTextAsMime": {
                                 "value": "mime"
+                            },
+                            "Plain Text": {
+                                "value": "plain"
+                            },
+                            "as HTML": {
+                                "value": "html"
+                            },
+                            "as markdown": {
+                                "value": "markdown"
                             }
                         },
                         "name": "richTextAs",
@@ -6618,8 +6068,8 @@
                     }
                 ],
                 "operationId": "getOdataServiceInfo",
-                "summary": "Get Odata Configured Forms in a specific Domino REST API database",
-                "description": "Return Odata Configured Forms in a specific Domino REST API database along with odata context",
+                "summary": "Get OData Configured Forms in a specific Domino REST API database",
+                "description": "Return OData Configured Forms and OData Context from a specific Domino REST API database.\n",
                 "x-keep-version": 1
             },
             "parameters": [
@@ -6840,13 +6290,13 @@
                     }
                 ],
                 "operationId": "fetchOdata",
-                "summary": "Get documents for a specific Form in OData format",
-                "description": "Return all documents in a specific Form in Odata format",
+                "summary": "Get documents for the specific Form in OData format",
+                "description": "Return documents in a specific Form in OData format",
                 "x-keep-version": 1
             },
             "post": {
                 "requestBody": {
-                    "description": "Document body in JSON format. Key/value pairs of fields and their values to create. Some modes may not allow any editable fields, in which case an empty JSON object should be passed.\n\nThe Key \"Form\" is required, and also it should have configured mode \"odata\" beforehand. ",
+                    "description": "The body of the document is in JSON format. Fields must be created using key/value pairs and their values. As some form modes do not allow editable fields, an empty JSON object should be returned.\n\nYou'll need to use the Key \"Form\" name, and it must be set up in \"odata\" mode.",
                     "content": {
                         "application/json": {
                             "schema": {
@@ -6936,8 +6386,8 @@
                     }
                 ],
                 "operationId": "createOdata",
-                "summary": "Create a document in a form using odata format",
-                "description": "Create a document in a form using 'odata' mode (odata mode should be available in the form) and returns the document along with odata details",
+                "summary": "Create a document in a form using OData format",
+                "description": "Creates a document in a form using 'odata' mode (odata mode must be configured in the form) and returns the document with OData metadata.",
                 "x-keep-version": 1
             },
             "parameters": [
@@ -7002,298 +6452,6 @@
                         "type": "string"
                     },
                     "in": "header"
-                }
-            ]
-        },
-        "/lists/{name}": {
-            "summary": "Those are list entries, not the underlying documents",
-            "description": "Those are list entries, not the underlying documents",
-            "get": {
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "examples": {
-                            "CustomApp": {
-                                "value": "demo"
-                            },
-                            "Directory": {
-                                "value": "dominodirectory"
-                            }
-                        },
-                        "name": "dataSource",
-                        "description": "Scope name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "name": "mode",
-                        "description": "Document mode to retrieve the documents with. (Every Form can have multiple modes, each can be different from other modes). Also, Current logged-in user must have access for the specified mode.",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query"
-                    },
-                    {
-                        "name": "meta",
-                        "description": "When set to false, all metadata Json items on the top level of an object get suppressed.\nDefault is true",
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-
-                                    }
-                                },
-                                "examples": {
-                                    "sample": {
-                                        "value": [
-                                            {
-                                                "@unid": "B66880940B8DDC12802585180049E945",
-                                                "@noteid": 82542,
-                                                "@index": "1",
-                                                "$0": "null",
-                                                "$10": "Aaron Aaron",
-                                                "City": "Kansas City",
-                                                "Created": "2020-02-24T13:27:18.450Z",
-                                                "EMail": "aaaron@renovations.com",
-                                                "FirstName": "Aaron",
-                                                "Id": "CN=Aaron Aaron/O=Renovations",
-                                                "LastName": "Aaron",
-                                                "State": "KS"
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Data coming back, including unids. Metadata is listed first, with JSON property names prefixed with \"@\". All entry fields follow, output in alphabetical order."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorMessage"
-                                },
-                                "examples": {
-                                    "NotFound": {
-                                        "value": {
-                                            "message": "The list {name} is not configured for this database",
-                                            "status": 404
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Specified view name is not found"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "fetchViewEntries",
-                "summary": "Pulls in view data",
-                "description": "Pulls in view data",
-                "x-keep-version": 1
-            },
-            "parameters": [
-                {
-                    "name": "count",
-                    "description": "How many entries shall be returned, default = Integer.MaxInteger",
-                    "schema": {
-                        "type": "integer"
-                    },
-                    "in": "query"
-                },
-                {
-                    "examples": {
-                        "CustomApp": {
-                            "value": "demo"
-                        },
-                        "Directory": {
-                            "value": "dominodirectory"
-                        }
-                    },
-                    "name": "dataSource",
-                    "description": "Scope name",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                },
-                {
-                    "name": "name",
-                    "description": "Name of the view or folder",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "path",
-                    "required": true
-                },
-                {
-                    "name": "scope",
-                    "description": "What shall the view return:\n- document entries\n- category names\n- all",
-                    "schema": {
-                        "enum": [
-                            "all",
-                            "categories",
-                            "documents"
-                        ],
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": false
-                },
-                {
-                    "name": "start",
-                    "description": "at which entry should return values start (zero based), default = 0",
-                    "schema": {
-                        "type": "integer"
-                    },
-                    "in": "query"
-                },
-                {
-                    "examples": {
-                        "NoKey": {
-                            "value": ""
-                        },
-                        "State": {
-                            "value": "MI"
-                        },
-                        "State and City": {
-                            "value": "MI,Ann Arbor"
-                        }
-                    },
-                    "name": "key",
-                    "description": "Useful for categorised or sorted lists. Limits return values to entries matching the key or keys. Separate multiple values with commas, where the first value will be matched to the first sorted column, the second value to the second sorted column etc.",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "keyAllowPartial",
-                    "description": "Select by partial Key.  Default is false (key match is exact)",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "documents",
-                    "description": "Shall the query return documents instead of view entries",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "meta",
-                    "description": "When set to false, all Json items on the top level of an object get suppressed.\nDefault is true",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "metaAdditional",
-                    "description": "Additional metadata that is not included in the View.  This may have a slight \nperformance cost so use only if necessary.",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "column",
-                    "description": "Column for alternative sorting. This requires the list to be designed for indexing on this column",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "direction",
-                    "description": "The direction for alternative sorting. This is ignored unless \"column\" query parameter is passed as well. This requires the list to be designed for indexing on this column in the desired direction. Defaults to ascending if column is set.",
-                    "schema": {
-                        "enum": [
-                            "asc",
-                            "desc"
-                        ],
-                        "type": "string"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "startsWith",
-                    "description": "A character combination to perform a partial match to identify a starting point. The character combination will be applied to the \"column\" and \"direction\" passed in the query string. This cannot be combined with the \"keys\" parameter, i.e. you cannot filter on keys and startwith within that key.",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "richTextAs",
-                    "description": "The format RichText fields will be returned when retrieving documents instead of view entries.  The default if unspecified is mime.",
-                    "schema": {
-                        "$ref": "#/components/schemas/RichTextRepresentation"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "distinctDocuments",
-                    "description": "Determines whether, when documents=true, only distinct documents should be retrieved if they exist multiple times in the list.",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "markRead",
-                    "description": "When retrieving documents instead of view entries, mark them as read by the current user after retrieval",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "markUnread",
-                    "description": "When retrieving documents instead of view entries, mark them as unread by the current user after retrieval",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "unreadOnly",
-                    "description": "Retrieve only unread entries. Cannot be combined with documents=true, documentsOnly=true, or methods to select or query documents",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query"
-                },
-                {
-                    "name": "ftSearchQuery",
-                    "description": "Full-text search query to filter the contents of the list",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query"
                 }
             ]
         },
@@ -7422,6 +6580,43 @@
         "/auth/logout": {
             "summary": "Log out a current JWT based user",
             "description": "Log out a current JWT based user",
+            "get": {
+                "tags": [
+                    "authentication"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusMessage"
+                                },
+                                "examples": {
+                                    "logout": {
+                                        "value": {
+                                            "statusText": "OK",
+                                            "status": 200,
+                                            "message": "CN=John Doe/O=ProjectKeep logged out (0 days, 1 hours, 59 minutes, 40 seconds.)"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Logout body, fixed format"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "authLogoutGet",
+                "summary": "Logout and invalidate token.",
+                "description": "Invalidates token in header. Only use this operation when GET for logout is really needed, otherwise it is recommended to use POST operation for logout.",
+                "x-keep-scope": "ANY",
+                "x-keep-version": 1
+            },
             "post": {
                 "requestBody": {
                     "description": "Logout body, fixed format",
@@ -7766,7 +6961,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "type": "string"
+                                        "$ref": "#/components/schemas/PreviewInfo"
                                     }
                                 }
                             }
@@ -7781,7 +6976,8 @@
                     }
                 ],
                 "operationId": "getPreviewFeatures",
-                "summary": "Shows preview endpoints"
+                "summary": "Shows preview endpoints",
+                "x-keep-version": 1
             },
             "x-keep-version": 1,
             "x-preview": true,
@@ -7899,108 +7095,11 @@
                     }
                 ],
                 "operationId": "fetchOdataList",
-                "summary": "Display scopes that have enabled/created Odata as mode in any of its form in JSONObject.,",
-                "description": "Retrieve all of the Domino Rest API Database/Scopes that supports Odata in any of its forms along with important Odata details such as url and meta as JSONObject.,",
+                "summary": "Get scopes that have been enabled or created in OData as a form mode in JSON Object structure",
+                "description": "Return all Domino Rest API databases and scopes that support OData form mode, as well as important OData details such as URL and meta in JSON Object structure.",
                 "x-keep-version": 1,
                 "x-keep-scope": "ANY"
             }
-        },
-        "/profiledocument": {
-            "summary": "Get information for specific profile document",
-            "description": "Get information for specific profile document",
-            "get": {
-                "tags": [
-                    "data"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/DominoDocument"
-                                },
-                                "examples": {
-                                    "Document": {
-                                        "value": {
-                                            "value": "' \"{ \"@meta\": { \"noteid\": 2426, \"unid\": \"8654BEBA03791DF0002589D00057C28C\", \"created\": \"2023-06-16T15:58:34.36Z\", \"lastmodified\": \"2023-06-16T15:58:34.36Z\", \"lastaccessed\": \"2023-06-16T15:58:34.36Z\", \"lastmodifiedinfile\": \"2023-06-16T15:58:34.37Z\", \"addedtofile\": \"2023-06-16T15:58:34.36Z\", \"noteclass\": [ \"DATA\", \"DOCUMENT\" ], \"unread\": false, \"editable\": true, \"revision\": \"000000010057C28C002589D0\" }, \"$Name\": \"$profile_009customers_cn=Keep User/o=KeepOrg\", \"$UpdatedBy\": [ \"CN=Keep User/O=KeepOrg\" ], \"$NoPurge\": \" \", \"$ConflictAction\": \"2\" }\"\n'"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Successful retrieval"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403Forbidden"
-                    },
-                    "406": {
-                        "$ref": "#/components/responses/406NotAcceptable"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "getProfileDocument",
-                "summary": "Retrieve a profile document using the appropriate profileName",
-                "description": "The profile document is created upon first access using the specified profileName. Upon retrieval of the profile document using the same profileName, it will return the existing profile Document. When 'user' parameter is true, it will retrieve the current logged in user associated with the profile document, defaults to false.",
-                "x-keep-version": 1
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "CustomApp": {
-                            "value": "customcontacts"
-                        },
-                        "Directory": {
-                            "value": "dominodirectory"
-                        }
-                    },
-                    "name": "dataSource",
-                    "description": "Scope name",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "nameExample": {
-                            "value": "tmpprofile"
-                        }
-                    },
-                    "name": "profileName",
-                    "description": "The name of the profile document",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "example": {
-                            "value": "true"
-                        }
-                    },
-                    "name": "user",
-                    "description": "whether use current user as user name key to get the profile document",
-                    "schema": {
-                        "type": "boolean"
-                    },
-                    "in": "query",
-                    "required": false
-                }
-            ]
         },
         "/attachments/{unid}": {
             "summary": "Add an attachment to a document",
@@ -8128,6 +7227,1947 @@
                     },
                     "in": "query",
                     "required": false
+                }
+            ]
+        },
+        "/bulk/etag": {
+            "summary": "Determine whether multiple documents exist with a single call by unids, returning ETags",
+            "description": "Determine whether multiple documents exist with a single call by unids, returning ETags",
+            "post": {
+                "requestBody": {
+                    "description": "Object with mode and array document UNIDs.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BulkUnids"
+                            },
+                            "examples": {
+                                "SampleBulkGetDocumentByUNID": {
+                                    "value": {
+                                        "mode": "default",
+                                        "unids": [
+                                            "D2E9CF578D0B3844482588140043410F",
+                                            "05B08E4A7874C01E4825881400434111",
+                                            "D650B4BF0DE3BB714825881400434113"
+                                        ]
+                                    }
+                                },
+                                "SampleBulkGetDocByUNIDNoMode": {
+                                    "value": {
+                                        "unids": [
+                                            "D2E9CF578D0B3844482588140043410F",
+                                            "05B08E4A7874C01E4825881400434111",
+                                            "D650B4BF0DE3BB714825881400434113"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentExistencePayload"
+                                },
+                                "examples": {
+                                    "SampleResponse": {
+                                        "value": {
+                                            "D2E9CF578D0B3844482588140043410F": "W/\" 6243a80a\""
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Existence check result. Returns status and ETag for each document, keyed by UNID"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    },
+                    "501": {
+                        "$ref": "#/components/responses/501NotImplemented"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "bulkDocumentEtagByUnid",
+                "summary": "Determine whether multiple documents exist with a single call by unids, returning ETags",
+                "description": "Determine whether multiple documents exist with a single call by unids, returning ETags",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "demo"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
+        },
+        "/bulk/folder": {
+            "summary": "Adds or removes documents from a folder",
+            "description": "Adds or removes documents from a folder",
+            "post": {
+                "requestBody": {
+                    "description": "Object with mode and array document UNIDs.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BulkFolderDocuments"
+                            },
+                            "examples": {
+                                "SampleBulkGetDocumentByUNID": {
+                                    "value": {
+                                        "mode": "default",
+                                        "action": "add",
+                                        "folderName": "My Folder",
+                                        "unids": [
+                                            "D2E9CF578D0B3844482588140043410F",
+                                            "05B08E4A7874C01E4825881400434111",
+                                            "D650B4BF0DE3BB714825881400434113"
+                                        ]
+                                    }
+                                },
+                                "SampleBulkGetDocByUNIDNoMode": {
+                                    "value": {
+                                        "action": "remove",
+                                        "folderName": "My Folder",
+                                        "unids": [
+                                            "D2E9CF578D0B3844482588140043410F",
+                                            "05B08E4A7874C01E4825881400434111",
+                                            "D650B4BF0DE3BB714825881400434113"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/StatusMessage"
+                                    }
+                                },
+                                "examples": {
+                                    "SampleResponse": {
+                                        "value": {
+                                            "D2E9CF578D0B3844482588140043410F": "W/\" 6243a80a\""
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Existence check result. Returns status for each document, keyed by UNID"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    },
+                    "501": {
+                        "$ref": "#/components/responses/501NotImplemented"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "bulkDocumentFolderByUnid",
+                "summary": "Adds or removes documents from a folder",
+                "description": "Adds or removes documents from a folder",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "demo"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
+        },
+        "/lists/{name}": {
+            "summary": "Those are list entries, not the underlying documents",
+            "description": "Those are list entries, not the underlying documents",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "examples": {
+                            "CustomApp": {
+                                "value": "demo"
+                            },
+                            "Directory": {
+                                "value": "dominodirectory"
+                            }
+                        },
+                        "name": "dataSource",
+                        "description": "Scope name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "mode",
+                        "description": "Document mode to retrieve the documents with. (Every Form can have multiple modes, each can be different from other modes). Also, Current logged-in user must have access for the specified mode.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "meta",
+                        "description": "When set to false, all metadata Json items on the top level of an object get suppressed.\nDefault is true",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+
+                                    }
+                                },
+                                "examples": {
+                                    "sample": {
+                                        "value": [
+                                            {
+                                                "@unid": "B66880940B8DDC12802585180049E945",
+                                                "@noteid": 82542,
+                                                "@index": "1",
+                                                "$0": "null",
+                                                "$10": "Aaron Aaron",
+                                                "City": "Kansas City",
+                                                "Created": "2020-02-24T13:27:18.450Z",
+                                                "EMail": "aaaron@renovations.com",
+                                                "FirstName": "Aaron",
+                                                "Id": "CN=Aaron Aaron/O=Renovations",
+                                                "LastName": "Aaron",
+                                                "State": "KS"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Data coming back, including unids. Metadata is listed first, with JSON property names prefixed with \"@\". All entry fields follow, output in alphabetical order."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples": {
+                                    "NotFound": {
+                                        "value": {
+                                            "message": "The list {name} is not configured for this database",
+                                            "status": 404
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Specified view name is not found"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "fetchViewEntries",
+                "summary": "Pulls in view data",
+                "description": "Pulls in view data",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "name": "count",
+                    "description": "How many entries shall be returned, default = 1000, All entries up to Integer.MAX_VALUE = -1",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                },
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "demo"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "name": "name",
+                    "description": "Name of the view or folder",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "name": "scope",
+                    "description": "What shall the view return:\n- document entries\n- category names\n- all",
+                    "schema": {
+                        "enum": [
+                            "all",
+                            "categories",
+                            "documents"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "name": "start",
+                    "description": "at which entry should return values start (zero based), default = 0",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                },
+                {
+                    "examples": {
+                        "NoKey - 0 key": {
+                            "value": ""
+                        },
+                        "State - 1 key": {
+                            "value": [
+                                "MI"
+                            ]
+                        },
+                        "State and City - 2 keys": {
+                            "value": [
+                                "MI",
+                                "Ann Arbor"
+                            ]
+                        }
+                    },
+                    "name": "key",
+                    "description": "Useful for categorized or sorted lists. Limits return values to entries matching the key or keys. Use multiple key parameter items to specify multiple keys in request URL.  The keys specified must be in the same order as the sorted columns from left to right. Unsorted columns will be ignored.",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "keyAllowPartial",
+                    "description": "Select by partial Key.  Default is false (key match is exact)",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "documents",
+                    "description": "Shall the query return documents instead of view entries",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "meta",
+                    "description": "When set to false, all Json items on the top level of an object get suppressed.\nDefault is true",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "metaAdditional",
+                    "description": "Additional metadata that is not included in the View.  This may have a slight \nperformance cost so use only if necessary.",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "column",
+                    "description": "Column for alternative sorting. This requires the list to be designed for indexing on this column",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "direction",
+                    "description": "The direction for alternative sorting. This is ignored unless \"column\" query parameter is passed as well. This requires the list to be designed for indexing on this column in the desired direction. Defaults to ascending if column is set.",
+                    "schema": {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "startsWith",
+                    "description": "A character combination to perform a partial match to identify a starting point. The character combination will be applied to the \"column\" and \"direction\" passed in the query string. This cannot be combined with the \"keys\" parameter, i.e. you cannot filter on keys and startwith within that key.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "richTextAs",
+                    "description": "The format RichText fields will be returned when retrieving documents instead of view entries.  The default if unspecified is mime.",
+                    "schema": {
+                        "$ref": "#/components/schemas/RichTextRepresentation"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "distinctDocuments",
+                    "description": "Determines whether, when documents=true, only distinct documents should be retrieved if they exist multiple times in the list.",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "markRead",
+                    "description": "When retrieving documents instead of view entries, mark them as read by the current user after retrieval",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "markUnread",
+                    "description": "When retrieving documents instead of view entries, mark them as unread by the current user after retrieval",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "unreadOnly",
+                    "description": "Retrieve only unread entries. Cannot be combined with documents=true, documentsOnly=true, or methods to select or query documents",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "ftSearchQuery",
+                    "description": "Full-text search query to filter the contents of the list",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "category",
+                    "description": "Category to restrict view queries to",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "in": "query",
+                    "required": false
+                }
+            ]
+        },
+        "/listspivot/{name}": {
+            "summary": "Performs Pivot table operation on list entries",
+            "description": "Operates on list entries only, not the underlying documents",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "examples": {
+                            "CustomApp": {
+                                "value": "demo"
+                            },
+                            "Directory": {
+                                "value": "dominodirectory"
+                            }
+                        },
+                        "name": "dataSource",
+                        "description": "Scope name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "name": "mode",
+                        "description": "Document mode to retrieve the documents with. Current user must qualify for those",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "examples": {
+                                    "listspivotExample": {
+                                        "value": {
+                                            "Basic Industries": {
+                                                "Newsletter": {
+                                                    "count": 100,
+                                                    "min": "Daily",
+                                                    "max": "Yearly"
+                                                },
+                                                "gender": {
+                                                    "count": 100,
+                                                    "min": "Female",
+                                                    "max": "Male"
+                                                },
+                                                "Assets": {
+                                                    "count": 100,
+                                                    "min": "1069916.51",
+                                                    "max": "988208.57",
+                                                    "sum": 5.261524021599999E8
+                                                },
+                                                "FullName": {
+                                                    "count": 100,
+                                                    "min": "Alexis Judd",
+                                                    "max": "Zane Gioan"
+                                                },
+                                                "Country": {
+                                                    "count": 100,
+                                                    "min": "Afghanistan",
+                                                    "max": "Yemen"
+                                                },
+                                                "email": {
+                                                    "count": 100,
+                                                    "min": "",
+                                                    "max": "wscamerdine1@weather.com"
+                                                }
+                                            },
+                                            "Capital Goods": {
+                                                "Newsletter": {
+                                                    "count": 142,
+                                                    "min": "Daily",
+                                                    "max": "Yearly"
+                                                },
+                                                "gender": {
+                                                    "count": 142,
+                                                    "min": "Female",
+                                                    "max": "Male"
+                                                },
+                                                "Assets": {
+                                                    "count": 142,
+                                                    "min": "1158322.88",
+                                                    "max": "9968502.31",
+                                                    "sum": 6.702025365799999E8
+                                                },
+                                                "FullName": {
+                                                    "count": 142,
+                                                    "min": "Adham Farmiloe",
+                                                    "max": "Yuri Probets"
+                                                },
+                                                "Country": {
+                                                    "count": 142,
+                                                    "min": "Andorra",
+                                                    "max": "Vietnam"
+                                                },
+                                                "email": {
+                                                    "count": 142,
+                                                    "min": "",
+                                                    "max": "yprobets72@nationalgeographic.com"
+                                                }
+                                            },
+                                            "n/a": {
+                                                "Newsletter": {
+                                                    "count": 536,
+                                                    "min": "Daily",
+                                                    "max": "Yearly"
+                                                },
+                                                "gender": {
+                                                    "count": 536,
+                                                    "min": "Female",
+                                                    "max": "Male"
+                                                },
+                                                "Assets": {
+                                                    "count": 536,
+                                                    "min": "100328.2",
+                                                    "max": "9952273.9",
+                                                    "sum": 2.7953133287000003E9
+                                                },
+                                                "FullName": {
+                                                    "count": 536,
+                                                    "min": "Abbot Molineux",
+                                                    "max": "Zorah Emberson"
+                                                },
+                                                "Country": {
+                                                    "count": 536,
+                                                    "min": "Afghanistan",
+                                                    "max": "Zimbabwe"
+                                                },
+                                                "email": {
+                                                    "count": 536,
+                                                    "min": "",
+                                                    "max": "zromayneko@delicious.com"
+                                                }
+                                            },
+                                            "Energy": {
+                                                "Newsletter": {
+                                                    "count": 112,
+                                                    "min": "Daily",
+                                                    "max": "Yearly"
+                                                },
+                                                "gender": {
+                                                    "count": 112,
+                                                    "min": "Female",
+                                                    "max": "Male"
+                                                },
+                                                "Assets": {
+                                                    "count": 112,
+                                                    "min": "1075211.73",
+                                                    "max": "9836423.95",
+                                                    "sum": 5.6201872244E8
+                                                },
+                                                "FullName": {
+                                                    "count": 112,
+                                                    "min": "Adriena Jones",
+                                                    "max": "Zsa zsa Culvey"
+                                                },
+                                                "Country": {
+                                                    "count": 112,
+                                                    "min": "Afghanistan",
+                                                    "max": "Venezuela"
+                                                },
+                                                "email": {
+                                                    "count": 112,
+                                                    "min": "",
+                                                    "max": "zzsams@macromedia.com"
+                                                }
+                                            },
+                                            "Transportation": {
+                                                "Newsletter": {
+                                                    "count": 33,
+                                                    "min": "Daily",
+                                                    "max": "Yearly"
+                                                },
+                                                "gender": {
+                                                    "count": 33,
+                                                    "min": "Female",
+                                                    "max": "Male"
+                                                },
+                                                "Assets": {
+                                                    "count": 33,
+                                                    "min": "1085519.82",
+                                                    "max": "9995833.06",
+                                                    "sum": 1.7402618585999995E8
+                                                },
+                                                "FullName": {
+                                                    "count": 33,
+                                                    "min": "Alejandrina Milne",
+                                                    "max": "Tam Touzey"
+                                                },
+                                                "Country": {
+                                                    "count": 33,
+                                                    "min": "Armenia",
+                                                    "max": "Yemen"
+                                                },
+                                                "email": {
+                                                    "count": 33,
+                                                    "min": "alardiner9h@google.de",
+                                                    "max": "ttouzeykd@booking.com"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Data coming back, including unids. Metadata is listed first, with JSON property names prefixed with \"@\". All entry fields follow, output in alphabetical order."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "pivotViewEntries",
+                "summary": "Processes view data as pivot",
+                "description": "Computes min, max, count, total of retrieved view entries",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "name": "count",
+                    "description": "How many entries shall be returned, default = Integer.MaxInteger",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                },
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "demo"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "example": {
+                            "value": "MarketingInfo"
+                        }
+                    },
+                    "name": "name",
+                    "description": "Name of the view or folder",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "name": "scope",
+                    "description": "What shall the view return:\n- document entries\n- category names\n- all",
+                    "schema": {
+                        "enum": [
+                            "all",
+                            "categories",
+                            "documents"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "name": "start",
+                    "description": "at which entry should return values start (zero based), default = 0",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query"
+                },
+                {
+                    "examples": {
+                        "NoKey - 0 key": {
+                            "value": ""
+                        },
+                        "State - 1 key": {
+                            "value": [
+                                "MI"
+                            ]
+                        },
+                        "State and City - 2 keys": {
+                            "value": [
+                                "MI",
+                                "Ann Arbor"
+                            ]
+                        }
+                    },
+                    "name": "key",
+                    "description": "Useful for categorized or sorted lists. Limits return values to entries matching the key or keys. Use multiple key parameter items to specify multiple keys in request URL.  The keys specified must be in the same order as the sorted columns from left to right. Unsorted columns will be ignored.",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "column",
+                    "description": "Column for alternative sorting. This requires the list to be designed for indexing on this column",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "direction",
+                    "description": "The direction for alternative sorting. This is ignored unless \"column\" query parameter is passed as well. This requires the list to be designed for indexing on this column in the desired direction. Defaults to ascending if column is set.",
+                    "schema": {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "startsWith",
+                    "description": "A character combination to perform a partial match to identify a starting point. The character combination will be applied to the \"column\" and \"direction\" passed in the query string. This cannot be combined with the \"keys\" parameter, i.e. you cannot filter on keys and startwith within that key.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "name": "pivotColumn",
+                    "description": "Name of the column to provide the data for the pivot aggregator",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
+        },
+        "/consents": {
+            "summary": "Operation on all of the consent's that a user have access to",
+            "description": "Operation on all of the consent's that a user have access to",
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ConsentInfo"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Runtime info"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getCurrentUserConsents",
+                "summary": "Get information about the currently-authenticated user's consents,",
+                "description": "JSON element with consent data",
+                "x-keep-version": 1,
+                "x-keep-scope": "ANY"
+            },
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ConsentInfo"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Runtime info"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "deleteCurrentUserConsents",
+                "summary": "Revoke all of consents that a user has access to",
+                "description": "Updates the revoke field of the oauth document.",
+                "x-keep-version": 1,
+                "x-keep-scope": "ANY"
+            }
+        },
+        "/attachmentnames/{unid}": {
+            "summary": "Get an array of file names from a document.",
+            "description": "Get an array of file names from a document.",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "name": "includeProtocolUrl",
+                        "description": "If set to true, the response will change to also return protocol URLs on attachments that has a supported protocol for its extensions.",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "includeAttachmentMetadata",
+                        "description": "Include attachment Metadata on files only (not embedded objects)",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "Attachment names response": {
+                                        "value": {
+                                            "Files": [
+                                                "sample_doc.doc",
+                                                "sample_ppt.ppt",
+                                                "sample_pptx.pptx",
+                                                "sample_xlsm.xlsm",
+                                                "sample_xlsx.xlsx",
+                                                "image.png",
+                                                "sample_docx.docx"
+                                            ]
+                                        }
+                                    },
+                                    "Attachment names response with protocol URLs": {
+                                        "value": {
+                                            "Files": [
+                                                {
+                                                    "filename": "sample_doc.doc",
+                                                    "protocolUrls": [
+                                                        "ms-word:ofv|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_doc.doc",
+                                                        "ms-word:ofe|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_doc.doc"
+                                                    ]
+                                                },
+                                                {
+                                                    "filename": "sample_ppt.ppt",
+                                                    "protocolUrls": [
+                                                        "ms-powerpoint:ofv|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_ppt.ppt",
+                                                        "ms-powerpoint:ofe|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_ppt.ppt"
+                                                    ]
+                                                },
+                                                {
+                                                    "filename": "sample_pptx.pptx",
+                                                    "protocolUrls": [
+                                                        "ms-powerpoint:ofv|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_pptx.pptx",
+                                                        "ms-powerpoint:ofe|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_pptx.pptx"
+                                                    ]
+                                                },
+                                                {
+                                                    "filename": "sample_xlsm.xlsm",
+                                                    "protocolUrls": [
+                                                        "ms-excel:ofv|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_xlsm.xlsm",
+                                                        "ms-excel:ofe|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_xlsm.xlsm"
+                                                    ]
+                                                },
+                                                {
+                                                    "filename": "sample_xlsx.xlsx",
+                                                    "protocolUrls": [
+                                                        "ms-excel:ofv|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_xlsx.xlsx",
+                                                        "ms-excel:ofe|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_xlsx.xlsx"
+                                                    ]
+                                                },
+                                                {
+                                                    "filename": "image.png",
+                                                    "protocolUrls": [
+                                                    ]
+                                                },
+                                                {
+                                                    "filename": "sample_docx.docx",
+                                                    "protocolUrls": [
+                                                        "ms-word:ofv|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_docx.docx",
+                                                        "ms-word:ofe|u|https://frascati.projectkeep.io:8880/api/webdav-v1/attachmentdb/742AE0711F57D27A00258AC2003B298D/sample_docx.docx"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getDocumentAttachmentNames",
+                "summary": "Get all attachment names on a document.",
+                "description": "Retrieves a list of all attachments on a document",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "name": "unid",
+                    "description": "Universal Id of the document to be acted upon",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "name": "dataSource",
+                    "description": "Keep alias for the database to be queried",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "name": "includeEmbedded",
+                    "description": "If set to true will also parse the RichText fields for embedded files and return their path. This path can be used as the attachment name with the GET /attachments/{unid}/{attachmentName} to download the file.",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query",
+                    "required": false
+                }
+            ]
+        },
+        "/consent/{client_id}": {
+            "summary": "Retrieves information about of the currently-authenticated user's consents based from application id/client_id",
+            "description": "Retrieves information about all of the currently-authenticated user's consents based from application id/client_id",
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "parameters": [
+                    {
+                        "name": "client_id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "name": "scope",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsentInfo"
+                                }
+                            }
+                        },
+                        "description": "Runtime info"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getCurrUserConsent",
+                "summary": "Get information about the currently-authenticated user's consents,",
+                "description": "JSON element with consent values,",
+                "x-keep-version": 1,
+                "x-keep-scope": "ANY"
+            }
+        },
+        "/consent/revoke/{unid}": {
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "parameters": [
+                    {
+                        "name": "unid",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsentInfo"
+                                }
+                            }
+                        },
+                        "description": "Runtime info"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "deleteCurrUserConsent",
+                "summary": "Revoke a consent using the oauth's unid",
+                "description": "JSON element with consent values,",
+                "x-keep-version": 1,
+                "x-keep-scope": "ANY"
+            }
+        },
+        "/query/qrp/json": {
+            "summary": "Runs a DQL query against the documents in the database, extracting data with Query Results Processor",
+            "description": "Runs a DQL query against the documents in the database, extracting data with Query Results Processor.\n\nNote: some DQL query options, such as markRead, are ignored during processing.",
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QrpRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "name": "count",
+                        "description": "How many entries shall be returned, default = Integer.MaxInteger",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "examples": {
+                            "CustomApp": {
+                                "value": "demo"
+                            },
+                            "Directory": {
+                                "value": "dominodirectory"
+                            }
+                        },
+                        "name": "dataSource",
+                        "description": "Scope name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Succesful query showing results"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/406NotAcceptable"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    },
+                    "501": {
+                        "$ref": "#/components/responses/501NotImplemented"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "queryQrpJson",
+                "summary": "Send a DQL query and get JSON QRP results back",
+                "description": "Send a DQL query and get JSON QRP results back",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "demo"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
+        },
+        "/profiledocument": {
+            "summary": "Get information for specific profile document",
+            "description": "Get information for specific profile document",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DominoDocument"
+                                },
+                                "examples": {
+                                    "Document": {
+                                        "value": {
+                                            "value": "' \"{ \"@meta\": { \"noteid\": 2426, \"unid\": \"8654BEBA03791DF0002589D00057C28C\", \"created\": \"2023-06-16T15:58:34.36Z\", \"lastmodified\": \"2023-06-16T15:58:34.36Z\", \"lastaccessed\": \"2023-06-16T15:58:34.36Z\", \"lastmodifiedinfile\": \"2023-06-16T15:58:34.37Z\", \"addedtofile\": \"2023-06-16T15:58:34.36Z\", \"noteclass\": [ \"DATA\", \"DOCUMENT\" ], \"unread\": false, \"editable\": true, \"revision\": \"000000010057C28C002589D0\" }, \"$Name\": \"$profile_009customers_cn=Keep User/o=KeepOrg\", \"$UpdatedBy\": [ \"CN=Keep User/O=KeepOrg\" ], \"$NoPurge\": \" \", \"$ConflictAction\": \"2\" }\"\n'"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful retrieval"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/406NotAcceptable"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getProfileDocument",
+                "summary": "Retrieve a profile document using the appropriate profileName",
+                "description": "The profile document is created upon first access using the specified profileName. Upon retrieval of the profile document using the same profileName, it will return the existing profile Document. When 'user' parameter is true, it will retrieve the current logged in user associated with the profile document, defaults to false.",
+                "x-keep-version": 1
+            },
+            "post": {
+                "requestBody": {
+                    "description": "Document including a form attribute",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentSimpleRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+
+                            }
+                        },
+                        "description": "Succesful creation / update of profile document"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "createUpdateProfileDocument",
+                "summary": "Create or update a profiledocument.",
+                "description": "Requires Author access for user documents and editor access for general profiles",
+                "x-keep-version": 1
+            },
+            "delete": {
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusMessage"
+                                }
+                            }
+                        },
+                        "description": "Succesful deletion"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "deleteProfileDocument",
+                "summary": "Delete a profiledocument.",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "customcontacts"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "nameExample": {
+                            "value": "tmpprofile"
+                        }
+                    },
+                    "name": "profileName",
+                    "description": "The name of the profile document",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "key": {
+                            "value": "anotherKey"
+                        }
+                    },
+                    "name": "key",
+                    "description": "Profile document key.  \nLeave blank if setting the user parameter to true.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "examples": {
+                        "example": {
+                            "value": "true"
+                        }
+                    },
+                    "name": "user",
+                    "description": "Override key with the current user name.  ",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query",
+                    "required": false
+                }
+            ]
+        },
+        "/richtextprocessors": {
+            "summary": "Operations for richtext processors.",
+            "description": "Operations to use regarding richtext processors.",
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RichtextProcessorList"
+                                },
+                                "examples": {
+                                    "Default available richtext processors": {
+                                        "value": {
+                                            "processors": [
+                                                "plain",
+                                                "mime",
+                                                "markdown",
+                                                "html"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "The list of available richtext processors."
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getRichtextProcessors",
+                "summary": "Retrieve the list of available richtext processors.",
+                "description": "Returns a list of richtext processors a user can use. Each entry can be set to richtextAs query parameter.",
+                "x-keep-version": 1
+            }
+        },
+        "/apps": {
+            "summary": "Short list of OAuth applications",
+            "description": "Only Application Name/client_name, description, icon/logo_uri, Application URL/client_uri to be shown to be able to render the Domino REST API landing page",
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AppInfo"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "List of active apps"
+                    }
+                },
+                "security": [
+                    {
+
+                    }
+                ],
+                "operationId": "fetchApps",
+                "summary": "Get the list of configured OAuth applications",
+                "description": "Return Application Name/client_name, Description, Icon/logo_URI, Application URL/client_uri of active OAuth applications",
+                "x-keep-version": 1
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OAuthApplicationCallbackRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "admin"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuthApplicationCallbackResponse"
+                                }
+                            }
+                        },
+                        "description": "Successful update"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "updateCallbackUrl",
+                "summary": "Updates an incomplete OAuth application CallbackURL",
+                "description": "For automation with foundry. Will only work on new applications that have no path set in callback url yet",
+                "x-keep-version": 1
+            }
+        },
+        "/profiledocumentlist": {
+            "summary": "Get information for specific profile document",
+            "description": "Get a list of Profile Documents",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProfileDocumentList"
+                                },
+                                "examples": {
+                                    "DocumentListExample": {
+                                        "value": {
+                                            "profiledocuments": [
+                                                {
+                                                    "profileName": "sample-profile-1",
+                                                    "unid": "6658FEFE249AEF2B00258B410043A454",
+                                                    "key": "sample-key",
+                                                    "form": "Profile"
+                                                },
+                                                {
+                                                    "profileName": "sample-profile-2",
+                                                    "unid": "5658GEGE249AEG2B00258B410043A455",
+                                                    "key": "",
+                                                    "form": ""
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful retrieval"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/406NotAcceptable"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getProfileDocumentList",
+                "summary": "Retrieve a list of profile documents.",
+                "description": "Retrieve a list of profile documents.\nLeaving off name and/or key returns all profile documents. \n",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "customcontacts"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "nameExample": {
+                            "value": "tmpprofile"
+                        }
+                    },
+                    "name": "profileName",
+                    "description": "The name of the profile document",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "examples": {
+                        "key": {
+                            "value": "anotherKey"
+                        }
+                    },
+                    "name": "key",
+                    "description": "Profile document key.  \nLeave blank if setting the user parameter to true.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "examples": {
+                        "example": {
+                            "value": "true"
+                        }
+                    },
+                    "name": "user",
+                    "description": "Override key with the current user name.  ",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query",
+                    "required": false
+                }
+            ]
+        },
+        "/richtext/{richTextAs}/{unid}": {
+            "summary": "Return a stream of plain unformatted text from a Rich Text field.",
+            "description": "Return RichText in the format specified",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "name": "item",
+                        "description": "Name of the RichText item to retrieve. When omitted \"Body\" is used as item name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "text/markdown": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "multipart/form-data": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "description": "Return a stream ofdata from a Rich Text field."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404NotFound"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getRichText",
+                "summary": "Return a stream of data from a Rich Text field.",
+                "description": "Return RichText in the format specified. Build in formats are plain,mime,html,markdown",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "customcontacts"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "sample": {
+                            "value": "94CA3B3B5E035D6048258471003639C6"
+                        }
+                    },
+                    "name": "unid",
+                    "description": "Universal Id of the document to be acted upon",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "defaultValue": {
+                            "value": "default"
+                        },
+                        "ForApprover": {
+                            "value": "approver"
+                        }
+                    },
+                    "name": "mode",
+                    "description": "mode to perform the document access in. Defaults to 'default' if missing. All lowercase, no spaces, letters and numbers only",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query"
+                },
+                {
+                    "examples": {
+                        "plain text": {
+                            "value": "plain"
+                        },
+                        "HTML": {
+                            "value": "html"
+                        },
+                        "MIME": {
+                            "value": "mime"
+                        },
+                        "Markdown": {
+                            "value": "markdown"
+                        }
+                    },
+                    "name": "richTextAs",
+                    "description": "Format to return data as. Build in methods are: plain,mime,html,markdown",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
                 }
             ]
         }
@@ -8334,6 +9374,14 @@
                     },
                     "productionBuild": {
                         "type": "boolean"
+                    },
+                    "platform": {
+                        "description": "Platform Domino is running on",
+                        "type": "string"
+                    },
+                    "platformbits": {
+                        "description": "The bit level of the platform",
+                        "type": "string"
                     }
                 },
                 "example": {
@@ -8495,25 +9543,33 @@
             "AgentWithContextMessage": {
                 "title": "Root Type for AgentWithContextMessage",
                 "description": "Runs an existing agent in a given database using a specific document as the agent's run context. The is the status message of the response.",
+                "required": [
+                    "unids"
+                ],
                 "type": "object",
                 "properties": {
                     "agentName": {
                         "description": "The agentName in the given database. ",
                         "type": "string"
                     },
-                    "unid": {
-                        "description": "The UNID of a document to passing by. NotesSession.documentContext can be used in the agent to access the relevant document. ",
-                        "type": "string"
-                    },
                     "returnMode": {
                         "description": "The mode configured in Domino REST API. ",
                         "type": "string"
+                    },
+                    "unids": {
+                        "description": "An array of UNIDs, each unid will be executed by the agent. NOTE : NotesSession.documentContext must be used in the agent to access the relevant document. ",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "additionalProperties": false,
                 "example": {
                     "agentName": "processJson",
-                    "unid": "36EBDFD11D4381F280258600003ED607",
+                    "unids": [
+                        "36EBDFD11D4381F280258600003ED607"
+                    ],
                     "returnMode": "default"
                 }
             },
@@ -8791,6 +9847,17 @@
                     },
                     "returnUpdatedDocument": {
                         "description": "Should contain updated document in the response",
+                        "type": "boolean"
+                    },
+                    "forms": {
+                        "description": "List of forms DQL should be run against",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "includeFormAlias": {
+                        "description": "When specifying a list of Forms using the forms array, also include documents with those forms aliases.",
                         "type": "boolean"
                     }
                 },
@@ -9272,12 +10339,7 @@
             },
             "RichTextRepresentation": {
                 "title": "Root Type for RichTextRepresentation",
-                "description": "Format of RichText ",
-                "enum": [
-                    "html",
-                    "mime",
-                    "markdown"
-                ],
+                "description": "Format of RichText. Can be extended. Richtext processors namely html, markdown, mime and plain are available by default. If left blank, mime is default.",
                 "type": "string"
             },
             "AgentAsyncMessage": {
@@ -9695,6 +10757,246 @@
                     "filename": "1.txt"
                 }
             },
+            "DocumentExistencePayload": {
+                "title": "Root Type for DocumentExistencePayload",
+                "description": "An object keyed by UNID and containing existence/etag status",
+                "type": "object",
+                "example": {
+                    "12345": {
+                        "exists": true,
+                        "etag": "67890"
+                    }
+                }
+            },
+            "BulkFolderDocuments": {
+                "title": "Root Type for BulkUnids",
+                "description": "Collection of UNIDs for bulk folder operations",
+                "required": [
+                    "folderName",
+                    "action"
+                ],
+                "type": "object",
+                "properties": {
+                    "unids": {
+                        "description": "List of UNIDs to act upon",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UnidWritable"
+                        }
+                    },
+                    "mode": {
+                        "description": "mode to use to act on the documents. defaults to default",
+                        "type": "string"
+                    },
+                    "folderName": {
+                        "description": "Name of the folder to add/remove documents to/from",
+                        "type": "string"
+                    },
+                    "action": {
+                        "description": "Folder add/remove action",
+                        "enum": [
+                            "add",
+                            "remove"
+                        ],
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false,
+                "example": {
+                    "unids": [
+                        "1234567890ABCDEF1234567890ABCDEF",
+                        "2234567890ABCDEF1234567890ABCDEA",
+                        "ABCDEF1234567890ABCDEF1234567890"
+                    ],
+                    "mode": "default",
+                    "folderName": "Inbox",
+                    "action": "add"
+                }
+            },
+            "PreviewInfo": {
+                "title": "Root Type for PreviewInfo",
+                "description": "Information which APIs are considered \"Priview\", so customers need to use them with care, mostly for testing",
+                "type": "object",
+                "properties": {
+                    "api": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "method": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "operation": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "api": "basis",
+                    "active": true,
+                    "path": "/raw",
+                    "method": "post",
+                    "description": "Create a new document for a specified form.",
+                    "summary": "Create a new document for a specified form without data conversion",
+                    "operation": "createDocumentRaw"
+                }
+            },
+            "QrpRequest": {
+                "description": "Request body to execute a Query Results Processor operation",
+                "required": [
+                    "dql",
+                    "columns"
+                ],
+                "type": "object",
+                "properties": {
+                    "dql": {
+                        "$ref": "#/components/schemas/QueryRequest",
+                        "description": "DQL query information"
+                    },
+                    "columns": {
+                        "description": "Columns to extract from the queried documents",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QrpColumn"
+                        }
+                    },
+                    "returnUnid": {
+                        "description": "Return the document UNID in results instead of the note ID",
+                        "type": "boolean"
+                    },
+                    "returnReplicaId": {
+                        "description": "Return the replica ID in results instead of the DB file path",
+                        "type": "boolean"
+                    }
+                }
+            },
+            "QrpColumn": {
+                "title": "Root Type for QrpColumn",
+                "description": "Column added in a QRP request",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "sort": {
+                        "type": "string"
+                    },
+                    "categorized": {
+                        "type": "boolean"
+                    }
+                },
+                "example": {
+                    "name": "FirstName",
+                    "sort": "ascending",
+                    "categorized": true
+                }
+            },
+            "RichtextProcessorList": {
+                "title": "Root Type for RichtextProcessorList",
+                "description": "List of available richtext processors to use for richtextAs query parameter.",
+                "type": "object",
+                "properties": {
+                    "processors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "example": {
+                    "processors": [
+                        "plain",
+                        "mime",
+                        "markdown",
+                        "html"
+                    ]
+                }
+            },
+            "DocumentList": {
+                "title": "Root Type for DocumentList",
+                "description": "An array list of documents.",
+                "type": "object",
+                "allOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/DominoDocument"
+                                },
+                                "example": "{\n\t\"value\": [\n\t\t{\n\t\t\t\"profileName\": \"sample-profile-1\",\n\t\t\t\"unid\": \"6658FEFE249AEF2B00258B410043A454\",\n\t\t\t\"key\": \"sample-key\"\n\t\t},\n\t\t{\n\t\t\t\"profileName\": \"sample-profile-2\",\n\t\t\t\"unid\": \"5658GEGE249AEG2B00258B410043A455\",\n\t\t\t\"key\": \"sample-key\"\n\t\t}\n\t]\n}"
+                            }
+                        }
+                    }
+                ],
+                "example": {
+                    "value": [
+                        {
+                            "profileName": "sample-profile-1",
+                            "unid": "6658FEFE249AEF2B00258B410043A454",
+                            "key": "sample-key"
+                        },
+                        {
+                            "profileName": "sample-profile-2",
+                            "unid": "5658GEGE249AEG2B00258B410043A455",
+                            "key": "sample-key"
+                        }
+                    ]
+                }
+            },
+            "ProfileDocumentList": {
+                "title": "Root Type for ProfileDocumentList",
+                "description": "The output for ProfileDocumentList",
+                "type": "object",
+                "properties": {
+                    "profiledocuments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "profileName": {
+                                    "type": "string"
+                                },
+                                "unid": {
+                                    "type": "string"
+                                },
+                                "key": {
+                                    "type": "string"
+                                },
+                                "form": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "example": {
+                    "profiledocuments": [
+                        {
+                            "profileName": "my profile6",
+                            "unid": "9F3AA571B42E380385258B4200452EB6",
+                            "key": "my key3",
+                            "form": "CustomerProfile"
+                        },
+                        {
+                            "profileName": "my profile4",
+                            "unid": "9424608A339E737385258B4200452EB0",
+                            "key": "",
+                            "form": "Profile"
+                        }
+                    ]
+                }
+            },
             "ViewInfo": {
                 "title": "Root Type for ViewInfo",
                 "description": "",
@@ -9714,6 +11016,35 @@
                     "unid": {
                         "description": "Primary key to find the view",
                         "type": "string"
+                    },
+                    "selectionFormula": {
+                        "description": "The formula to select documents for a view.",
+                        "type": "string"
+                    },
+                    "columns": {
+                        "description": "List of columns in the view",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Title of the column.",
+                                    "type": "string"
+                                },
+                                "formula": {
+                                    "description": "Formula of the column.",
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "description": "Name of the column.",
+                                    "type": "string"
+                                },
+                                "externalName": {
+                                    "description": "Another name for the column, if this is present, this will be what the column will be known as.",
+                                    "type": "string"
+                                }
+                            }
+                        }
                     }
                 },
                 "example": {
@@ -9722,7 +11053,25 @@
                         "Kunden",
                         "ग्राहकों"
                     ],
-                    "unid": "ABCD12345"
+                    "unid": "ABCD12345",
+                    "selectionFormula": "SELECT (Form = \"Customer\")",
+                    "columns": [
+                        {
+                            "title": "CustomerID",
+                            "formula": "@DocNumber",
+                            "name": "$1"
+                        },
+                        {
+                            "title": "FirstName",
+                            "formula": "",
+                            "name": "first_name"
+                        },
+                        {
+                            "title": "LastName",
+                            "formula": "",
+                            "name": "last_name"
+                        }
+                    ]
                 }
             },
             "OAuthApplicationSecretRequest": {
@@ -9734,7 +11083,7 @@
                 "type": "object",
                 "properties": {
                     "status": {
-                        "description": "Whether the application is active or disabled. ",
+                        "description": "Whether the application is active or disabled.",
                         "enum": [
                             "isActive",
                             "disabled"
@@ -10877,6 +12226,13 @@
                     "prohibitRefresh": {
                         "description": "indicates if the schema is protected against refresh by the design tast",
                         "type": "boolean"
+                    },
+                    "@warnings": {
+                        "description": "List of design elements that are not in the database.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "example": {
@@ -12482,11 +13838,13 @@
                 "properties": {
                     "scopeName": {
                         "description": "Name that is used in ?datSsource= parameter to access configured resource",
-                        "type": "string"
+                        "type": "string",
+                        "example": "\"demo\""
                     },
                     "nsfPath": {
                         "description": "path relative to Domino data directory to nsf database",
-                        "type": "string"
+                        "type": "string",
+                        "example": "\"storeops/sales.nsf\""
                     },
                     "schemaName": {
                         "description": "name (without .json extension) of schema file in nsf REST file resources. Default value is \"default\"",
@@ -12494,7 +13852,8 @@
                     },
                     "create": {
                         "description": "If nsf file not exist, create one empty database or not.",
-                        "type": "boolean"
+                        "type": "boolean",
+                        "example": "true"
                     },
                     "description": {
                         "description": "Description to the configured scope",
@@ -12520,6 +13879,19 @@
                             "Manager"
                         ],
                         "type": "string"
+                    },
+                    "additionalModes": {
+                        "description": "y default quick config creates default modes only. afor some clients additional modes like \"dql\", \"odata\" or some custom mode are required and can be specified here",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": "[\"dql\", \"odata\"]"
+                    },
+                    "allowDeletion": {
+                        "description": "if set to true, thw DeleteAccess in the Schema will be set to true",
+                        "type": "boolean",
+                        "example": "true"
                     }
                 }
             },
@@ -13051,6 +14423,121 @@
                     "mailServer": "CN=frascati.projectkeep.io/O=ProjectKeep",
                     "mailFile": "mail/dnotes.nsf",
                     "scope": "MAIL $DATA $DECRYPT"
+                }
+            },
+            "ConsentInfo": {
+                "title": "Root Type for ConsentInfo",
+                "description": "Provies information about the users consent values",
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    },
+                    "scope": {
+                        "type": "string"
+                    },
+                    "client_id": {
+                        "type": "string"
+                    },
+                    "redirect_uri": {
+                        "type": "string"
+                    },
+                    "code_expires_at": {
+                        "type": "string"
+                    },
+                    "refresh_token_expires_at": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "username": "CN=Jane Doe/O=SomeOrg",
+                    "scope": "CN=Jane Doe/O=SomeOrg",
+                    "client_id": "7e06d6-ed62-0f5c1c",
+                    "redirect_uri": "http://localhost:8880",
+                    "code_expires_at": "somedatetimevalue",
+                    "refresh_token_expires_at": "somedatetimevalue"
+                }
+            },
+            "OAuthApplicationCallbackRequest": {
+                "title": "Root Type for OAuthApplicationRequest",
+                "description": "Meta data to register an application for OAuth IdP",
+                "required": [
+                    "redirect_uri",
+                    "client_id",
+                    "client_secret"
+                ],
+                "type": "object",
+                "properties": {
+                    "redirect_uri": {
+                        "description": "Callback URL Must use https with the exception of http://localhost/some_url, Must match existing host & protocol",
+                        "type": "string"
+                    },
+                    "client_secret": {
+                        "description": "Existing client secret",
+                        "type": "string"
+                    },
+                    "client_id": {
+                        "description": "Application ID",
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false,
+                "example": {
+                    "client_id": "89ffb32c-0e10-11ef-8cf2-0210c0ae4e47",
+                    "client_secret": "9d71f0aa-0e10-11ef-b374-0210c0ae8f88",
+                    "redirect_uri": "https://foundry.projectcastle.io/app/66556fed55"
+                }
+            },
+            "OAuthApplicationCallbackResponse": {
+                "title": "Root Type for OAuthApplicationResponse",
+                "description": "Response for registering an application for OAuth IdP",
+                "required": [
+                    "client_id",
+                    "client_uri",
+                    "redirect_uris",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "client_id": {
+                        "description": "System generated client Id. Used for auth request and as user name for Token requests",
+                        "type": "string"
+                    },
+                    "redirect_uris": {
+                        "description": "List of callback URLs after consent is given. Must use https with the exception of http://localhost/some_url",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "client_uri": {
+                        "description": "Start page of application. Can be used to create list of apps",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Is this application active",
+                        "enum": [
+                            "isActive",
+                            "disabled"
+                        ],
+                        "type": "string"
+                    },
+                    "hasSecret": {
+                        "description": "Flag to indicate if an application has a secret configured",
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false,
+                "example": {
+                    "client_id": "429022-562b-641620",
+                    "hasSecret": true,
+                    "client_uri": "https://www.projectcastle.io/coolapp",
+                    "redirect_uris": [
+                        "http://domino.projectcastle.io/identity",
+                        "http://localhost/callback",
+                        "http://www.projectcastle.io/oauth"
+                    ],
+                    "status": "isActive"
                 }
             }
         },

@@ -43,9 +43,6 @@ export type DominoApiMeta = {
  */
 export class DominoServer implements DominoRestServer {
   baseUrl: string;
-  /**
-   * Maps APIs loaded from Domino REST API server's /api endpoint.
-   */
   apiMap: Map<string, DominoApiMeta> = new Map();
   /**
    * Maps APIs to its own DominoConnector.
