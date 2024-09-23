@@ -6,6 +6,8 @@ Domino REST API Node.js SDK is a library that can help Node.js developers to bui
 
 [![npm](https://nodei.co/npm/@hcl-software/domino-rest-sdk-node.png)](https://www.npmjs.com/package/@hcl-software/domino-rest-sdk-node)
 
+> **Note:** As of v0.2.1, Domino REST API Node.js SDK is ESM-only.
+
 ## 📔 Documentation
 
 - [Domino REST API documentation](https://opensource.hcltechsw.com/Domino-rest-api/index.html)
