@@ -1,14 +1,12 @@
-/* Configuration for running tests */
 {
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
-    "target": "ES2022",
+    "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "declarationDir": "./out",
-    "outDir": "./out",
-    "resolveJsonModule": true,
     "declaration": true,
+    "outDir": "./dist",
+    "resolveJsonModule": true,
     "declarationMap": true,
     "sourceMap": true,
     "removeComments": false,
@@ -20,9 +18,9 @@
     "alwaysStrict": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
   },
-  "include": ["src/**/*ts", "src/**/*.json"],
+  "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": ["node_modules", "**/*spec.ts"],
   "ts-node": {
     "files": true

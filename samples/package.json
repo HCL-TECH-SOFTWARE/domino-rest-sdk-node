@@ -3,14 +3,15 @@
   "version": "0.0.2",
   "description": "Samples on how to use the Domino REST API Node SDK.",
   "main": "index.js",
+  "type": "module",
   "engines": {
-    "node": ">18.0.0"
+    "node": ">20.0.0"
   },
   "scripts": {
     "test": "echo \"These are samples, no tests.\" && exit 1"
   },
   "dependencies": {
-    "@hcl-software/domino-rest-sdk-node": "../dist/cjs"
+    "@hcl-software/domino-rest-sdk-node": "../dist"
   },
   "keywords": [
     "domino",
