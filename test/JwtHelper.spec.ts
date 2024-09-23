@@ -4,14 +4,12 @@
  * ========================================================================== */
 
 import { expect } from 'chai';
-import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
 import { TokenDecodeError } from '../src/index.js';
-import { getExpiry, getOauthSampleJWT, getSampleJWT, isJwtExpired } from '../src/JwtHelper.js';
+import { getExpiry, isJwtExpired } from '../src/JwtHelper.js';
 
 describe('JwtHelper', () => {
-  const template = JSON.parse(fs.readFileSync('./src/resources/jwtTemplate.json', 'utf-8'));
   let decodeStub: sinon.SinonStub<[token: string, options?: jwt.DecodeOptions | undefined], string | jwt.JwtPayload | null>;
   let fakeClock: sinon.SinonFakeTimers;
 
@@ -22,43 +20,6 @@ describe('JwtHelper', () => {
     if (fakeClock !== undefined) {
       fakeClock.restore();
     }
-  });
-
-  describe('getSampleJWT', () => {
-    it('should be able to generate local JWT', () => {
-      const name = 'John Doe';
-      const expected = {
-        sub: name,
-        CN: name,
-        ...template,
-      };
-      const actual = getSampleJWT(name);
-
-      expect(actual).to.have.property('bearer');
-      expect(actual.sub).to.equal(expected.sub);
-      expect(actual.CN).to.equal(expected.CN);
-      expect(actual).to.have.property('iss');
-      expect(actual).to.have.property('scope');
-      expect(actual).to.have.property('aud');
-      expect(actual).to.have.property('expSeconds');
-      expect(actual).to.have.property('iat');
-      expect(actual).to.have.property('exp');
-    });
-  });
-
-  describe('getOauthSampleJWT', () => {
-    it('should be able to generate local JWT in OAuth response format', () => {
-      const name = 'John Doe';
-      const expected = {
-        token_type: 'bearer',
-        expires_in: 3000,
-      };
-      const actual = getOauthSampleJWT(name);
-
-      expect(actual.token_type).to.equal(expected.token_type);
-      expect(actual.expires_in).to.equal(expected.expires_in);
-      expect(actual).to.have.property('access_token');
-    });
   });
 
   describe('getExpiry', () => {
