@@ -47,20 +47,12 @@ npm install @hcl-software/domino-rest-sdk-node
 You can import the whole SDK via:
 
 ```javascript
-// Using Node.js `require()`
-const drapiSdk = require('@hcl-software/domino-rest-sdk-node');
-
-// Using ES6 imports
-import drapiSdk from '@hcl-software/domino-rest-sdk-node';
+import * as drapiSdk from '@hcl-software/domino-rest-sdk-node';
 ```
 
 Or, you can import only the modules that you need, like:
 
 ```javascript
-// Using Node.js `require()`
-const { DominoAccess } = require('@hcl-software/domino-rest-sdk-node');
-
-// Using ES6 imports
 import { DominoAccess } from '@hcl-software/domino-rest-sdk-node';
 ```
 
