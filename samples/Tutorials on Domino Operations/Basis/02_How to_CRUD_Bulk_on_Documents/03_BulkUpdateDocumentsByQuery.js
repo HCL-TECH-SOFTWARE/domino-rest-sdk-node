@@ -5,8 +5,8 @@
 
 /* Updating bulk documents by query example. */
 
-const { default: DominoDocument } = require('@hcl-software/domino-rest-sdk-node/DominoDocument');
-const { getDominoBasisSession } = require('../../../_DominoSession');
+import { DominoDocument } from "@hcl-software/domino-rest-sdk-node/DominoDocument.js";
+import { getDominoBasisSession } from "../../../_DominoSession.js";
 
 const start = async () => {
   const request = {

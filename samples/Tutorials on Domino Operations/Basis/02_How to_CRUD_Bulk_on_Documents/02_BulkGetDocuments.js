@@ -5,8 +5,8 @@
 
 /* Getting bulk documents example. */
 
-const { default: DominoDocument } = require('@hcl-software/domino-rest-sdk-node/DominoDocument');
-const { getDominoBasisSession } = require('../../../_DominoSession');
+import { DominoDocument } from "@hcl-software/domino-rest-sdk-node/DominoDocument.js";
+import { getDominoBasisSession } from "../../../_DominoSession.js";
 
 const start = async () => {
   const unids = ['3431740DA895807B00258A3E004C1755', 'E1B85FB45E5F110F00258A0D006018A4', '7687D8449289E55F00258A3E0050EB3E'];

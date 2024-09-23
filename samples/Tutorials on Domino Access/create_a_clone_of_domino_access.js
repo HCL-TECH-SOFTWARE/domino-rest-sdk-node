@@ -6,8 +6,8 @@
 /* Create a clone of a Domino access. This is useful when you want to change the
  * scope, but with the same credentials. */
 
-const { DominoAccess } = require('@hcl-software/domino-rest-sdk-node');
-const { getCredentials } = require('../resources/credentials');
+import { DominoAccess } from('@hcl-software/domino-rest-sdk-node');
+import { getCredentials } from "../resources/credentials.js";
 
 const dominoAccess = new DominoAccess(getCredentials());
 const newDominoAccess = dominoAccess.clone('my_new_scope');

@@ -5,7 +5,7 @@
 
 /* Deleting a scope example */
 
-const { getDominoSetupSession } = require('../../../_DominoSession');
+import { getDominoSetupSession } from "../../../_DominoSession.js";
 
 const start = async () => {
   const scopeData = {

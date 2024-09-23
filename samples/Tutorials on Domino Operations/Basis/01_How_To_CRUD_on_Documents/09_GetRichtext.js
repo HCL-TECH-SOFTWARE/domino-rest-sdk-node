@@ -5,7 +5,7 @@
 
 /* Getting a richtext field from a document example. */
 
-const { getDominoBasisSession } = require('../../../_DominoSession');
+import { getDominoBasisSession } from "../../../_DominoSession.js";
 
 const start = async () => {
   // you have the option to use the options variable which contains all of the

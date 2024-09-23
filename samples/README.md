@@ -36,7 +36,7 @@ First is creating a a `credentials.json` in root with the following format:
 
 #### 📄 Using .env
 
-Another method is to use .env, which VS code reads if you run a sample using the VS Code built in **Run and debug**.
+Another method is to use .env, which VS code can read if you run a sample using the VS Code built in **Run and debug**.
 
 ```env
 BASE_URL={{Rest API or other Idp's URL}}
@@ -44,6 +44,14 @@ USERNAME={{Username}}
 PASSWORD={{Password}}
 SCOPE=$DATA,$SETUP
 TYPE=basic
+```
+
+You need to setup `envFile` configuration in VS Code's `launch.json` and point it to your `.env` file.
+
+```json
+{
+  "envFile": "${workspaceFolder}/.env"
+}
 ```
 
 ### 🔴 Running an example

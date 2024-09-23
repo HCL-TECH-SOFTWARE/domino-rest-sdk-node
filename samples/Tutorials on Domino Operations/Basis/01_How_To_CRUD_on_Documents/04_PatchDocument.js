@@ -5,7 +5,7 @@
 
 /* Patching a document example. */
 
-const { getDominoBasisSession } = require('../../../_DominoSession');
+import { getDominoBasisSession } from "../../../_DominoSession.js";
 
 const start = async () => {
   const formData = {

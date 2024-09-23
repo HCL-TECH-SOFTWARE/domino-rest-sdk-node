@@ -7,15 +7,15 @@
  * for other JavaScript files to use. It uses both Domino access and Domino server
  * exported from _DominoAccess and _DominoServer. */
 
-const { DominoUserSession, DominoBasisSession, DominoSetupSession } = require('@hcl-software/domino-rest-sdk-node');
-const { dominoAccess } = require('./_DominoAccess.js');
-const { getDominoServer } = require('./_DominoServer.js');
+import { DominoBasisSession, DominoSetupSession } from '@hcl-software/domino-rest-sdk-node';
+import { dominoAccess } from './_DominoAccess.js';
+import { getDominoServer } from './_DominoServer.js';
 
 /**
  * Get a Domino basis session.
  * @returns {Promise<DominoBasisSession>}
  */
-exports.getDominoBasisSession = async () => {
+export const getDominoBasisSession = async () => {
   const dominoServer = await getDominoServer();
   return await DominoBasisSession.getBasisSession(dominoAccess, dominoServer);
 };
@@ -24,7 +24,7 @@ exports.getDominoBasisSession = async () => {
  * Get a Domino setup session.
  * @returns {Promise<DominoSetupSession>}
  */
-exports.getDominoSetupSession = async () => {
+export const getDominoSetupSession = async () => {
   const dominoServer = await getDominoServer();
   return await DominoSetupSession.getSetupSession(dominoAccess, dominoServer);
 };

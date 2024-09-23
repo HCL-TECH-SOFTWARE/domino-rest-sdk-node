@@ -13,8 +13,8 @@
  * we will be calling the request method directly to show how to perform
  * an operation from scratch. */
 
-const { DominoAccess, DominoServer, DominoUserSession, streamToJson } = require('@hcl-software/domino-rest-sdk-node');
-const { getCredentials } = require('../resources/credentials');
+import { DominoAccess, DominoServer, DominoUserSession, streamToJson } from "@hcl-software/domino-rest-sdk-node";
+import { getCredentials } from "../resources/credentials.js";
 
 const start = async () => {
   const dominoAccess = new DominoAccess(getCredentials());

@@ -5,8 +5,8 @@
 
 /* Getting documents by query. */
 
-const { QueryActions } = require('@hcl-software/domino-rest-sdk-node');
-const { getDominoBasisSession } = require('../../../_DominoSession');
+import { QueryActions } from "@hcl-software/domino-rest-sdk-node";
+import { getDominoBasisSession } from "../../../_DominoSession.js";
 
 const start = async () => {
   const request = {

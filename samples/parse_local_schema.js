@@ -5,7 +5,7 @@
 
 /* Parses a local OpenAPI schema file. */
 
-const schema = require('./resources/openapi.basis.json');
+import schema from './resources/openapi.basis.json' assert { type: 'json' };
 
 const paths = schema.paths;
 const operations = new Map();
