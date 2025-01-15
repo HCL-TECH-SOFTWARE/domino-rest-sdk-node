@@ -2,9 +2,10 @@
  * Copyright (C) 2023 HCL America Inc.                                        *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
-const credentialsJson = require('../../credentials.json');
 
-exports.getCredentials = () => {
+import credentialsJson from '../../credentials.json' assert { type: 'json' };
+
+export const getCredentials = () => {
   let credentialsToUse;
   if (process.env.BASE_URL && process.env.USERNAME && process.env.PASSWORD) {
     credentialsToUse = {

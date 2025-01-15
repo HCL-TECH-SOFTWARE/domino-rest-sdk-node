@@ -9,8 +9,8 @@
  * TextDecoderStream -> drapiSdk.streamSplit -> drapiSdk.streamTransformToJson
  * -> subscriber */
 
-const { DominoAccess, DominoServer, DominoUserSession } = require('@hcl-software/domino-rest-sdk-node');
-const { getCredentials } = require('../resources/credentials');
+import { DominoAccess, DominoServer, DominoUserSession } from "@hcl-software/domino-rest-sdk-node";
+import { getCredentials } from "../resources/credentials.js";
 
 /**
  * Our subscriber method. It logs each entries from view prettily. This gets each

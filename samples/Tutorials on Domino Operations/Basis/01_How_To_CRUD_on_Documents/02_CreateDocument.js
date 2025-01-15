@@ -5,7 +5,7 @@
 
 /* Creating a document example. */
 
-const { getDominoBasisSession } = require('../../../_DominoSession');
+import { getDominoBasisSession } from "../../../_DominoSession.js";
 
 const start = async () => {
   // We declare the form data we want to save.

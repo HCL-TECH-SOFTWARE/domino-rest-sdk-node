@@ -6,8 +6,8 @@
 /* Getting list view entries and manually handling the response datastream.
  * This is manually doing what DominoUserSession.requestJsonStream can do. */
 
-const drapiSdk = require('@hcl-software/domino-rest-sdk-node');
-const { getCredentials } = require('../../../resources/credentials');
+import * as drapiSdk from "@hcl-software/domino-rest-sdk-node";
+import { getCredentials } from "../../../resources/credentials.js";
 
 /**
  * Our subscriber method. It logs each entries from view prettily. This gets each

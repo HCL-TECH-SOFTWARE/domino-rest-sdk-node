@@ -10,8 +10,8 @@
  * This example uses createDocument method, but all other BASIS operations can also
  * apply to this example, as long as the correct parameters are given. */
 
-const { DominoAccess, DominoServer, DominoBasisSession } = require('@hcl-software/domino-rest-sdk-node');
-const { getCredentials } = require('../resources/credentials');
+import { DominoAccess, DominoServer, DominoBasisSession } from "@hcl-software/domino-rest-sdk-node";
+import { getCredentials } from "../resources/credentials.js";
 
 const start = async () => {
   const dominoAccess = new DominoAccess(getCredentials());

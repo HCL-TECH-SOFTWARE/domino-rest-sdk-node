@@ -6,6 +6,8 @@ Domino REST API Node.js SDK is a library that can help Node.js developers to bui
 
 [![npm](https://nodei.co/npm/@hcl-software/domino-rest-sdk-node.png)](https://www.npmjs.com/package/@hcl-software/domino-rest-sdk-node)
 
+> **Note:** As of v0.2.1, Domino REST API Node.js SDK is ESM-only.
+
 ## 📔 Documentation
 
 - [Domino REST API documentation](https://opensource.hcltechsw.com/Domino-rest-api/index.html)
@@ -47,20 +49,12 @@ npm install @hcl-software/domino-rest-sdk-node
 You can import the whole SDK via:
 
 ```javascript
-// Using Node.js `require()`
-const drapiSdk = require('@hcl-software/domino-rest-sdk-node');
-
-// Using ES6 imports
-import drapiSdk from '@hcl-software/domino-rest-sdk-node';
+import * as drapiSdk from '@hcl-software/domino-rest-sdk-node';
 ```
 
 Or, you can import only the modules that you need, like:
 
 ```javascript
-// Using Node.js `require()`
-const { DominoAccess } = require('@hcl-software/domino-rest-sdk-node');
-
-// Using ES6 imports
 import { DominoAccess } from '@hcl-software/domino-rest-sdk-node';
 ```
 

@@ -7,7 +7,6 @@ import { expect, use } from 'chai';
 import { chaiAsPromised } from 'chai-promised';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
-import { getOauthSampleJWT, getSampleJWT } from '../src/JwtHelper.js';
 import {
   CallbackError,
   CredentialType,
@@ -21,6 +20,7 @@ import {
   RestCredentials,
   TokenError,
 } from '../src/index.js';
+import { getOauthSampleJWT, getSampleJWT } from './helpers/SampleJwtHelper.spec.js';
 
 use(chaiAsPromised);
 

@@ -5,7 +5,7 @@
 
 /* Getting list view design example */
 
-const { getDominoSetupSession } = require('../../../_DominoSession');
+import { getDominoSetupSession } from "../../../_DominoSession.js";
 
 const start = async () => {
   const dss = await getDominoSetupSession();
