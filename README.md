@@ -2,7 +2,7 @@
 
 Domino REST API Node.js SDK is a library that can help Node.js developers to build applications that uses Domino REST API. Domino REST API Node.js SDK also supports TypeScript.
 
-(C) 2023 HCL America Inc. Apache-2.0 license [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+(C) 2025 HCL America Inc. Apache-2.0 license [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 [![npm](https://nodei.co/npm/@hcl-software/domino-rest-sdk-node.png)](https://www.npmjs.com/package/@hcl-software/domino-rest-sdk-node)
 
