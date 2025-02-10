@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -112,12 +112,10 @@ describe('DominoDocumentOperations', async () => {
       expectedParams.set('unid', '28FB14A0F6BB9A3A00258A1D004C6F9C');
       expectedParams.set('computeWithForm', true);
       expectedParams.set('mode', 'mode');
-      expectedParams.set('parentUnid', 'parentUnid');
 
       const options: GetDocumentOptions = {
         computeWithForm: true,
         mode: 'mode',
-        parentUnid: 'parentUnid',
       };
       const response = await DominoDocumentOperations.getDocument(dataSource, fakeToken, dc, '28FB14A0F6BB9A3A00258A1D004C6F9C', options);
       expect(response instanceof DominoDocument).to.be.true;
