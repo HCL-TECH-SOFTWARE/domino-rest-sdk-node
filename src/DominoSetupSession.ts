@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -27,7 +27,7 @@ export class DominoSetupSession implements DominoSetupRestSession {
    * @param dominoServer DominoServer to use
    * @returns DominoSetupSession class
    */
-  static getSetupSession = (dominoAccess: DominoRestAccess, dominoServer: DominoRestServer) =>
+  static readonly getSetupSession = (dominoAccess: DominoRestAccess, dominoServer: DominoRestServer) =>
     new Promise<DominoSetupSession>((resolve, reject) => {
       dominoServer
         .getDominoConnector('setup')

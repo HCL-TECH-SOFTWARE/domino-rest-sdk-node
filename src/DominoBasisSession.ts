@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -25,6 +25,7 @@ import {
   GetListViewEntryOptions,
   GetListViewOptions,
   GetRichtextOptions,
+  PatchDocumentOptions,
   QueryActions,
   UpdateDocumentOptions,
 } from './index.js';
@@ -48,7 +49,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
    * @param dominoServer DominoServer to use
    * @returns DominoBasisSession class
    */
-  static getBasisSession = (dominoAccess: DominoRestAccess, dominoServer: DominoRestServer) =>
+  static readonly getBasisSession = (dominoAccess: DominoRestAccess, dominoServer: DominoRestServer) =>
     new Promise<DominoBasisSession>((resolve, reject) => {
       dominoServer
         .getDominoConnector('basis')
@@ -70,7 +71,7 @@ export class DominoBasisSession implements DominoBasisRestSession {
   updateDocument = (dataSource: string, doc: DominoRestDocument, options?: UpdateDocumentOptions) =>
     DominoDocumentOperations.updateDocument(dataSource, this.dominoAccess, this.dominoConnector, doc, options);
 
-  patchDocument = (dataSource: string, unid: string, docJsonPatch: DocumentBody, options?: UpdateDocumentOptions) =>
+  patchDocument = (dataSource: string, unid: string, docJsonPatch: DocumentBody, options?: PatchDocumentOptions) =>
     DominoDocumentOperations.patchDocument(dataSource, this.dominoAccess, this.dominoConnector, unid, docJsonPatch, options);
 
   deleteDocument = (dataSource: string, doc: DominoRestDocument, mode?: string) =>

@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -92,6 +92,18 @@ export type ListViewEntryOptions = {
    */
   count?: number;
   /**
+   * Key value for the first entry to retrieve. This is treated as a greater-than-or-equal lookup
+   */
+  startKey?: string;
+  /**
+   * Key value to stop traversal when used in combination with startKey. This is treated as a greater-than-or-equal lookup and represents the first value to not return
+   */
+  untilKey?: string;
+  /**
+   * The type of the keys used in startKey and untilKey
+   */
+  keyType?: 'number' | 'text' | 'time'
+  /**
    * Retrieve only unread entries. Cannot be combined with documents=true, documentsOnly=true, or methods to select or query documents
    */
   unreadOnly?: boolean;
@@ -157,6 +169,10 @@ export type GetListViewOptions = {
    * Allows to specify views, folders, all
    */
   type?: string;
+  /**
+   * If present, perform a case insensitive partial text match that retrieves any lists that contains the input as a part of the list title.
+   */
+  filter?: string;
   /**
    * When set to true, column information gets returned. Use with caution, slows down the API
    */
