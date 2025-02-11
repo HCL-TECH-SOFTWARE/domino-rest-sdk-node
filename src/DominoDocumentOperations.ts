@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -185,7 +185,7 @@ export type DocumentOptions = {
 /**
  * Options for get document operation.
  */
-export type GetDocumentOptions = Omit<DocumentOptions, 'revision'>;
+export type GetDocumentOptions = Omit<DocumentOptions, 'revision' | 'parentUnid'>;
 
 /**
  * Options for create document operation.

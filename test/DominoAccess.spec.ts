@@ -1,10 +1,10 @@
 /* ========================================================================== *
- * Copyright (C) 2024 HCL America Inc.                                        *
+ * Copyright (C) 2024, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
 import { expect, use } from 'chai';
-import { chaiAsPromised } from 'chai-promised';
+import chaiAsPromised from 'chai-as-promised';
 import jwt from 'jsonwebtoken';
 import sinon from 'sinon';
 import {
