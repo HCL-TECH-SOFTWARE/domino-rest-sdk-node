@@ -3,7 +3,7 @@
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
-import credentialsJson from '../../credentials.json' assert { type: 'json' };
+import credentialsJson from '../../credentials.json' with { type: 'json' };
 
 export const getCredentials = () => {
   let credentialsToUse;
