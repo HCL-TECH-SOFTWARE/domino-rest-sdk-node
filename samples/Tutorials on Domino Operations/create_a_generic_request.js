@@ -30,6 +30,8 @@ const start = async () => {
   const requestOptions = {
     dataSource: 'customersdb',
     params: new Map(),
+    // mode: 'cors',
+    // Origin: 'http://somewhere.com',
   };
   // getDocumentMetadata needs a UNID parameter so we set it here with the UNID of an
   // existing document that we know.

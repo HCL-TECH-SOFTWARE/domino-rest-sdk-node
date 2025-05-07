@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -34,6 +34,15 @@ export type DominoRequestOptions = {
    * for POST, PUT, PATCH: the request body
    */
   body?: any;
+  /**
+   * Used for `fetch`'s `Request.mode` property.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Request
+   */
+  mode?: 'same-origin' | 'no-cors' | 'cors' | 'navigate';
+  /**
+   * The origin of the request. Used for CORS mode.
+   */
+  Origin?: string;
 };
 
 /**
@@ -146,6 +155,7 @@ export class DominoConnector implements DominoRestConnector {
       const headers: any = {};
       const result: any = {
         method: operation.method,
+        mode: request.mode,
       };
       if (request.body) {
         result.body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body);
@@ -161,6 +171,9 @@ export class DominoConnector implements DominoRestConnector {
       });
       if (operation.mimeType) {
         headers['Content-Type'] = operation.mimeType;
+      }
+      if (request.Origin) {
+        headers.Origin = request.Origin;
       }
 
       dominoAccess

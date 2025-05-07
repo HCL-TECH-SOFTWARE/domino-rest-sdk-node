@@ -11,6 +11,7 @@ import DominoConnector, { DominoRestOperation } from '../src/DominoConnector.js'
 import {
   CredentialType,
   DominoAccess,
+  DominoRequestOptions,
   DominoRestConnector,
   DominoServer,
   HttpResponseError,
@@ -272,6 +273,24 @@ describe('DominoConnector', () => {
       expect(response).to.haveOwnProperty('headers');
       expect(response).to.haveOwnProperty('dataStream');
       expect(response).to.haveOwnProperty('expect');
+    });
+
+    it(`should set fetch mode and Origin if given`, async () => {
+      const options: DominoRequestOptions = {
+        dataSource: 'scope',
+        params: new Map(),
+        mode: 'cors',
+        Origin: 'http://localhost:8880',
+      };
+      const response = await baseConnector.request(fakeToken, 'createDocument', options);
+      expect(response).to.haveOwnProperty('status');
+      expect(response).to.haveOwnProperty('headers');
+      expect(response).to.haveOwnProperty('dataStream');
+      expect(response).to.haveOwnProperty('expect');
+      
+      const params = fetchStub.getCall(0).args[1];
+      expect(params?.mode).to.equal('cors');
+      expect((params?.headers as Record<string, string>).Origin).to.equal('http://localhost:8880');
     });
 
     it('should throw an error when fetch fails', async () => {
