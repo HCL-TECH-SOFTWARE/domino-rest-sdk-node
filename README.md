@@ -39,6 +39,7 @@ npm install @hcl-software/domino-rest-sdk-node
     - `/lists`
     - `/lists/{name}`
     - `/listspivot/{name}`
+    - `/scope`
   - **Setup**:
     - `/design/{designType}/{designName}`
     - `/admin/scope`
