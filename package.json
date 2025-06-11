@@ -1,6 +1,6 @@
 {
   "name": "@hcl-software/domino-rest-sdk-node",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "type": "module",
   "description": "NodeJS library to interact with a HCL Domino compatible REST API",
   "types": "dist/index.d.ts",

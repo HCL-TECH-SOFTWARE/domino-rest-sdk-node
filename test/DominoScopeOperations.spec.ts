@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -174,6 +174,32 @@ describe('DominoScopeOperations', async () => {
       dcRequestStub.rejects(new Error('Execute operation error.'));
 
       await expect(DominoScopeOperations.createUpdateScope(scope, fakeToken, dc)).to.be.rejectedWith('Execute operation error.');
+    });
+  });
+
+  describe('basisGetScope', () => {
+    beforeEach(() => {
+      operationId = 'getScope';
+      dcRequestStub.resolves(transformToRequestResponse(scpResponse));
+    });
+
+    it('should be able to execute operation', async () => {
+      expectedOptions.dataSource = 'demoapi';
+
+      const response = await DominoScopeOperations.basisGetScope('demoapi', fakeToken, dc);
+      expect(response).to.exist;
+      expect(response instanceof DominoScope).to.be.true;
+    });
+
+    it(`should throw an error if 'dataSource' is empty`, async () => {
+      await expect(DominoScopeOperations.basisGetScope('', fakeToken, dc)).to.be.rejectedWith(EmptyParamError);
+    });
+
+    it('should throw an error if execute operation fails', async () => {
+      expectedOptions.dataSource = 'demoapi';
+      dcRequestStub.rejects(new Error('Execute operation error.'));
+
+      await expect(DominoScopeOperations.basisGetScope('demoapi', fakeToken, dc)).to.be.rejectedWith('Execute operation error.');
     });
   });
 

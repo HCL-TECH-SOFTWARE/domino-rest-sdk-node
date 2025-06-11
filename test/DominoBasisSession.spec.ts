@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -9,6 +9,7 @@ import sinon from 'sinon';
 import DominoConnector from '../src/DominoConnector.js';
 import DominoDocument from '../src/DominoDocument.js';
 import DominoListViewOperations from '../src/DominoListViewOperations.js';
+import DominoScopeOperations from '../src/DominoScopeOperations.js';
 import {
   CredentialType,
   DominoAccess,
@@ -414,6 +415,24 @@ describe('DominoBasisSession', async () => {
       it('should get called', async () => {
         additionalParameters = [listViewName, pivotColumn, undefined];
         await dbs.getListViewPivotEntry(dataSource, listViewName, pivotColumn);
+      });
+    });
+  });
+
+  describe('Calls DominoScopeOperations methods', () => {
+    const dataSource = 'myScope';
+
+    beforeEach(() => {
+      baseParameters = [dataSource, fakeToken, dc];
+    });
+
+    describe('getScope', () => {
+      beforeEach(() => {
+        stub = sinon.stub(DominoScopeOperations, 'basisGetScope');
+      });
+
+      it('should get called', async () => {
+        await dbs.getScope(dataSource);
       });
     });
   });

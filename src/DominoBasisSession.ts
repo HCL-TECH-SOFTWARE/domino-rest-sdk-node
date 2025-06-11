@@ -5,6 +5,7 @@
 
 import DominoDocument from './DominoDocument.js';
 import DominoListViewOperations from './DominoListViewOperations.js';
+import DominoScopeOperations from './DominoScopeOperations.js';
 import { DominoRestConnector } from './RestInterfaces.js';
 import {
   BulkGetDocumentsOptions,
@@ -109,6 +110,8 @@ export class DominoBasisSession implements DominoBasisRestSession {
 
   getListViewPivotEntry = (dataSource: string, listViewName: string, pivotColumn: string, options?: GetListPivotViewEntryOptions) =>
     DominoListViewOperations.getListViewPivotEntry(dataSource, this.dominoAccess, this.dominoConnector, listViewName, pivotColumn, options);
+
+  getScope = (dataSource: string) => DominoScopeOperations.basisGetScope(dataSource, this.dominoAccess, this.dominoConnector);
 }
 
 export default DominoBasisSession;
