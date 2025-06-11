@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -81,6 +81,20 @@ export class DominoScopeOperations extends DominoRestOperations {
       };
 
       this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'createUpdateScopeMapping', reqOptions, streamToJson)
+        .then((scope) => resolve(new DominoScope(scope)))
+        .catch((error) => reject(error));
+    });
+
+  static basisGetScope = (dataSource: string, dominoAccess: DominoRestAccess, dominoConnector: DominoRestConnector) =>
+    new Promise<DominoScope>((resolve, reject) => {
+      if (isEmpty(dataSource)) {
+        return reject(new EmptyParamError('dataSource'));
+      }
+
+      const params: Map<string, any> = new Map();
+      const reqOptions: DominoRequestOptions = { dataSource, params };
+
+      this._executeOperation<ScopeBody>(dominoConnector, dominoAccess, 'getScope', reqOptions, streamToJson)
         .then((scope) => resolve(new DominoScope(scope)))
         .catch((error) => reject(error));
     });

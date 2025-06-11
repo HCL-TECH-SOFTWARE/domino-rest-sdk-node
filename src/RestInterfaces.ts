@@ -1,5 +1,5 @@
 /* ========================================================================== *
- * Copyright (C) 2023, 2024 HCL America Inc.                                  *
+ * Copyright (C) 2023, 2025 HCL America Inc.                                  *
  * Apache-2.0 license   https://www.apache.org/licenses/LICENSE-2.0           *
  * ========================================================================== */
 
@@ -520,6 +520,13 @@ export interface DominoBasisRestSession {
    * @throws an error if given scope name is empty.
    */
   getListViews: (dataSource: string, options?: GetListViewOptions) => Promise<GetListViewJSON[]>;
+  /**
+   * Retrieves the scope configuration for the given scope name.
+   *
+   * @param dataSource the scope name
+   * @returns configuration for the specified scope.
+   */
+  getScope: (dataSource: string) => Promise<DominoScope>;
 }
 
 /**
