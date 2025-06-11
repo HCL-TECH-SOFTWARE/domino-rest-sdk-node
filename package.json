@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/HCL-TECH-SOFTWARE/domino-rest-sdk-node#readme",
   "devDependencies": {
-    "@istanbuljs/esm-loader-hook": "^0.2.0",
+    "@istanbuljs/esm-loader-hook": "^0.3.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/chai": "^5.0.1",
     "@types/chai-as-promised": "^8.0.1",
